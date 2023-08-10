@@ -89,7 +89,7 @@ class RequestGenerator
         $this->buildBodyDataMethod($item);
         $this->buildEndpointMethod($item);
 
-        $collection = end($this->collectionQueue);
+        $collection = $this->safeVariableName(end($this->collectionQueue));
         $collectionName = Str::studly($collection ?: $this->fallbackCollectionName);
 
         $file = new PhpFile;
@@ -148,7 +148,7 @@ class RequestGenerator
             if (Str::startsWith($segment, ':')) {
                 $variable = collect($item->request->url->variable)->firstWhere('key', Str::after($segment, ':'));
 
-                $propertyName = Str::camel($variable['key']);
+                $propertyName = $this->safeVariableName($variable['key']);
 
                 $this->getOrCreateCurrentConstructor()
                     ->addComment(
@@ -239,7 +239,11 @@ class RequestGenerator
     protected function safeVariableName($text): string
     {
 
-        $safe = Str::of($text)->remove(["'", "'"])->slug(' ')->camel()->toString();
+        $safe = Str::of($text)
+            ->remove(["'", "'", '.', ','])
+            ->slug(' ')
+            ->camel()
+            ->toString() ?: $this->fallbackName();
 
         dump("$text -> $safe");
 
@@ -257,6 +261,11 @@ class RequestGenerator
         $queryParamNameMapping = [];
 
         foreach ($queryParams as $queryParam) {
+
+            if (! $queryParam) {
+                continue;
+            }
+
             $rawKey = Arr::get($queryParam, 'key');
 
             // TODO: Currently does not handle "array"-like query params  like this:
@@ -331,6 +340,11 @@ class RequestGenerator
             ->replace(' an ', ' ')
             ->replace("'s ", ' ')
             ->replace(':', ' ')
+            ->replace('.', ' ')
+            ->replace(',', ' ')
+            ->replace('(', ' ')
+            ->replace(')', ' ')
+            ->replace('/', ' ')
             ->studly()
             ->toString();
 
@@ -339,8 +353,14 @@ class RequestGenerator
         return $modified;
     }
 
+    protected function fallbackName(): string
+    {
+        return sprintf('UnnamedRequest%s', Str::random(3));
+    }
+
     protected function buildClassDefinition(Item $item): ClassType
     {
+
         $className = $this->endpointNameToClassName($item->name);
 
         // Deal with a potential classname conflict
@@ -348,6 +368,12 @@ class RequestGenerator
             // TODO: Handle this better in the future, should not occur in our use case, but if it does, make it obvious
             $className = sprintf('%sConflict%s', $className, Str::random(3));
         }
+
+        // Edge case
+        if ($className == null || $className == '') {
+            $className = $this->fallbackName();
+        }
+        dump("GEN: $className");
 
         $this->usedClassNames[] = $className;
 

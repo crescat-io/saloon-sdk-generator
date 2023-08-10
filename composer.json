@@ -17,7 +17,8 @@
         "php": "^8.1",
         "laravel-zero/framework": "^10.0.2",
         "nette/php-generator": "^4.0",
-        "nunomaduro/termwind": "^1.15.1"
+        "nunomaduro/termwind": "^1.15.1",
+        "sammyjo20/saloon-laravel": "^2.0"
     },
     "require-dev": {
         "laravel/pint": "^1.8",
@@ -35,10 +36,16 @@
         }
     },
     "scripts": {
-        "build:paddle": "./codegen/codegen generate:postman tests/Samples/paddle.json --o tests/build/paddle",
-        "build:stripe": "./codegen/codegen generate:postman tests/Samples/stripe.json --o tests/build/stripe",
-        "build:tableau": "./codegen/codegen generate:postman tests/Samples/tableau.json --o tests/build/tableau",
-        "build:openai": "./codegen/codegen generate:postman tests/Samples/openai.json --o tests/build/openai",
+        "build:paddle": "./codegen generate:postman tests/Samples/paddle.json --output tests/Build/paddle",
+        "build:stripe": "./codegen generate:postman tests/Samples/stripe.json --output tests/Build/stripe",
+        "build:tableau": "./codegen generate:postman tests/Samples/tableau.json --output tests/Build/tableau",
+        "build:openai": "./codegen generate:postman tests/Samples/openai.json --output tests/Build/openai",
+        "build:all": [
+            "@build:paddle",
+            "@build:stripe",
+            "@build:tableau",
+            "@build:openai"
+        ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint"

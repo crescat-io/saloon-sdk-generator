@@ -10,7 +10,7 @@ use LaravelZero\Framework\Commands\Command;
 
 class GenerateSaloonSdkFromPostmanCollection extends Command
 {
-    protected $signature = 'generate:postman {path} {--force}';
+    protected $signature = 'generate:postman {path} {--output=./build} {--force}';
 
     protected array $usedClassNames = [];
 
@@ -49,7 +49,8 @@ class GenerateSaloonSdkFromPostmanCollection extends Command
     protected function dumpToFile(GeneratedFile $file)
     {
         // TODO: Folder name should be implied based on namespace
-        $folder = "./src/Compiled/Requests/{$file->collectionName}/";
+        $out = $this->option('output');
+        $folder = "$out/Requests/{$file->collectionName}/";
         $className = $file->className;
         $filePath = "{$folder}{$className}.php";
 

@@ -34,6 +34,15 @@
             "Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "build:paddle": "./codegen/codegen generate:postman tests/Samples/paddle.json --o tests/build/paddle",
+        "build:stripe": "./codegen/codegen generate:postman tests/Samples/stripe.json --o tests/build/stripe",
+        "build:tableau": "./codegen/codegen generate:postman tests/Samples/tableau.json --o tests/build/tableau",
+        "build:openai": "./codegen/codegen generate:postman tests/Samples/openai.json --o tests/build/openai",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,

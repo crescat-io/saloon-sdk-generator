@@ -24,7 +24,7 @@ class Request
             )
             : new self(
                 url: Url::fromJson(Arr::get($json, 'url')),
-                method: Arr::get($json, 'method'),
+                method: Arr::get($json, 'method', 'GET'),
                 description: Arr::get($json, 'description.content'),
                 header: Arr::get($json, 'header'),
                 body: Arr::get($json, 'body') ? Body::fromJson(Arr::get($json, 'body')) : null,

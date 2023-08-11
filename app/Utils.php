@@ -37,6 +37,23 @@ class Utils
         return $outputString;
     }
 
+    public static function parseNestedStringToArray($input): string
+    {
+        $result = [];
+        $parts = preg_split('/\]\[|\[|\]/', $input, -1, PREG_SPLIT_NO_EMPTY);
+
+        $temp = &$result;
+
+        foreach ($parts as $part) {
+            if (! isset($temp[$part])) {
+                $temp[$part] = [];
+            }
+            $temp = &$temp[$part];
+        }
+
+        return $result;
+    }
+
     /**
      * Recursively extracts expected types from the given data structure.
      *

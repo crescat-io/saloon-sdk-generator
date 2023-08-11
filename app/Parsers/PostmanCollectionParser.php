@@ -24,14 +24,13 @@ class PostmanCollectionParser implements Parser
      */
     public function parse(): array
     {
-        /** @noinspection PhpParamsInspection */
         return $this->parseItems($this->postmanCollection->item);
     }
 
     /**
      * @return array|Endpoint[]
      */
-    public function parseItems(ItemGroup $items): array
+    public function parseItems(array $items): array
     {
         $requests = [];
 
@@ -39,7 +38,7 @@ class PostmanCollectionParser implements Parser
 
             if ($item instanceof ItemGroup) {
                 // Nested resource Ids aka "{customer_id}" are not considered a "collection", skip those
-                if (! Str::contains($item->name, ['{', '}'])) {
+                if (!Str::contains($item->name, ['{', '}'])) {
                     $this->collectionQueue[] = $item->name;
                 }
 
@@ -66,35 +65,37 @@ class PostmanCollectionParser implements Parser
             response: $item->request->body?->rawAsJson(),
             description: $item->description,
             queryParameters: array_map(
-                callback: fn ($param) => new Parameter(
+                callback: fn($param) => new Parameter(
                     type: 'string',
                     name: Arr::get($param, 'key'),
                     description: Arr::get($param, 'description', ''),
                 ),
-                array: $item->request->url->query
+                array: $item->request->url->query ?? []
             ),
             pathParameters: array_map(
-                callback: fn ($param) => new Parameter(
+                callback: fn($param) => new Parameter(
                     type: 'string',
                     name: Arr::get($param, 'key'),
                     description: Arr::get($param, 'description', ''),
                 ),
-                array: $item->request->url->variable
+                array: $item->request->url->variable ?? []
             ),
-            bodyParameters: array_map(
-                callback: function ($paramTypes, $bodyParam) {
+//            bodyParameters: collect(Utils::extractExpectedTypes($item->request->body?->rawAsJson()) ?? [])
+//                ->filter()
+//                ->map(function ($bodyParam, $key ) {
+//
+//
+//
+//                    dump($key);
+//                    dump($bodyParam);
+//
+//                    return new Parameter(
+//                        type: 'mixed',
+//                        name: $bodyParam,
+//                    );
+//                })
+//                ->toArray()
 
-                    if (! $paramTypes) {
-                        return null;
-                    }
-
-                    return new Parameter(
-                        type: 'mixed',
-                        name: $bodyParam,
-                    );
-                },
-                array: Utils::extractExpectedTypes($item->request->body?->rawAsJson())
-            ),
         );
     }
 }

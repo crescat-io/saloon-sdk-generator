@@ -6,6 +6,9 @@ namespace App\Commands;
 
 use App\Data\Saloon\GeneratedFile;
 use App\Generator;
+use App\Parsers\OpenApiParser;
+use cebe\openapi\Reader;
+use cebe\openapi\ReferenceContext;
 use LaravelZero\Framework\Commands\Command;
 
 class GenerateSaloonSdkFromPostmanCollection extends Command
@@ -20,7 +23,7 @@ class GenerateSaloonSdkFromPostmanCollection extends Command
     {
         $path = $this->argument('path');
 
-        if (! file_exists($path)) {
+        if (!file_exists($path)) {
             $this->error("File not found: $path");
 
             return;
@@ -28,14 +31,38 @@ class GenerateSaloonSdkFromPostmanCollection extends Command
 
         $raw = file_get_contents($path);
 
-        if (! $raw) {
+        if (!$raw) {
             $this->error('File is empty');
 
             return;
         }
 
+
+//        $parser = new PostmanCollectionParser(
+//            PostmanCollection::fromJson(json_decode($raw,true))
+//        );
+//
+//        $parser = new OpenApiParser(
+//            Reader::readFromYamlFile(
+//                fileName: base_path("tests/Samples/fiken.yml"),
+//                resolveReferences: ReferenceContext::RESOLVE_MODE_ALL
+//            )
+//        );
+
+        // NOTE: This is a swagger spec, which is older, but very similar, should be fine
+        $parser = new OpenApiParser(
+            Reader::readFromJsonFile(
+                fileName: base_path("tests/Samples/tripletex.json"),
+                resolveReferences: ReferenceContext::RESOLVE_MODE_ALL
+            )
+        );
+        $endpoints = $parser->parse();
+
+        dd($endpoints);
+
+
         collect(Generator::fromJson($raw))
-            ->groupBy(fn (GeneratedFile $file) => $file->collectionName)
+            ->groupBy(fn(GeneratedFile $file) => $file->collectionName)
             ->sort()
             ->each(function ($files, $folder) {
 
@@ -54,17 +81,17 @@ class GenerateSaloonSdkFromPostmanCollection extends Command
         $className = $file->className;
         $filePath = "{$folder}{$className}.php";
 
-        if (! file_exists($folder)) {
+        if (!file_exists($folder)) {
             mkdir($folder, recursive: true);
         }
 
-        if (file_exists($filePath) && ! $this->option('force')) {
+        if (file_exists($filePath) && !$this->option('force')) {
             $this->warn("- File already exists: $filePath");
 
             return;
         }
 
-        $ok = file_put_contents($filePath, (string) $file->phpFile);
+        $ok = file_put_contents($filePath, (string)$file->phpFile);
 
         if ($ok === false) {
             $this->error("- Failed to write: $filePath");

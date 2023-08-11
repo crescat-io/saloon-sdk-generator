@@ -28,7 +28,7 @@ class OpenApiParser implements Parser
     /**
      * @return array|Endpoint[]
      */
-    public function parseItems(Paths $items): array
+    protected function parseItems(Paths $items): array
     {
         $requests = [];
 
@@ -36,7 +36,8 @@ class OpenApiParser implements Parser
 
             if ($item instanceof PathItem) {
                 foreach ($item->getOperations() as $method => $operation) {
-                    $requests[] = $this->parseEndpoint($operation, $path, $method);
+                    // TODO: variables for the path
+                    $requests[] = $this->parseEndpoint($operation, $this->mapParams($item->parameters, 'path'), $path, $method);
                 }
             }
         }
@@ -44,31 +45,31 @@ class OpenApiParser implements Parser
         return $requests;
     }
 
-    public function parseEndpoint(Operation $operation, string $path, string $method): ?Endpoint
+    protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
     {
         return new Endpoint(
-            name: $operation->summary,
+            name: $operation->summary ?: $operation->operationId,
             method: $method,
             pathSegments: explode('/', trim($path, '/')),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
             response: null, // TODO: implement "definition" parsing
             description: $operation->description,
             queryParameters: $this->mapParams($operation->parameters, 'query'),
-            pathParameters: $this->mapParams($operation->parameters, 'path'),
-            bodyParameters: null, // TODO: implement "definition" parsing
+            pathParameters: $pathParams,
+            bodyParameters: [], // TODO: implement "definition" parsing
         );
     }
 
     /**
-     * @param  OpenApiParameter[]  $parameters
+     * @param OpenApiParameter[] $parameters
      * @return Parameter[] array
      */
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
-            ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
-            ->map(fn (OpenApiParameter $parameter) => new Parameter(
-                type: $this->mapSchemaTypeToPhpType($parameter->schema->type),
+            ->filter(fn(OpenApiParameter $parameter) => $parameter->in == $in)
+            ->map(fn(OpenApiParameter $parameter) => new Parameter(
+                type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 name: $parameter->name,
                 description: $parameter->description,
             ))

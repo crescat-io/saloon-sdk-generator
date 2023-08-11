@@ -1,14 +1,26 @@
 <?php
 
-namespace App;
+namespace Crescat\SaloonSdkGenerator;
+
+use Illuminate\Support\Arr;
+use Nette\PhpGenerator\PhpFile;
 
 class Utils
 {
+    public static function formatNamespaceAndClass(PhpFile $file): string
+    {
+        return sprintf(
+            '%s@%s',
+            Arr::first($file->getNamespaces())->getName(),
+            Arr::first($file->getClasses())->getName()
+        );
+    }
+
     /**
      * Wrap long lines of text to a specified maximum line length.
      *
-     * @param string $inputString The input string to be wrapped.
-     * @param int $maxLineLength The maximum length of each line (default: 100).
+     * @param  string  $inputString The input string to be wrapped.
+     * @param  int  $maxLineLength The maximum length of each line (default: 100).
      * @return string The input string with newlines inserted as needed.
      */
     public static function wrapLongLines(string $inputString, int $maxLineLength = 100): string
@@ -19,18 +31,18 @@ class Utils
         $words = explode(' ', $inputString);
 
         foreach ($words as $word) {
-            if (strlen($currentLine . ' ' . $word) <= $maxLineLength) {
-                if (!empty($currentLine)) {
+            if (strlen($currentLine.' '.$word) <= $maxLineLength) {
+                if (! empty($currentLine)) {
                     $currentLine .= ' ';
                 }
                 $currentLine .= $word;
             } else {
-                $outputString .= $currentLine . "\n";
+                $outputString .= $currentLine."\n";
                 $currentLine = $word;
             }
         }
 
-        if (!empty($currentLine)) {
+        if (! empty($currentLine)) {
             $outputString .= $currentLine;
         }
 
@@ -45,7 +57,7 @@ class Utils
         $temp = &$result;
 
         foreach ($parts as $part) {
-            if (!isset($temp[$part])) {
+            if (! isset($temp[$part])) {
                 $temp[$part] = [];
             }
             $temp = &$temp[$part];
@@ -57,12 +69,14 @@ class Utils
     /**
      * Recursively extracts expected types from the given data structure.
      *
-     * @param array $data The data structure to extract types from.
+     * @param  array  $data The data structure to extract types from.
      * @return array An array containing expected types for each key in the data structure.
      */
     public static function extractExpectedTypes(?array $data): array
     {
-        if (!$data) return [];
+        if (! $data) {
+            return [];
+        }
 
         $expectedTypes = [];
 

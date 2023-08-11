@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Generators;
+namespace Crescat\SaloonSdkGenerator\Generators;
 
-use App\Data\Postman\Item;
-use App\Data\Postman\ItemGroup;
-use App\Data\Postman\PostmanCollection;
-use App\Data\Saloon\GeneratedFile;
-use App\Utils;
+use Crescat\SaloonSdkGenerator\Data\Postman\Item;
+use Crescat\SaloonSdkGenerator\Data\Postman\ItemGroup;
+use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
+use Crescat\SaloonSdkGenerator\Data\Saloon\GeneratedFile;
+use Crescat\SaloonSdkGenerator\Utils;
 use DateTime;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Parsers;
+namespace Crescat\SaloonSdkGenerator\Parsers;
 
-use App\Data\Generator\Endpoint;
-use App\Data\Generator\Parameter;
-use App\Data\Postman\Item;
-use App\Data\Postman\ItemGroup;
-use App\Data\Postman\PostmanCollection;
-use App\Utils;
+use Crescat\SaloonSdkGenerator\Contracts\Parser;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Data\Postman\Item;
+use Crescat\SaloonSdkGenerator\Data\Postman\ItemGroup;
+use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -38,7 +38,7 @@ class PostmanCollectionParser implements Parser
 
             if ($item instanceof ItemGroup) {
                 // Nested resource Ids aka "{customer_id}" are not considered a "collection", skip those
-                if (!Str::contains($item->name, ['{', '}'])) {
+                if (! Str::contains($item->name, ['{', '}'])) {
                     $this->collectionQueue[] = $item->name;
                 }
 
@@ -65,36 +65,38 @@ class PostmanCollectionParser implements Parser
             response: $item->request->body?->rawAsJson(),
             description: $item->description,
             queryParameters: array_map(
-                callback: fn($param) => new Parameter(
+                callback: fn ($param) => new Parameter(
                     type: 'string',
+                    nullable: true, // TODO: Attempt to determine this based on heuristics, default to true for now
                     name: Arr::get($param, 'key'),
                     description: Arr::get($param, 'description', ''),
                 ),
                 array: $item->request->url->query ?? []
             ),
             pathParameters: array_map(
-                callback: fn($param) => new Parameter(
+                callback: fn ($param) => new Parameter(
                     type: 'string',
+                    nullable: true, // TODO: Attempt to determine this based on heuristics, default to true for now
                     name: Arr::get($param, 'key'),
                     description: Arr::get($param, 'description', ''),
                 ),
                 array: $item->request->url->variable ?? []
             ),
-//            bodyParameters: collect(Utils::extractExpectedTypes($item->request->body?->rawAsJson()) ?? [])
-//                ->filter()
-//                ->map(function ($bodyParam, $key ) {
-//
-//
-//
-//                    dump($key);
-//                    dump($bodyParam);
-//
-//                    return new Parameter(
-//                        type: 'mixed',
-//                        name: $bodyParam,
-//                    );
-//                })
-//                ->toArray()
+            //            bodyParameters: collect(Utils::extractExpectedTypes($item->request->body?->rawAsJson()) ?? [])
+            //                ->filter()
+            //                ->map(function ($bodyParam, $key ) {
+            //
+            //
+            //
+            //                    dump($key);
+            //                    dump($bodyParam);
+            //
+            //                    return new Parameter(
+            //                        type: 'mixed',
+            //                        name: $bodyParam,
+            //                    );
+            //                })
+            //                ->toArray()
 
         );
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Data\Saloon;
+namespace Crescat\SaloonSdkGenerator\Data\Saloon;
 
 use Nette\PhpGenerator\PhpFile;
 

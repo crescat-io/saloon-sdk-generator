@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Data\Postman;
+namespace Crescat\SaloonSdkGenerator\Data\Postman;
 
 class PostmanCollection
 {

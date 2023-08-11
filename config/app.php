@@ -1,5 +1,7 @@
 <?php
 
+use Crescat\SaloonSdkGenerator\Providers\AppServiceProvider;
+
 return [
 
     /*
@@ -13,7 +15,7 @@ return [
     |
     */
 
-    'name' => 'Codegen',
+    'name' => 'Crescat Saloon Sdk Generator',
 
     /*
     |--------------------------------------------------------------------------
@@ -67,7 +69,7 @@ return [
     */
 
     'providers' => [
-        App\Providers\AppServiceProvider::class,
+        AppServiceProvider::class,
     ],
 
 ];

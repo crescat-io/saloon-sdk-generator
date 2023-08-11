@@ -1,6 +1,6 @@
 <?php
 
-use App\Commands\GenerateSaloonSdkFromPostmanCollection;
+use Crescat\SaloonSdkGenerator\Commands\GenerateSdk;
 
 return [
 
@@ -42,7 +42,7 @@ return [
     */
 
     'add' => [
-        GenerateSaloonSdkFromPostmanCollection::class,
+        GenerateSdk::class,
     ],
 
     /*

@@ -28,7 +28,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "Crescat\\SaloonSdkGenerator\\": "src/"
         }
     },
     "autoload-dev": {
@@ -37,15 +37,19 @@
         }
     },
     "scripts": {
-        "build:paddle": "./codegen generate:postman tests/Samples/paddle.json --output tests/Build/paddle",
-        "build:stripe": "./codegen generate:postman tests/Samples/stripe.json --output tests/Build/stripe",
-        "build:tableau": "./codegen generate:postman tests/Samples/tableau.json --output tests/Build/tableau",
-        "build:openai": "./codegen generate:postman tests/Samples/openai.json --output tests/Build/openai",
+        "build:paddle": "./codegen generate:sdk --type=postman tests/Samples/paddle.json --output tests/Build/paddle",
+        "build:stripe": "./codegen generate:sdk --type=postman tests/Samples/stripe.json --output tests/Build/stripe",
+        "build:tableau": "./codegen generate:sdk --type=postman tests/Samples/tableau.json --output tests/Build/tableau",
+        "build:openai": "./codegen generate:sdk --type=postman tests/Samples/openai.json --output tests/Build/openai",
+        "build:fiken": "./codegen generate:sdk --type=openapi tests/Samples/fiken.yml --output tests/Build/fiken",
+        "build:tripletex": "./codegen generate:sdk --type=openapi tests/Samples/tripletex.json --output tests/Build/tripletex",
         "build:all": [
             "@build:paddle",
             "@build:stripe",
             "@build:tableau",
-            "@build:openai"
+            "@build:openai",
+            "@build:fiken",
+            "@build:tripletex"
         ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Data\Generator;
+namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 class Endpoint
 {
@@ -23,5 +23,10 @@ class Endpoint
         public array $pathParameters = [],
         public array $bodyParameters = [],
     ) {
+    }
+
+    public function pathAsString(): string
+    {
+        return implode('/', $this->pathSegments);
     }
 }

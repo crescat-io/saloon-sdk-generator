@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace Crescat\SaloonSdkGenerator\Providers;
 
 use Illuminate\Support\ServiceProvider;
 

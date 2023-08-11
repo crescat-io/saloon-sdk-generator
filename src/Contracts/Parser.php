@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Parsers;
+namespace Crescat\SaloonSdkGenerator\Contracts;
 
-use App\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 
 interface Parser
 {

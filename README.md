@@ -31,6 +31,12 @@ php artisan generate:postman POSTMAN_COLLECTION.json --force
 - [Postman Collection Format Schema](https://blog.postman.com/introducing-postman-collection-format-schema/)
 - [Importing and Exporting Data in Postman](https://learning.postman.com/docs/getting-started/importing-and-exporting/exporting-data/)
 
+## TODOs
+
+
+- Implement smart "did the definition change"-feature that can update only what changed in request classes [ref](https://doc.nette.org/en/php-generator#toc-generating-according-to-existing-ones)
+- Add: Option to specify connector class name and namespace
+
 ## Contributing
 
 Contributions to this package are welcome! If you find any issues or want to suggest improvements, please submit a pull

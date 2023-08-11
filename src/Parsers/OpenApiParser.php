@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Parsers;
+namespace Crescat\SaloonSdkGenerator\Parsers;
 
-use App\Data\Generator\Endpoint;
-use App\Data\Generator\Parameter;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
 use cebe\openapi\spec\Type;
+use Crescat\SaloonSdkGenerator\Contracts\Parser;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
 {
@@ -50,7 +52,7 @@ class OpenApiParser implements Parser
         return new Endpoint(
             name: $operation->summary ?: $operation->operationId,
             method: $method,
-            pathSegments: explode('/', trim($path, '/')),
+            pathSegments: Str::of($path)->replace('{', ':')->remove('}')->trim('/')->explode('/')->toArray(),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
             response: null, // TODO: implement "definition" parsing
             description: $operation->description,
@@ -61,15 +63,16 @@ class OpenApiParser implements Parser
     }
 
     /**
-     * @param OpenApiParameter[] $parameters
+     * @param  OpenApiParameter[]  $parameters
      * @return Parameter[] array
      */
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
-            ->filter(fn(OpenApiParameter $parameter) => $parameter->in == $in)
-            ->map(fn(OpenApiParameter $parameter) => new Parameter(
+            ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
+            ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
+                nullable: $parameter->schema->nullable,
                 name: $parameter->name,
                 description: $parameter->description,
             ))

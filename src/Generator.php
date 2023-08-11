@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace Crescat\SaloonSdkGenerator;
 
-use App\Data\Postman\PostmanCollection;
-use App\Data\Saloon\GeneratedFile;
-use App\Generators\RequestGenerator;
+use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
+use Crescat\SaloonSdkGenerator\Data\Saloon\GeneratedFile;
+use Crescat\SaloonSdkGenerator\Generators\RequestGenerator;
 
 class Generator
 {

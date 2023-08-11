@@ -25,6 +25,18 @@ class Endpoint
     ) {
     }
 
+    /**
+     * @return Parameter[]
+     */
+    public function allParameters(): array
+    {
+        return [
+            ...$this->pathParameters,
+            ...$this->bodyParameters,
+            ...$this->queryParameters,
+        ];
+    }
+
     public function pathAsString(): string
     {
         return implode('/', $this->pathSegments);

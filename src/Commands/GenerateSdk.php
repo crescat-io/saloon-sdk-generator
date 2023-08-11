@@ -84,22 +84,22 @@ class GenerateSdk extends Command
         );
 
         $result = $generator->run($parser);
-
-        $this->title('Generated Files');
-        $this->comment("\nConnector:");
-        if ($result->connectorClass) {
-            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
-        }
-
-        $this->comment("\nResources:");
-        foreach ($result->resourceClasses as $resourceClass) {
-            $this->line(Utils::formatNamespaceAndClass($resourceClass));
-        }
-
-        $this->comment("\nRequests:");
-        foreach ($result->requestClasses as $requestClass) {
-            $this->line(Utils::formatNamespaceAndClass($requestClass));
-        }
+        //
+        //        $this->title('Generated Files');
+        //        $this->comment("\nConnector:");
+        //        if ($result->connectorClass) {
+        //            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+        //        }
+        //
+        //        $this->comment("\nResources:");
+        //        foreach ($result->resourceClasses as $resourceClass) {
+        //            $this->line(Utils::formatNamespaceAndClass($resourceClass));
+        //        }
+        //
+        //        $this->comment("\nRequests:");
+        //        foreach ($result->requestClasses as $requestClass) {
+        //            $this->line(Utils::formatNamespaceAndClass($requestClass));
+        //        }
 
         //        collect(Generator::fromJson($raw))
         //            ->groupBy(fn (GeneratedFile $file) => $file->collectionName)

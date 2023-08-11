@@ -11,8 +11,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
-use Saloon\Enums\Method;
+use Saloon\Contracts\Connector;
+use Saloon\Enums\Method as SaloonHttpMethod;
 use Saloon\Http\Request;
 
 class CodeGenerator
@@ -24,26 +26,30 @@ class CodeGenerator
         protected ?string $dtoNamespaceSuffix,
         protected ?string $connectorName,
         protected ?string $outputFolder,
-        protected array $ignoredQueryParams = [],
-        protected array $ignoredBodyParams = [],
-        protected string $fallbackResourceName = 'Misc',
-    ) {
+        protected array   $ignoredQueryParams = [],
+        protected array   $ignoredBodyParams = [],
+        protected string  $fallbackResourceName = 'Misc',
+    )
+    {
     }
 
     public function run(Parser $parser): CodeGenerationResult
     {
         $endpoints = $parser->parse();
 
+        $resourceBaseClass = $this->generateResourceBaseClass();
+
         return new CodeGenerationResult(
             requestClasses: $this->generateRequestClasses($endpoints),
             resourceClasses: $this->generateResourceClasses($endpoints),
             dtoClasses: $this->generateDTOs($endpoints),
             connectorClass: $this->generateConnectorClass($endpoints),
+            resourceBaseClass: $resourceBaseClass,
         );
     }
 
     /**
-     * @param  array|Endpoint[]  $endpoints
+     * @param array|Endpoint[] $endpoints
      * @return array|PhpFile[]
      */
     protected function generateRequestClasses(array $endpoints)
@@ -62,8 +68,6 @@ class CodeGenerator
         $resourceName = $endpoint->collection ? Str::studly($endpoint->collection) : $this->fallbackResourceName;
         $className = $this->safeClassName($endpoint->name);
 
-        $classNamespace = "{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}";
-
         $classType = new ClassType($className);
 
         $classType->setExtends(Request::class)
@@ -73,7 +77,7 @@ class CodeGenerator
 
         $classType->addProperty('method')
             ->setProtected()
-            ->setType(Method::class)
+            ->setType(SaloonHttpMethod::class)
             ->setValue(
                 new Literal(
                     sprintf('Method::%s', strtoupper($endpoint->method))
@@ -96,57 +100,116 @@ class CodeGenerator
 
             );
 
-        /** @var Parameter[] $parameters */
-        $parameters = [
-            ...$endpoint->pathParameters,
-            ...$endpoint->bodyParameters,
-            ...$endpoint->queryParameters,
-        ];
-
         $classConstructor = $classType->addMethod('__construct');
 
-        foreach ($parameters as $parameter) {
-
-            $name = $this->safeVariableName($parameter->name);
-
-            $classConstructor
-                ->addComment(
-                    trim(sprintf('@param %s $%s %s', $parameter->type, $name, $parameter->description))
-                )
-                ->addPromotedParameter($name)
-                ->setType($parameter->type)
-                ->setNullable(false)
-                ->setProtected();
+        foreach ($endpoint->allParameters() as $parameter) {
+            $this->addPropertyToMethod($classConstructor, $parameter);
         }
- 
+
         //        $this->buildQueryParamMethod($item, $classType);
         //        $this->buildBodyDataMethod($item, $classType);
 
         $classFile = new PhpFile;
-        $classFile->addNamespace($classNamespace)
+        $classFile->addNamespace("{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}")
             ->addUse(Method::class)
             ->addUse(DateTime::class)
             ->addUse(Request::class)
             ->add($classType);
 
-        dump((string) $classFile);
+        //        dump((string) $classFile);
 
         return $classFile;
 
     }
 
+    protected function addPropertyToMethod(Method $method, Parameter $parameter): Method
+    {
+        $name = $this->safeVariableName($parameter->name);
+
+        $method
+            ->addComment(
+                trim(sprintf('@param %s $%s %s', $parameter->type, $name, $parameter->description))
+            )
+            ->addPromotedParameter($name)
+            ->setType($parameter->type)
+            ->setNullable(false)
+            ->setProtected();
+
+        return $method;
+    }
+
     /**
-     * @param  array|Endpoint[]  $endpoints
+     * @param array|Endpoint[] $endpoints
      * @return array|PhpFile[]
      */
     protected function generateResourceClasses(array $endpoints): array
     {
-        // TODO: Implement generating resource classes for item groups
-        return [];
+        $classes = [];
+
+        $groupedByCollection = collect($endpoints)->groupBy(function (Endpoint $endpoint) {
+            return $this->safeClassName($endpoint->collection ?: $this->fallbackResourceName);
+        });
+
+        foreach ($groupedByCollection as $collection => $items) {
+
+            dump($collection);
+            $this->generateResourceClass($collection, $items->toArray());
+        }
+
+        return $classes;
     }
 
     /**
-     * @param  array|Endpoint[]  $endpoints
+     * @param array|Endpoint[] $endpoints
+     */
+    public function generateResourceClass(string $resourceName, array $endpoints): PhpFile
+    {
+
+        $classType = new ClassType($resourceName);
+
+        $classType->setExtends(Request::class); // TODO: Change to resource
+        //            ->setComment($endpoint->name)
+        //            ->addComment('')
+        //            ->addComment(Utils::wrapLongLines($endpoint->name ?? ''))
+
+        $classFile = new PhpFile;
+        $namespace = $classFile->addNamespace("{$this->namespace}\\{$this->resourceNamespaceSuffix}");
+
+
+        foreach ($endpoints as $endpoint) {
+            $requestClassName = $this->safeClassName($endpoint->name);
+
+            $namespace->addUse(
+                "{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}"
+            );
+
+            $method = $classType
+                ->addMethod($this->safeVariableName($endpoint->name));
+
+            foreach ($endpoint->allParameters() as $parameter) {
+                $this->addPropertyToMethod($method, $parameter);
+            }
+
+
+            $requestClassName = $this->safeVariableName($endpoint->name);
+
+
+            // TODO: forward params into class constructor:
+            $method->setBody(
+                new Literal("return \$this->connector->send(new {$requestClassName}())")
+            );
+
+        }
+
+        $namespace->add($classType);
+
+        dump((string)$classFile);
+
+        return $classFile;
+    }
+
+    /**
+     * @param array|Endpoint[] $endpoints
      * @return array|PhpFile[]
      */
     protected function generateDTOs(array $endpoints): array
@@ -156,7 +219,7 @@ class CodeGenerator
     }
 
     /**
-     * @param  array|Endpoint[]  $endpoints
+     * @param array|Endpoint[] $endpoints
      */
     protected function generateConnectorClass(array $endpoints): ?PhpFile
     {
@@ -189,5 +252,22 @@ class CodeGenerator
     protected function safeClassName(string $value): string
     {
         return Str::studly($this->normalize($value));
+    }
+
+    protected function generateResourceBaseClass(): PhpFile
+    {
+        $classType = new ClassType('Resource');
+        $classType
+            ->addMethod('__construct')
+            ->addPromotedParameter('connector')
+            ->setType(Connector::class)
+            ->setProtected();
+
+        $classFile = new PhpFile();
+        $classFile->addNamespace("{$this->namespace}")
+            ->addUse(Connector::class)
+            ->add($classType);
+
+        return $classFile;
     }
 }

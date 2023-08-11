@@ -16,6 +16,7 @@ class CodeGenerationResult
         public array $resourceClasses = [],
         public array $dtoClasses = [],
         public ?PhpFile $connectorClass = null,
+        public ?PhpFile $resourceBaseClass = null,
     ) {
 
     }

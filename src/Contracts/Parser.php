@@ -2,12 +2,9 @@
 
 namespace Crescat\SaloonSdkGenerator\Contracts;
 
-use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 
 interface Parser
 {
-    /**
-     * @return Endpoint[]
-     */
-    public function parse(): array;
+    public function parse(): Endpoints;
 }

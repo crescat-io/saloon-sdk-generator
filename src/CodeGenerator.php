@@ -5,6 +5,7 @@ namespace Crescat\SaloonSdkGenerator;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\CodeGenerationResult;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -51,11 +52,11 @@ class CodeGenerator
      * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
-    protected function generateRequestClasses(array $endpoints): array
+    protected function generateRequestClasses(Endpoints $endpoints): array
     {
         $classes = [];
 
-        foreach ($endpoints as $endpoint) {
+        foreach ($endpoints->endpoints as $endpoint) {
             $classes[] = $this->generateRequestClass($endpoint);
         }
 
@@ -101,12 +102,11 @@ class CodeGenerator
 
         $classConstructor = $classType->addMethod('__construct');
 
+        //        if ($className == "RetrieveAccountBalancesV2") {
+        //            dd($endpoint);
+        //        }
         // Priority 1. - Path Parameters
         foreach ($endpoint->pathParameters as $pathParam) {
-            if (! Str::startsWith($pathParam->name, ':')) {
-                continue;
-            }
-
             $this->addPromotedPropertyToMethod($classConstructor, $pathParam);
         }
 
@@ -198,14 +198,13 @@ class CodeGenerator
     }
 
     /**
-     * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
-    protected function generateResourceClasses(array $endpoints): array
+    protected function generateResourceClasses(Endpoints $endpoints): array
     {
         $classes = [];
 
-        $groupedByCollection = collect($endpoints)->groupBy(function (Endpoint $endpoint) {
+        $groupedByCollection = collect($endpoints->endpoints)->groupBy(function (Endpoint $endpoint) {
             return $this->safeClassName(
                 $endpoint->collection ?: $this->fallbackResourceName
             );
@@ -252,12 +251,8 @@ class CodeGenerator
             }
 
             $args = [];
-            
-            foreach ($endpoint->pathParameters as $parameter) {
-                if (! Str::startsWith($parameter->name, ':')) {
-                    continue;
-                }
 
+            foreach ($endpoint->pathParameters as $parameter) {
                 $this->addPropertyToMethod($method, $parameter);
                 $args[] = new Literal(sprintf('$%s', $this->safeVariableName($parameter->name)));
             }
@@ -291,19 +286,15 @@ class CodeGenerator
     }
 
     /**
-     * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
-    protected function generateDTOs(array $endpoints): array
+    protected function generateDTOs(Endpoints $endpoints): array
     {
         // TODO: Implement generating DTOs for endpoints
         return [];
     }
 
-    /**
-     * @param  array|Endpoint[]  $endpoints
-     */
-    protected function generateConnectorClass(array $endpoints): ?PhpFile
+    protected function generateConnectorClass(Endpoints $endpoints): ?PhpFile
     {
         $classType = new ClassType($this->connectorName);
         $classType->setExtends(Connector::class);
@@ -313,14 +304,14 @@ class CodeGenerator
         $classType->addMethod('resolveBaseUrl')
             ->setReturnType('string')
             ->setBody(
-                new Literal(sprintf('return "TODO";')) // TODO: Wrap endpoint array in a root level object that contains baseurl, name and description
+                new Literal(sprintf(sprintf("return '%s';", $endpoints->baseUrl ?? 'TODO')))
             );
 
         $namespace = $classFile
             ->addNamespace("{$this->namespace}")
             ->addUse(Connector::class);
 
-        $collections = collect($endpoints)
+        $collections = collect($endpoints->endpoints)
             ->map(function (Endpoint $endpoint) {
                 return $this->safeClassName($endpoint->collection ?: $this->fallbackResourceName);
             })
@@ -330,13 +321,20 @@ class CodeGenerator
 
         foreach ($collections as $collection) {
             $resourceClassName = $this->safeClassName($collection);
+            $resourceFQN = "{$this->namespace}\\{$this->resourceNamespaceSuffix}\\{$resourceClassName}";
 
-            $classType->addMethod($this->safeVariableName($collection))
+            $namespace->addUse($resourceFQN);
+
+            // TODO: method names like "authenticate" will cause name collision with the Connector class methods,
+            //  add a blacklist of reserved method names and find a way to rename the method to something else, or add a pre/suffix
+
+            $classType
+                ->addMethod($this->safeVariableName($collection))
+                ->setReturnType($resourceFQN)
                 ->setBody(
                     new Literal(sprintf('return new %s($this);', $resourceClassName))
                 );
 
-            $namespace->addUse("{$this->namespace}\\{$this->resourceNamespaceSuffix}\\{$resourceClassName}");
         }
 
         $namespace->add($classType);

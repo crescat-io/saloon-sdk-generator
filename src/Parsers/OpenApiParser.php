@@ -10,7 +10,9 @@ use cebe\openapi\spec\Paths;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
@@ -19,12 +21,14 @@ class OpenApiParser implements Parser
     {
     }
 
-    /**
-     * @return array|Endpoint[]
-     */
-    public function parse(): array
+    public function parse(): Endpoints
     {
-        return $this->parseItems($this->openApi->paths);
+        return new Endpoints(
+            name: $this->openApi->info->title,
+            description: $this->openApi->info->description,
+            baseUrl: Arr::first($this->openApi->servers)->url,
+            endpoints: $this->parseItems($this->openApi->paths)
+        );
     }
 
     /**

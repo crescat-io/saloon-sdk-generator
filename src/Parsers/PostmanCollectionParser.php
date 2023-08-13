@@ -4,10 +4,12 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Postman\Item;
 use Crescat\SaloonSdkGenerator\Data\Postman\ItemGroup;
 use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
+use Crescat\SaloonSdkGenerator\Data\Postman\Variable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -19,12 +21,14 @@ class PostmanCollectionParser implements Parser
     {
     }
 
-    /**
-     * @return array|Endpoint[]
-     */
-    public function parse(): array
+    public function parse(): Endpoints
     {
-        return $this->parseItems($this->postmanCollection->item);
+        return new Endpoints(
+            name: $this->postmanCollection->info->name,
+            description: $this->postmanCollection->info->description,
+            baseUrl: collect($this->postmanCollection->variables)->firstWhere(fn (Variable $var) => $var->key == 'baseUrl')?->value,
+            endpoints: $this->parseItems($this->postmanCollection->item),
+        );
     }
 
     /**
@@ -88,13 +92,18 @@ class PostmanCollectionParser implements Parser
 
     protected function parsePathParameters(Item $item): array
     {
-        return collect($item->request->url->path)->filter()->map(function ($param) {
-            return new Parameter(
-                type: 'string',
-                nullable: true,
-                name: $param,
-            );
-        })->filter()->values()->toArray();
+        return collect($item->request->url->path)
+            ->filter(fn ($segment) => Str::startsWith($segment, ':'))
+            ->map(function ($param) {
+                return new Parameter(
+                    type: 'string',
+                    nullable: true,
+                    name: $param,
+                );
+            })
+            ->filter()
+            ->values()
+            ->toArray();
     }
 
     protected function parseBodyParameters(Item $item): array

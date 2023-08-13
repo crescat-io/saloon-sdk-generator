@@ -19,7 +19,7 @@
         "laravel-zero/framework": "^10.0.2",
         "nette/php-generator": "^4.0",
         "nunomaduro/termwind": "^1.15.1",
-        "sammyjo20/saloon-laravel": "^2.0"
+        "saloonphp/laravel-plugin": "^2.0"
     },
     "require-dev": {
         "laravel/pint": "^1.8",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5cb847b3bc6a8f75df9f9a61109539a8",
+    "content-hash": "e3027f7454fc31ac7dd8ce617b279538",
     "packages": [
         {
             "name": "brick/math",
@@ -223,16 +223,16 @@
         },
         {
             "name": "dragonmantank/cron-expression",
-            "version": "v3.3.2",
+            "version": "v3.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dragonmantank/cron-expression.git",
-                "reference": "782ca5968ab8b954773518e9e49a6f892a34b2a8"
+                "reference": "adfb1f505deb6384dc8b39804c5065dd3c8c8c0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/782ca5968ab8b954773518e9e49a6f892a34b2a8",
-                "reference": "782ca5968ab8b954773518e9e49a6f892a34b2a8",
+                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/adfb1f505deb6384dc8b39804c5065dd3c8c8c0a",
+                "reference": "adfb1f505deb6384dc8b39804c5065dd3c8c8c0a",
                 "shasum": ""
             },
             "require": {
@@ -272,7 +272,7 @@
             ],
             "support": {
                 "issues": "https://github.com/dragonmantank/cron-expression/issues",
-                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.3.2"
+                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.3.3"
             },
             "funding": [
                 {
@@ -280,7 +280,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-09-10T18:51:20+00:00"
+            "time": "2023-08-10T19:36:49+00:00"
         },
         {
             "name": "filp/whoops",
@@ -3720,17 +3720,85 @@
             "time": "2023-04-15T23:01:58+00:00"
         },
         {
-            "name": "sammyjo20/saloon",
-            "version": "v2.8.1",
+            "name": "saloonphp/laravel-plugin",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Sammyjo20/Saloon.git",
-                "reference": "99c74f986a370fed0f34a8a610d07b94a48e99b0"
+                "url": "https://github.com/saloonphp/laravel-plugin.git",
+                "reference": "57e601583334f295244e91381b7b345d05d7d46c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sammyjo20/Saloon/zipball/99c74f986a370fed0f34a8a610d07b94a48e99b0",
-                "reference": "99c74f986a370fed0f34a8a610d07b94a48e99b0",
+                "url": "https://api.github.com/repos/saloonphp/laravel-plugin/zipball/57e601583334f295244e91381b7b345d05d7d46c",
+                "reference": "57e601583334f295244e91381b7b345d05d7d46c",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^9.0 || ^10.0",
+                "illuminate/http": "^9.0 || ^10.0",
+                "illuminate/support": "^9.0 || ^10.0",
+                "php": "^8.1",
+                "saloonphp/saloon": "^2.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.5",
+                "orchestra/testbench": "^7.7 || ^8.0",
+                "pestphp/pest": "^1.21"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Saloon": "Saloon\\Laravel\\Facades\\Saloon"
+                    },
+                    "providers": [
+                        "Saloon\\Laravel\\SaloonServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Saloon\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam Carré",
+                    "email": "29132017+Sammyjo20@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel plugin for Saloon",
+            "homepage": "https://github.com/saloonphp/laravel-plugin",
+            "keywords": [
+                "api",
+                "api-integrations",
+                "saloon",
+                "sammyjo20",
+                "sdk"
+            ],
+            "support": {
+                "issues": "https://github.com/saloonphp/laravel-plugin/issues",
+                "source": "https://github.com/saloonphp/laravel-plugin/tree/v2.0.2"
+            },
+            "time": "2023-08-10T17:13:06+00:00"
+        },
+        {
+            "name": "saloonphp/saloon",
+            "version": "v2.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/saloonphp/saloon.git",
+                "reference": "bee990f9fc24ac3ff6f4453b2878a6bd9859efe4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/bee990f9fc24ac3ff6f4453b2878a6bd9859efe4",
+                "reference": "bee990f9fc24ac3ff6f4453b2878a6bd9859efe4",
                 "shasum": ""
             },
             "require": {
@@ -3780,8 +3848,8 @@
                 "sdk"
             ],
             "support": {
-                "issues": "https://github.com/Sammyjo20/Saloon/issues",
-                "source": "https://github.com/Sammyjo20/Saloon/tree/v2.8.1"
+                "issues": "https://github.com/saloonphp/saloon/issues",
+                "source": "https://github.com/saloonphp/saloon/tree/v2.9.0"
             },
             "funding": [
                 {
@@ -3793,75 +3861,7 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2023-07-04T18:00:27+00:00"
-        },
-        {
-            "name": "sammyjo20/saloon-laravel",
-            "version": "v2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Sammyjo20/saloon-laravel.git",
-                "reference": "70454879de8083cf36b3e6bc01b33790f1e62423"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Sammyjo20/saloon-laravel/zipball/70454879de8083cf36b3e6bc01b33790f1e62423",
-                "reference": "70454879de8083cf36b3e6bc01b33790f1e62423",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/console": "^9.0 || ^10.0",
-                "illuminate/http": "^9.0 || ^10.0",
-                "illuminate/support": "^9.0 || ^10.0",
-                "php": "^8.1",
-                "sammyjo20/saloon": "^2.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.5",
-                "orchestra/testbench": "^7.7 || ^8.0",
-                "pestphp/pest": "^1.21"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Saloon": "Saloon\\Laravel\\Facades\\Saloon"
-                    },
-                    "providers": [
-                        "Saloon\\Laravel\\SaloonServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Saloon\\Laravel\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Sam Carré",
-                    "email": "29132017+Sammyjo20@users.noreply.github.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Laravel package for Sammyjo20/Saloon",
-            "homepage": "https://github.com/sammyjo20/saloon-laravel",
-            "keywords": [
-                "api",
-                "api-integrations",
-                "saloon",
-                "sammyjo20",
-                "sdk"
-            ],
-            "support": {
-                "issues": "https://github.com/Sammyjo20/saloon-laravel/issues",
-                "source": "https://github.com/Sammyjo20/saloon-laravel/tree/v2.0.1"
-            },
-            "time": "2023-03-09T23:17:10+00:00"
+            "time": "2023-08-10T16:47:43+00:00"
         },
         {
             "name": "symfony/console",
@@ -7054,16 +7054,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.7.2",
+            "version": "1.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "b2fe4d22a5426f38e014855322200b97b5362c0d"
+                "reference": "3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/b2fe4d22a5426f38e014855322200b97b5362c0d",
-                "reference": "b2fe4d22a5426f38e014855322200b97b5362c0d",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419",
+                "reference": "3219c6ee25c9ea71e3d9bbaf39c67c9ebd499419",
                 "shasum": ""
             },
             "require": {
@@ -7106,9 +7106,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.2"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.3"
             },
-            "time": "2023-05-30T18:13:47+00:00"
+            "time": "2023-08-12T11:01:26+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",

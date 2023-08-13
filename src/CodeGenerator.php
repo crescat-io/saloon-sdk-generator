@@ -51,7 +51,7 @@ class CodeGenerator
      * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
-    protected function generateRequestClasses(array $endpoints)
+    protected function generateRequestClasses(array $endpoints): array
     {
         $classes = [];
 
@@ -115,10 +115,9 @@ class CodeGenerator
             ->addUse(Request::class)
             ->add($classType);
 
-        //        dump((string) $classFile);
+        dump((string) $classFile);
 
         return $classFile;
-
     }
 
     protected function addPropertyToMethod(Method $method, Parameter $parameter): Method
@@ -150,8 +149,6 @@ class CodeGenerator
         });
 
         foreach ($groupedByCollection as $collection => $items) {
-
-            dump($collection);
             $this->generateResourceClass($collection, $items->toArray());
         }
 
@@ -247,8 +244,6 @@ class CodeGenerator
         $classFile->addNamespace("{$this->namespace}")
             ->addUse(Connector::class)
             ->add($classType);
-
-        dump((string) $classFile);
 
         return $classFile;
     }

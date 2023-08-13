@@ -26,11 +26,10 @@ class CodeGenerator
         protected ?string $dtoNamespaceSuffix,
         protected ?string $connectorName,
         protected ?string $outputFolder,
-        protected array   $ignoredQueryParams = [],
-        protected array   $ignoredBodyParams = [],
-        protected string  $fallbackResourceName = 'Misc',
-    )
-    {
+        protected array $ignoredQueryParams = [],
+        protected array $ignoredBodyParams = [],
+        protected string $fallbackResourceName = 'Misc',
+    ) {
     }
 
     public function run(Parser $parser): CodeGenerationResult
@@ -49,7 +48,7 @@ class CodeGenerator
     }
 
     /**
-     * @param array|Endpoint[] $endpoints
+     * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
     protected function generateRequestClasses(array $endpoints)
@@ -139,7 +138,7 @@ class CodeGenerator
     }
 
     /**
-     * @param array|Endpoint[] $endpoints
+     * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
     protected function generateResourceClasses(array $endpoints): array
@@ -160,7 +159,7 @@ class CodeGenerator
     }
 
     /**
-     * @param array|Endpoint[] $endpoints
+     * @param  array|Endpoint[]  $endpoints
      */
     public function generateResourceClass(string $resourceName, array $endpoints): PhpFile
     {
@@ -174,7 +173,6 @@ class CodeGenerator
 
         $classFile = new PhpFile;
         $namespace = $classFile->addNamespace("{$this->namespace}\\{$this->resourceNamespaceSuffix}");
-
 
         foreach ($endpoints as $endpoint) {
             $requestClassName = $this->safeClassName($endpoint->name);
@@ -190,26 +188,27 @@ class CodeGenerator
                 $this->addPropertyToMethod($method, $parameter);
             }
 
+            $args = [];
+            foreach ($endpoint->allParameters() as $parameter) {
+                $args[] = sprintf('%s $%s',
+                    $parameter->type,
+                    $this->safeVariableName($parameter->name),
+                );
+            }
 
-            $requestClassName = $this->safeVariableName($endpoint->name);
-
-
-            // TODO: forward params into class constructor:
             $method->setBody(
-                new Literal("return \$this->connector->send(new {$requestClassName}())")
+                new Literal(sprintf('return $this->connector->send(new %s(%s))', $requestClassName, implode(', ', $args)))
             );
 
         }
 
         $namespace->add($classType);
 
-        dump((string)$classFile);
-
         return $classFile;
     }
 
     /**
-     * @param array|Endpoint[] $endpoints
+     * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
     protected function generateDTOs(array $endpoints): array
@@ -219,12 +218,39 @@ class CodeGenerator
     }
 
     /**
-     * @param array|Endpoint[] $endpoints
+     * @param  array|Endpoint[]  $endpoints
      */
     protected function generateConnectorClass(array $endpoints): ?PhpFile
     {
-        // TODO: Implement generating connector class
-        return null;
+        $classType = new ClassType($this->connectorName);
+
+        $classType
+            ->addImplement(Connector::class);
+
+        $collections = collect($endpoints)
+            ->map(function (Endpoint $endpoint) {
+                return $this->safeClassName($endpoint->collection ?: $this->fallbackResourceName);
+            })
+            ->unique()
+            ->sort()
+            ->all();
+
+        foreach ($collections as $collection) {
+            $classType->addMethod($this->safeVariableName($collection))
+                ->setBody(
+                    new Literal(sprintf('return new %s($this)', $this->safeClassName($collection)))
+                );
+
+        }
+
+        $classFile = new PhpFile();
+        $classFile->addNamespace("{$this->namespace}")
+            ->addUse(Connector::class)
+            ->add($classType);
+
+        dump((string) $classFile);
+
+        return $classFile;
     }
 
     protected function normalize(string $value): string

@@ -37,12 +37,12 @@
         }
     },
     "scripts": {
-        "build:paddle": "./codegen generate:sdk --type=postman tests/Samples/paddle.json --output tests/Build/paddle",
-        "build:stripe": "./codegen generate:sdk --type=postman tests/Samples/stripe.json --output tests/Build/stripe",
-        "build:tableau": "./codegen generate:sdk --type=postman tests/Samples/tableau.json --output tests/Build/tableau",
-        "build:openai": "./codegen generate:sdk --type=postman tests/Samples/openai.json --output tests/Build/openai",
-        "build:fiken": "./codegen generate:sdk --type=openapi tests/Samples/fiken.yml --output tests/Build/fiken",
-        "build:tripletex": "./codegen generate:sdk --type=openapi tests/Samples/tripletex.json --output tests/Build/tripletex",
+        "build:paddle": "./codegen generate:sdk --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build/paddle",
+        "build:stripe": "./codegen generate:sdk --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build/stripe",
+        "build:tableau": "./codegen generate:sdk --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build/tableau",
+        "build:openai": "./codegen generate:sdk --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build/openai",
+        "build:fiken": "./codegen generate:sdk --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/fiken",
+        "build:tripletex": "./codegen generate:sdk --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build/tripletex",
         "build:all": [
             "@build:paddle",
             "@build:stripe",

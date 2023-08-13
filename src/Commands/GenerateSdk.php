@@ -14,7 +14,7 @@ use LaravelZero\Framework\Commands\Command;
 
 class GenerateSdk extends Command
 {
-    protected $signature = 'generate:sdk {path} {--type=postman} {--output=./build} {--force}';
+    protected $signature = 'generate:sdk {path} {--type=postman} {--name=Unnamed} {--output=./build} {--force}';
 
     protected array $usedClassNames = [];
 
@@ -74,7 +74,7 @@ class GenerateSdk extends Command
             resourceNamespaceSuffix: 'Resource',
             requestNamespaceSuffix: 'Requests',
             dtoNamespaceSuffix: 'Dto',
-            connectorName: 'Connector',
+            connectorName: $this->option('name'),
             outputFolder: $this->option('output') ?? './Generated',
             ignoredQueryParams: [
                 'after',

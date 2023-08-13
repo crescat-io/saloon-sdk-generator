@@ -37,19 +37,19 @@
         }
     },
     "scripts": {
-        "build:paddle": "./codegen generate:sdk --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build/paddle",
-        "build:stripe": "./codegen generate:sdk --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build/stripe",
-        "build:tableau": "./codegen generate:sdk --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build/tableau",
-        "build:openai": "./codegen generate:sdk --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build/openai",
-        "build:fiken": "./codegen generate:sdk --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/fiken",
-        "build:tripletex": "./codegen generate:sdk --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build/tripletex",
+        "build:paddle": "./codegen generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build/Paddle",
+        "build:stripe": "./codegen generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build/Stripe",
+        "build:tableau": "./codegen generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build/Tableau",
+        "build:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build/Openai",
+        "build:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/Fiken",
+        "build:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build/Tripletex",
         "build:all": [
             "@build:paddle",
-            "@build:stripe",
             "@build:tableau",
             "@build:openai",
             "@build:fiken",
-            "@build:tripletex"
+            "@build:tripletex",
+            "@build:stripe"
         ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",

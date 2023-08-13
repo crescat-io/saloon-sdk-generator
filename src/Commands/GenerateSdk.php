@@ -6,11 +6,12 @@ use cebe\openapi\Reader;
 use cebe\openapi\ReferenceContext;
 use Crescat\SaloonSdkGenerator\CodeGenerator;
 use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
-use Crescat\SaloonSdkGenerator\Data\Saloon\GeneratedFile;
 use Crescat\SaloonSdkGenerator\Parsers\OpenApiParser;
 use Crescat\SaloonSdkGenerator\Parsers\PostmanCollectionParser;
-use Crescat\SaloonSdkGenerator\Utils;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
+use Nette\PhpGenerator\PhpFile;
 
 class GenerateSdk extends Command
 {
@@ -84,45 +85,46 @@ class GenerateSdk extends Command
         );
 
         $result = $generator->run($parser);
-        //
-        //        $this->title('Generated Files');
-        //        $this->comment("\nConnector:");
-        //        if ($result->connectorClass) {
-        //            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
-        //        }
-        //
-        //        $this->comment("\nResources:");
-        //        foreach ($result->resourceClasses as $resourceClass) {
-        //            $this->line(Utils::formatNamespaceAndClass($resourceClass));
-        //        }
-        //
-        //        $this->comment("\nRequests:");
-        //        foreach ($result->requestClasses as $requestClass) {
-        //            $this->line(Utils::formatNamespaceAndClass($requestClass));
-        //        }
 
-        //        collect(Generator::fromJson($raw))
-        //            ->groupBy(fn (GeneratedFile $file) => $file->collectionName)
-        //            ->sort()
-        //            ->each(function ($files, $folder) {
-        //
-        //                $this->info($folder);
-        //                foreach ($files as $file) {
-        //                    $this->dumpToFile($file);
-        //                }
-        //            });
+        $this->title('Generated Files');
+        $this->comment("\nConnector:");
+        if ($result->connectorClass) {
+            //            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+            $this->dumpToFile($result->connectorClass);
+        }
+        if ($result->resourceBaseClass) {
+            //            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+            $this->dumpToFile($result->resourceBaseClass);
+        }
+
+        $this->comment("\nResources:");
+        foreach ($result->resourceClasses as $resourceClass) {
+            //            $this->line(Utils::formatNamespaceAndClass($resourceClass));
+            $this->dumpToFile($resourceClass);
+        }
+
+        $this->comment("\nRequests:");
+        foreach ($result->requestClasses as $requestClass) {
+            //            $this->line(Utils::formatNamespaceAndClass($requestClass));
+            $this->dumpToFile($requestClass);
+        }
+
     }
 
-    protected function dumpToFile(GeneratedFile $file)
+    protected function dumpToFile(PhpFile $file)
     {
-        // TODO: Folder name should be implied based on namespace
-        $out = $this->option('output');
-        $folder = "$out/Requests/{$file->collectionName}/";
-        $className = $file->className;
-        $filePath = "{$folder}{$className}.php";
 
-        if (! file_exists($folder)) {
-            mkdir($folder, recursive: true);
+        $wip = sprintf(
+            '%s/%s/%s.php',
+            $this->option('output'),
+            str_replace('App\Sdk', '', Arr::first($file->getNamespaces())->getName()),
+            Arr::first($file->getClasses())->getName(),
+        );
+
+        $filePath = Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
+
+        if (! file_exists(dirname($filePath))) {
+            mkdir(dirname($filePath), recursive: true);
         }
 
         if (file_exists($filePath) && ! $this->option('force')) {
@@ -131,7 +133,7 @@ class GenerateSdk extends Command
             return;
         }
 
-        $ok = file_put_contents($filePath, (string) $file->phpFile);
+        $ok = file_put_contents($filePath, (string) $file);
 
         if ($ok === false) {
             $this->error("- Failed to write: $filePath");

@@ -64,24 +64,31 @@ class PostmanCollectionParser implements Parser
             collection: end($this->collectionQueue),
             response: $item->request->body?->rawAsJson(),
             description: $item->description,
-            queryParameters: array_map(
-                callback: fn ($param) => new Parameter(
+            queryParameters: collect($item->request->url->query)->map(function ($param) {
+                if (! Arr::get($param, 'key')) {
+                    return null;
+                }
+
+                return new Parameter(
                     type: 'string',
-                    nullable: true, // TODO: Attempt to determine this based on heuristics, default to true for now
+                    nullable: true,
+                    name: Arr::get($param, 'key'),
+                    description: Arr::get($param, 'description', '')
+                );
+            })->filter()->values()->toArray(),
+            pathParameters: collect($item->request->url->query)->map(function ($param) {
+                if (! Arr::get($param, 'key')) {
+                    return null;
+                }
+
+                return new Parameter(
+                    type: 'string',
+                    nullable: true,
                     name: Arr::get($param, 'key'),
                     description: Arr::get($param, 'description', ''),
-                ),
-                array: $item->request->url->query ?? []
-            ),
-            pathParameters: array_map(
-                callback: fn ($param) => new Parameter(
-                    type: 'string',
-                    nullable: true, // TODO: Attempt to determine this based on heuristics, default to true for now
-                    name: Arr::get($param, 'key'),
-                    description: Arr::get($param, 'description', ''),
-                ),
-                array: $item->request->url->variable ?? []
-            ),
+                );
+            })->filter()->values()->toArray(),
+
             //            bodyParameters: collect(Utils::extractExpectedTypes($item->request->body?->rawAsJson()) ?? [])
             //                ->filter()
             //                ->map(function ($bodyParam, $key ) {

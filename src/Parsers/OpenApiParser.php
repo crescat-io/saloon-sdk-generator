@@ -50,14 +50,15 @@ class OpenApiParser implements Parser
     protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
     {
         return new Endpoint(
-            name: $operation->summary ?: $operation->operationId,
+            name: trim($operation->operationId) ?: trim($operation->summary),
             method: $method,
             pathSegments: Str::of($path)->replace('{', ':')->remove('}')->trim('/')->explode('/')->toArray(),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
             response: null, // TODO: implement "definition" parsing
             description: $operation->description,
             queryParameters: $this->mapParams($operation->parameters, 'query'),
-            pathParameters: $pathParams,
+            // TODO: Check if this differs between spec versions
+            pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
             bodyParameters: [], // TODO: implement "definition" parsing
         );
     }
@@ -72,7 +73,7 @@ class OpenApiParser implements Parser
             ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
-                nullable: $parameter->schema->nullable,
+                nullable: $parameter->schema?->nullable ?? true,
                 name: $parameter->name,
                 description: $parameter->description,
             ))

@@ -9,6 +9,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Nette\InvalidStateException;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Dumper;
 use Nette\PhpGenerator\Literal;
@@ -37,14 +38,12 @@ class CodeGenerator
     {
         $endpoints = $parser->parse();
 
-        $resourceBaseClass = $this->generateResourceBaseClass();
-
         return new CodeGenerationResult(
             requestClasses: $this->generateRequestClasses($endpoints),
             resourceClasses: $this->generateResourceClasses($endpoints),
             dtoClasses: $this->generateDTOs($endpoints),
             connectorClass: $this->generateConnectorClass($endpoints),
-            resourceBaseClass: $resourceBaseClass,
+            resourceBaseClass: $this->generateResourceBaseClass(),
         );
     }
 
@@ -65,7 +64,7 @@ class CodeGenerator
 
     protected function generateRequestClass(Endpoint $endpoint): PhpFile
     {
-        $resourceName = $endpoint->collection ? Str::studly($endpoint->collection) : $this->fallbackResourceName;
+        $resourceName = $this->safeClassName($endpoint->collection ?: $this->fallbackResourceName);
         $className = $this->safeClassName($endpoint->name);
 
         $classType = new ClassType($className);
@@ -103,7 +102,7 @@ class CodeGenerator
         $classConstructor = $classType->addMethod('__construct');
 
         foreach ($endpoint->allParameters() as $parameter) {
-            $this->addPropertyToMethod($classConstructor, $parameter);
+            $this->addPromotedPropertyToMethod($classConstructor, $parameter);
         }
 
         // TODO: skip if no params
@@ -125,11 +124,13 @@ class CodeGenerator
     protected function generateMethodReturningParamsAsArray(ClassType $classType, string $name, array $parameters): Method
     {
         $array = collect($parameters)
-            ->mapWithKeys(fn (Parameter $parameter) => [
-                $parameter->name => new Literal(
-                    sprintf('$this->%s', $this->safeVariableName($parameter->name))
-                ),
-            ])
+            ->mapWithKeys(function (Parameter $parameter) {
+                return [
+                    $parameter->name => new Literal(
+                        sprintf('$this->%s', $this->safeVariableName($parameter->name))
+                    ),
+                ];
+            })
             ->toArray();
 
         return $classType
@@ -139,6 +140,21 @@ class CodeGenerator
     }
 
     protected function addPropertyToMethod(Method $method, Parameter $parameter): Method
+    {
+        $name = $this->safeVariableName($parameter->name);
+
+        $method
+            ->addComment(
+                trim(sprintf('@param %s $%s %s', $parameter->type, $name, $parameter->description))
+            )
+            ->addParameter($name)
+            ->setType($parameter->type)
+            ->setNullable(false);
+
+        return $method;
+    }
+
+    protected function addPromotedPropertyToMethod(Method $method, Parameter $parameter): Method
     {
         $name = $this->safeVariableName($parameter->name);
 
@@ -163,11 +179,13 @@ class CodeGenerator
         $classes = [];
 
         $groupedByCollection = collect($endpoints)->groupBy(function (Endpoint $endpoint) {
-            return $this->safeClassName($endpoint->collection ?: $this->fallbackResourceName);
+            return $this->safeClassName(
+                $endpoint->collection ?: $this->fallbackResourceName
+            );
         });
 
         foreach ($groupedByCollection as $collection => $items) {
-            $this->generateResourceClass($collection, $items->toArray());
+            $classes[] = $this->generateResourceClass($collection, $items->toArray());
         }
 
         return $classes;
@@ -176,9 +194,8 @@ class CodeGenerator
     /**
      * @param  array|Endpoint[]  $endpoints
      */
-    public function generateResourceClass(string $resourceName, array $endpoints): PhpFile
+    public function generateResourceClass(string $resourceName, array $endpoints): ?PhpFile
     {
-
         $classType = new ClassType($resourceName);
 
         $classType->setExtends("{$this->namespace}\\Resource");
@@ -195,8 +212,19 @@ class CodeGenerator
                 "{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}"
             );
 
-            $method = $classType
-                ->addMethod($this->safeVariableName($endpoint->name));
+            try {
+
+                $method = $classType
+                    ->addMethod($this->safeVariableName($endpoint->name));
+            } catch (InvalidStateException $exception) {
+                $unduplicated = $this->safeVariableName(
+                    $endpoint->name.' '.Str::random(3)
+                );
+                dump('DUPLICATE: '.$this->safeVariableName($endpoint->name).' -> '.$unduplicated);
+
+                // TODO: handle more gracefully in the future
+                $method = $classType->addMethod($unduplicated);
+            }
 
             foreach ($endpoint->allParameters() as $parameter) {
                 $this->addPropertyToMethod($method, $parameter);
@@ -204,22 +232,16 @@ class CodeGenerator
 
             $args = [];
             foreach ($endpoint->allParameters() as $parameter) {
-                $args[] = sprintf('%s $%s',
-                    $parameter->type,
-                    $this->safeVariableName($parameter->name),
-                );
+                $args[] = new Literal(sprintf('$%s', $this->safeVariableName($parameter->name)));
             }
 
             $method->setBody(
-                new Literal(sprintf('return $this->connector->send(new %s(%s))', $requestClassName, implode(', ', $args)))
+                new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassName, implode(', ', $args)))
             );
 
         }
 
-        $namespace
-            ->add($classType);
-
-        dump((string) $classFile);
+        $namespace->add($classType);
 
         return $classFile;
     }
@@ -271,6 +293,7 @@ class CodeGenerator
     protected function normalize(string $value): string
     {
         return Str::of($value)
+            ->replaceMatches('/([a-z])([A-Z])/', '$1 $2') // YearEndNote -> Year End Note
             ->replace(' a ', ' ')
             ->replace(' an ', ' ')
             ->replace("'s ", ' ')
@@ -281,6 +304,8 @@ class CodeGenerator
             ->replace(')', ' ')
             ->replace('/', ' ')
             ->replace('-', ' ')
+            ->replace('_', ' ')
+            ->slug(' ')
             ->squish()
             ->trim();
     }

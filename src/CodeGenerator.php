@@ -119,8 +119,6 @@ class CodeGenerator
             ->addUse(Request::class)
             ->add($classType);
 
-        dump((string) $classFile);
-
         return $classFile;
     }
 
@@ -183,13 +181,12 @@ class CodeGenerator
 
         $classType = new ClassType($resourceName);
 
-        $classType->setExtends(Request::class); // TODO: Change to resource
-        //            ->setComment($endpoint->name)
-        //            ->addComment('')
-        //            ->addComment(Utils::wrapLongLines($endpoint->name ?? ''))
+        $classType->setExtends("{$this->namespace}\\Resource");
 
         $classFile = new PhpFile;
-        $namespace = $classFile->addNamespace("{$this->namespace}\\{$this->resourceNamespaceSuffix}");
+        $namespace = $classFile
+            ->addNamespace("{$this->namespace}\\{$this->resourceNamespaceSuffix}")
+            ->addUse("{$this->namespace}\\Resource");
 
         foreach ($endpoints as $endpoint) {
             $requestClassName = $this->safeClassName($endpoint->name);
@@ -219,7 +216,10 @@ class CodeGenerator
 
         }
 
-        $namespace->add($classType);
+        $namespace
+            ->add($classType);
+
+        dump((string) $classFile);
 
         return $classFile;
     }

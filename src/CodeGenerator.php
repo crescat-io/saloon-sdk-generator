@@ -15,8 +15,8 @@ use Nette\PhpGenerator\Dumper;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
-use Saloon\Contracts\Connector;
 use Saloon\Enums\Method as SaloonHttpMethod;
+use Saloon\Http\Connector;
 use Saloon\Http\Request;
 
 class CodeGenerator
@@ -101,15 +101,42 @@ class CodeGenerator
 
         $classConstructor = $classType->addMethod('__construct');
 
-        foreach ($endpoint->allParameters() as $parameter) {
-            $this->addPromotedPropertyToMethod($classConstructor, $parameter);
+        // Priority 1. - Path Parameters
+        foreach ($endpoint->pathParameters as $pathParam) {
+            if (! Str::startsWith($pathParam->name, ':')) {
+                continue;
+            }
+
+            $this->addPromotedPropertyToMethod($classConstructor, $pathParam);
         }
 
-        // TODO: skip if no params
-        $this->generateMethodReturningParamsAsArray($classType, 'defaultBody', $endpoint->bodyParameters);
+        // Priority 2. - Body Parameters
+        if (! empty($endpoint->bodyParameters)) {
+            $bodyParams = collect($endpoint->bodyParameters)
+                ->reject(fn (Parameter $parameter) => in_array($parameter->name, $this->ignoredBodyParams))
+                ->values()
+                ->toArray();
 
-        // TODO: skip if no params
-        $this->generateMethodReturningParamsAsArray($classType, 'defaultQuery', $endpoint->queryParameters);
+            foreach ($bodyParams as $bodyParam) {
+                $this->addPromotedPropertyToMethod($classConstructor, $bodyParam);
+            }
+
+            $this->generateMethodReturningParamsAsArray($classType, 'defaultBody', $bodyParams);
+        }
+
+        // Priority 3. - Query Parameters
+        if (! empty($endpoint->queryParameters)) {
+            $queryParams = collect($endpoint->queryParameters)
+                ->reject(fn (Parameter $parameter) => in_array($parameter->name, $this->ignoredQueryParams))
+                ->values()
+                ->toArray();
+
+            foreach ($queryParams as $queryParam) {
+                $this->addPromotedPropertyToMethod($classConstructor, $queryParam);
+            }
+
+            $this->generateMethodReturningParamsAsArray($classType, 'defaultQuery', $queryParams);
+        }
 
         $classFile = new PhpFile;
         $classFile->addNamespace("{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}")
@@ -213,9 +240,7 @@ class CodeGenerator
             );
 
             try {
-
-                $method = $classType
-                    ->addMethod($this->safeVariableName($endpoint->name));
+                $method = $classType->addMethod($this->safeVariableName($endpoint->name));
             } catch (InvalidStateException $exception) {
                 $unduplicated = $this->safeVariableName(
                     $endpoint->name.' '.Str::random(3)
@@ -226,12 +251,31 @@ class CodeGenerator
                 $method = $classType->addMethod($unduplicated);
             }
 
-            foreach ($endpoint->allParameters() as $parameter) {
+            $args = [];
+            
+            foreach ($endpoint->pathParameters as $parameter) {
+                if (! Str::startsWith($parameter->name, ':')) {
+                    continue;
+                }
+
                 $this->addPropertyToMethod($method, $parameter);
+                $args[] = new Literal(sprintf('$%s', $this->safeVariableName($parameter->name)));
             }
 
-            $args = [];
-            foreach ($endpoint->allParameters() as $parameter) {
+            foreach ($endpoint->bodyParameters as $parameter) {
+                if (in_array($parameter->name, $this->ignoredBodyParams)) {
+                    continue;
+                }
+
+                $this->addPropertyToMethod($method, $parameter);
+                $args[] = new Literal(sprintf('$%s', $this->safeVariableName($parameter->name)));
+            }
+
+            foreach ($endpoint->queryParameters as $parameter) {
+                if (in_array($parameter->name, $this->ignoredQueryParams)) {
+                    continue;
+                }
+                $this->addPropertyToMethod($method, $parameter);
                 $args[] = new Literal(sprintf('$%s', $this->safeVariableName($parameter->name)));
             }
 
@@ -262,9 +306,19 @@ class CodeGenerator
     protected function generateConnectorClass(array $endpoints): ?PhpFile
     {
         $classType = new ClassType($this->connectorName);
+        $classType->setExtends(Connector::class);
 
-        $classType
-            ->addImplement(Connector::class);
+        $classFile = new PhpFile();
+
+        $classType->addMethod('resolveBaseUrl')
+            ->setReturnType('string')
+            ->setBody(
+                new Literal(sprintf('return "TODO";')) // TODO: Wrap endpoint array in a root level object that contains baseurl, name and description
+            );
+
+        $namespace = $classFile
+            ->addNamespace("{$this->namespace}")
+            ->addUse(Connector::class);
 
         $collections = collect($endpoints)
             ->map(function (Endpoint $endpoint) {
@@ -275,17 +329,17 @@ class CodeGenerator
             ->all();
 
         foreach ($collections as $collection) {
+            $resourceClassName = $this->safeClassName($collection);
+
             $classType->addMethod($this->safeVariableName($collection))
                 ->setBody(
-                    new Literal(sprintf('return new %s($this)', $this->safeClassName($collection)))
+                    new Literal(sprintf('return new %s($this);', $resourceClassName))
                 );
 
+            $namespace->addUse("{$this->namespace}\\{$this->resourceNamespaceSuffix}\\{$resourceClassName}");
         }
 
-        $classFile = new PhpFile();
-        $classFile->addNamespace("{$this->namespace}")
-            ->addUse(Connector::class)
-            ->add($classType);
+        $namespace->add($classType);
 
         return $classFile;
     }

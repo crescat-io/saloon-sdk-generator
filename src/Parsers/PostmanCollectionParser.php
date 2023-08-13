@@ -52,7 +52,6 @@ class PostmanCollectionParser implements Parser
         }
 
         return $requests;
-
     }
 
     public function parseEndpoint(Item $item): ?Endpoint
@@ -64,47 +63,57 @@ class PostmanCollectionParser implements Parser
             collection: end($this->collectionQueue),
             response: $item->request->body?->rawAsJson(),
             description: $item->description,
-            queryParameters: collect($item->request->url->query)->map(function ($param) {
-                if (! Arr::get($param, 'key')) {
-                    return null;
-                }
-
-                return new Parameter(
-                    type: 'string',
-                    nullable: true,
-                    name: Arr::get($param, 'key'),
-                    description: Arr::get($param, 'description', '')
-                );
-            })->filter()->values()->toArray(),
-            pathParameters: collect($item->request->url->query)->map(function ($param) {
-                if (! Arr::get($param, 'key')) {
-                    return null;
-                }
-
-                return new Parameter(
-                    type: 'string',
-                    nullable: true,
-                    name: Arr::get($param, 'key'),
-                    description: Arr::get($param, 'description', ''),
-                );
-            })->filter()->values()->toArray(),
-
-            //            bodyParameters: collect(Utils::extractExpectedTypes($item->request->body?->rawAsJson()) ?? [])
-            //                ->filter()
-            //                ->map(function ($bodyParam, $key ) {
-            //
-            //
-            //
-            //                    dump($key);
-            //                    dump($bodyParam);
-            //
-            //                    return new Parameter(
-            //                        type: 'mixed',
-            //                        name: $bodyParam,
-            //                    );
-            //                })
-            //                ->toArray()
+            queryParameters: $this->parseQueryParameters($item),
+            pathParameters: $this->parsePathParameters($item),
+            bodyParameters: $this->parseBodyParameters($item),
 
         );
+    }
+
+    protected function parseQueryParameters(Item $item): array
+    {
+        return collect($item->request->url->query)->map(function ($param) {
+            if (! Arr::get($param, 'key')) {
+                return null;
+            }
+
+            return new Parameter(
+                type: 'string',
+                nullable: true,
+                name: Arr::get($param, 'key'),
+                description: Arr::get($param, 'description', '')
+            );
+        })->filter()->values()->toArray();
+    }
+
+    protected function parsePathParameters(Item $item): array
+    {
+        return collect($item->request->url->path)->filter()->map(function ($param) {
+            return new Parameter(
+                type: 'string',
+                nullable: true,
+                name: $param,
+            );
+        })->filter()->values()->toArray();
+    }
+
+    protected function parseBodyParameters(Item $item): array
+    {
+        $body = $item->request->body?->rawAsJson();
+
+        if (! $body) {
+            return [];
+        }
+
+        return collect(array_keys($body))
+            ->filter()
+            ->map(function ($param) {
+                return new Parameter(
+                    type: 'mixed',
+                    nullable: true,
+                    name: $param,
+                );
+            })
+            ->toArray();
     }
 }

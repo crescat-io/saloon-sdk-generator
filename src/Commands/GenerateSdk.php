@@ -5,9 +5,11 @@ namespace Crescat\SaloonSdkGenerator\Commands;
 use cebe\openapi\Reader;
 use cebe\openapi\ReferenceContext;
 use Crescat\SaloonSdkGenerator\CodeGenerator;
+use Crescat\SaloonSdkGenerator\Data\Generator\CodeGenerationResult;
 use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
 use Crescat\SaloonSdkGenerator\Parsers\OpenApiParser;
 use Crescat\SaloonSdkGenerator\Parsers\PostmanCollectionParser;
+use Crescat\SaloonSdkGenerator\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
@@ -15,7 +17,7 @@ use Nette\PhpGenerator\PhpFile;
 
 class GenerateSdk extends Command
 {
-    protected $signature = 'generate:sdk {path} {--type=postman} {--name=Unnamed} {--output=./build} {--force}';
+    protected $signature = 'generate:sdk {path} {--type=postman} {--name=Unnamed} {--output=./build} {--force} {--dry}';
 
     protected array $usedClassNames = [];
 
@@ -52,24 +54,6 @@ class GenerateSdk extends Command
             )
         };
 
-        $endpoints = $parser->parse();
-
-        //        $groupedByCollection = collect($endpoints)->groupBy(fn (Endpoint $endpoint) => $endpoint->collection);
-        //
-        //        foreach ($groupedByCollection as $collection => $items) {
-        //
-        //            $this->newLine();
-        //            $this->comment("$collection");
-        //
-        //            foreach ($items as $item) {
-        //                $prefix = strtoupper(str_pad($item->method, 6, ' ', STR_PAD_LEFT));
-        //                $path = $item->pathAsString();
-        //                $this->line("{$prefix}: {$path}");
-        //            }
-        //        }
-        //
-        //        return;
-
         $generator = new CodeGenerator(
             namespace: "App\Sdk",
             resourceNamespaceSuffix: 'Resource',
@@ -86,29 +70,60 @@ class GenerateSdk extends Command
 
         $result = $generator->run($parser);
 
+        $this->option('dry')
+            ? $this->printGeneratedFiles($result)
+            : $this->dumpGeneratedFiles($result);
+    }
+
+    protected function printGeneratedFiles(CodeGenerationResult $result): void
+    {
         $this->title('Generated Files');
+
         $this->comment("\nConnector:");
         if ($result->connectorClass) {
-            //            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+        }
+
+        $this->comment("\nBase Resource:");
+        if ($result->resourceBaseClass) {
+            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+        }
+
+        $this->comment("\nResources:");
+        foreach ($result->resourceClasses as $resourceClass) {
+            $this->line(Utils::formatNamespaceAndClass($resourceClass));
+        }
+
+        $this->comment("\nRequests:");
+        foreach ($result->requestClasses as $requestClass) {
+            $this->line(Utils::formatNamespaceAndClass($requestClass));
+        }
+    }
+
+    protected function dumpGeneratedFiles(CodeGenerationResult $result): void
+    {
+
+        $this->title('Generated Files');
+
+        $this->comment("\nConnector:");
+        if ($result->connectorClass) {
             $this->dumpToFile($result->connectorClass);
         }
+
+        $this->comment("\nBase Resource:");
         if ($result->resourceBaseClass) {
-            //            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
             $this->dumpToFile($result->resourceBaseClass);
         }
 
         $this->comment("\nResources:");
         foreach ($result->resourceClasses as $resourceClass) {
-            //            $this->line(Utils::formatNamespaceAndClass($resourceClass));
             $this->dumpToFile($resourceClass);
         }
 
         $this->comment("\nRequests:");
         foreach ($result->requestClasses as $requestClass) {
-            //            $this->line(Utils::formatNamespaceAndClass($requestClass));
             $this->dumpToFile($requestClass);
         }
-
     }
 
     protected function dumpToFile(PhpFile $file)

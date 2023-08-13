@@ -113,7 +113,7 @@ class CodeGenerator
 
         $classFile = new PhpFile;
         $classFile->addNamespace("{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}")
-            ->addUse(Method::class)
+            ->addUse(SaloonHttpMethod::class)
             ->addUse(DateTime::class)
             ->addUse(Request::class)
             ->add($classType);

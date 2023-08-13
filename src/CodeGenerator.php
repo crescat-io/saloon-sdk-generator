@@ -72,7 +72,7 @@ class CodeGenerator
         $classType->setExtends(Request::class)
             ->setComment($endpoint->name)
             ->addComment('')
-            ->addComment(Utils::wrapLongLines($endpoint->name ?? ''));
+            ->addComment(Utils::wrapLongLines($endpoint->description ?? ''));
 
         $classType->addProperty('method')
             ->setProtected()

@@ -299,6 +299,14 @@ class CodeGenerator
         $classType = new ClassType($this->connectorName);
         $classType->setExtends(Connector::class);
 
+        if ($endpoints->name) {
+            $classType->addComment($endpoints->name);
+        }
+
+        if ($endpoints->description) {
+            $classType->addComment($endpoints->name ? "\n{$endpoints->description}" : $endpoints->description);
+        }
+
         $classFile = new PhpFile();
 
         $classType->addMethod('resolveBaseUrl')

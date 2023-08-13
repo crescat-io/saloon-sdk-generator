@@ -106,8 +106,11 @@ class CodeGenerator
             $this->addPropertyToMethod($classConstructor, $parameter);
         }
 
-        $this->generateArrayReturningMethod($classType, 'defaultBody', $endpoint->bodyParameters);
-        $this->generateArrayReturningMethod($classType, 'defaultQuery', $endpoint->queryParameters);
+        // TODO: skip if no params
+        $this->generateMethodReturningArray($classType, 'defaultBody', $endpoint->bodyParameters);
+
+        // TODO: skip if no params
+        $this->generateMethodReturningArray($classType, 'defaultQuery', $endpoint->queryParameters);
 
         $classFile = new PhpFile;
         $classFile->addNamespace("{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}")
@@ -121,7 +124,7 @@ class CodeGenerator
         return $classFile;
     }
 
-    protected function generateArrayReturningMethod(ClassType $classType, string $name, array $parameters): Method
+    protected function generateMethodReturningArray(ClassType $classType, string $name, array $parameters): Method
     {
         $array = collect($parameters)
             ->mapWithKeys(fn (Parameter $parameter) => [

@@ -10,6 +10,7 @@ use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Dumper;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
@@ -105,8 +106,8 @@ class CodeGenerator
             $this->addPropertyToMethod($classConstructor, $parameter);
         }
 
-        //        $this->buildQueryParamMethod($item, $classType);
-        //        $this->buildBodyDataMethod($item, $classType);
+        $this->generateArrayReturningMethod($classType, 'defaultBody', $endpoint->bodyParameters);
+        $this->generateArrayReturningMethod($classType, 'defaultQuery', $endpoint->queryParameters);
 
         $classFile = new PhpFile;
         $classFile->addNamespace("{$this->namespace}\\{$this->requestNamespaceSuffix}\\{$resourceName}")
@@ -118,6 +119,22 @@ class CodeGenerator
         dump((string) $classFile);
 
         return $classFile;
+    }
+
+    protected function generateArrayReturningMethod(ClassType $classType, string $name, array $parameters): Method
+    {
+        $array = collect($parameters)
+            ->mapWithKeys(fn (Parameter $parameter) => [
+                $parameter->name => new Literal(
+                    sprintf('$this->%s', $this->safeVariableName($parameter->name))
+                ),
+            ])
+            ->toArray();
+
+        return $classType
+            ->addMethod($name)
+            ->setReturnType('array')
+            ->addBody(sprintf('return %s;', (new Dumper)->dump($array)));
     }
 
     protected function addPropertyToMethod(Method $method, Parameter $parameter): Method

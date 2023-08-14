@@ -23,7 +23,7 @@ Your journey to crafting a tailored SDK starts here – with the Saloon SDK Gene
 You can install this package using Composer:
 
 ```shell
-composer require crescat/saloon-sdk-generator
+composer require crescat-io/saloon-sdk-generator
 ```
 
 ## Usage

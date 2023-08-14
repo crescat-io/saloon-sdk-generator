@@ -22,6 +22,10 @@ use Saloon\Http\Request;
 
 class CodeGenerator
 {
+    protected array $variableNameCache = [];
+
+    protected array $classNameCache = [];
+
     public function __construct(
         protected ?string $namespace,
         protected ?string $resourceNamespaceSuffix,
@@ -372,12 +376,26 @@ class CodeGenerator
 
     protected function safeVariableName(string $value): string
     {
-        return Str::camel($this->normalize($value));
+        if (isset($this->variableNameCache[$value])) {
+            return $this->variableNameCache[$value];
+        }
+
+        $result = Str::camel($this->normalize($value));
+        $this->variableNameCache[$value] = $result;
+
+        return $result;
     }
 
     protected function safeClassName(string $value): string
     {
-        return Str::studly($this->normalize($value));
+        if (isset($this->classNameCache[$value])) {
+            return $this->classNameCache[$value];
+        }
+
+        $result = Str::studly($this->normalize($value));
+        $this->classNameCache[$value] = $result;
+
+        return $result;
     }
 
     protected function generateResourceBaseClass(): PhpFile

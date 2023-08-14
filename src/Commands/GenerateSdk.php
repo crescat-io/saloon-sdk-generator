@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
 use Nette\PhpGenerator\PhpFile;
+use ZipArchive;
 
 class GenerateSdk extends Command
 {
@@ -19,7 +20,8 @@ class GenerateSdk extends Command
                             {--name=Unnamed : The name of the SDK}
                             {--output=./build : The output path where the code will be created, will be created if it does not exist.}
                             {--force : Force overwriting existing files}
-                            {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}';
+                            {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}
+                            {--zip : Generate a zip archive containing all the files}';
 
     protected array $usedClassNames = [];
 
@@ -53,6 +55,12 @@ class GenerateSdk extends Command
         );
 
         $result = $generator->run(Factory::parse($type, $inputPath));
+
+        if ($this->option('zip')) {
+            $this->generateZipArchive($result);
+
+            return;
+        }
 
         $this->option('dry')
             ? $this->printGeneratedFiles($result)
@@ -140,5 +148,45 @@ class GenerateSdk extends Command
         } else {
             $this->line("- Created: $filePath");
         }
+    }
+
+    protected function generateZipArchive(GeneratedCode $result): void
+    {
+        $zipFileName = $this->option('name').'_sdk.zip';
+        $zipPath = $this->option('output').DIRECTORY_SEPARATOR.$zipFileName;
+
+        if (! file_exists(dirname($zipPath))) {
+            mkdir(dirname($zipPath), recursive: true);
+        }
+
+        if (file_exists($zipPath) && ! $this->option('force')) {
+            $this->warn("- Zip archive already exists: $zipPath");
+
+            return;
+        }
+
+        $zip = new ZipArchive();
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            $this->error("- Failed to create the ZIP archive: $zipPath");
+
+            return;
+        }
+
+        $filesToZip = array_merge(
+            [$result->connectorClass, $result->resourceBaseClass],
+            $result->resourceClasses,
+            $result->requestClasses
+        );
+
+        foreach ($filesToZip as $file) {
+            $filePathInZip = str_replace('\\', '/', Arr::first($file->getNamespaces())->getName()).'/'.Arr::first($file->getClasses())->getName().'.php';
+            $zip->addFromString($filePathInZip, (string) $file);
+            $this->line("- Wrote file to ZIP: $filePathInZip");
+        }
+
+        $zip->close();
+
+        $this->line("- Created zip archive: $zipPath");
     }
 }

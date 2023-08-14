@@ -15,6 +15,7 @@
     ],
     "require": {
         "php": "^8.1",
+        "ext-zip": "*",
         "cebe/php-openapi": "^1.7",
         "laravel-zero/framework": "^10.0.2",
         "nette/php-generator": "^4.0",
@@ -44,6 +45,13 @@
         "build:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/Fiken",
         "build:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build/GoCardless",
         "build:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build/Tripletex",
+        "build:zip:paddle": "./codegen generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build --zip",
+        "build:zip:stripe": "./codegen generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build --zip",
+        "build:zip:tableau": "./codegen generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build --zip",
+        "build:zip:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build --zip",
+        "build:zip:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build --zip",
+        "build:zip:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build --zip",
+        "build:zip:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build --zip",
         "build:all": [
             "@build:paddle",
             "@build:tableau",

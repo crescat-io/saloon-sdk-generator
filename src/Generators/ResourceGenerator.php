@@ -124,7 +124,7 @@ class ResourceGenerator extends Generator
             )
             ->addParameter($name)
             ->setType($parameter->type)
-            ->setNullable(false);
+            ->setNullable($parameter->nullable);
 
         return $method;
     }

@@ -1,16 +1,22 @@
 <p align="center"><img src=".github/header.png"></p>
 
-# Saloon SDK Generator
+# Saloon SDK Generator - Simplified SDK Scaffolding 🚀
 
-This package offers a convenient solution for generating a PHP SDK utilizing the [Saloon](https://docs.saloon.dev/)
-package.
+Introducing the Saloon SDK Generator – your tool for quickly creating the basic structure of PHP SDKs using the
+powerful [Saloon](https://docs.saloon.dev/) package.
 
-It is designed to work with both Postman Collection JSON files (v2.1) and OpenAPI specifications. With this
-tool, you can seamlessly convert your Postman Collection or OpenAPI specifications into a comprehensive PHP SDK,
-enabling smooth interactions with APIs.
+Please note: This tool helps you set up the foundation for your SDK, but it might not create a complete, ready-to-use
+solution. 🛠️
 
-Additionally, the package provides support for creating custom parsers, allowing
-you to integrate it with various API specification formats beyond the built-in support.
+Whether you're using Postman Collection JSON files (v2.1) or OpenAPI specifications, the Saloon SDK Generator simplifies
+the process of generating PHP SDKs. It provides you with a starting point to build the initial framework for your API
+interactions.
+
+Keep in mind that the generated code might not be perfect for every situation. Think of it as a speedy way to scaffold
+your SDK structure. While you might need to customize it for specific cases, the Saloon SDK Generator saves you time by
+eliminating the need to create boilerplate code from scratch.
+
+Your journey to crafting a tailored SDK starts here – with the Saloon SDK Generator. 🌟
 
 ## Installation
 

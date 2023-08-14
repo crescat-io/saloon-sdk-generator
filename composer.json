@@ -1,6 +1,6 @@
 {
     "name": "crescat/saloon-sdk-generator",
-    "description": "Convert Postman Collections to PHP SDKs using Saloon.",
+    "description": "Simplified SDK Scaffolding for Saloon",
     "keywords": [
         "sdk generator",
         "saloon"
@@ -17,12 +17,13 @@
         "php": "^8.1",
         "ext-zip": "*",
         "cebe/php-openapi": "^1.7",
-        "laravel-zero/framework": "^10.0.2",
+        "laravel-zero/phar-updater": "^1.3",
         "nette/php-generator": "^4.0",
         "nunomaduro/termwind": "^1.15.1",
         "saloonphp/laravel-plugin": "^2.0"
     },
     "require-dev": {
+        "laravel-zero/framework": "^10.0.2",
         "laravel/pint": "^1.8",
         "mockery/mockery": "^1.5.1",
         "pestphp/pest": "^2.5"
@@ -38,27 +39,28 @@
         }
     },
     "scripts": {
-        "build:paddle": "./codegen generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build/Paddle",
-        "build:stripe": "./codegen generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build/Stripe",
-        "build:tableau": "./codegen generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build/Tableau",
-        "build:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build/Openai",
-        "build:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/Fiken",
-        "build:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build/GoCardless",
-        "build:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build/Tripletex",
-        "build:zip:paddle": "./codegen generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build --zip",
-        "build:zip:stripe": "./codegen generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build --zip",
-        "build:zip:tableau": "./codegen generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build --zip",
-        "build:zip:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build --zip",
-        "build:zip:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build --zip",
-        "build:zip:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build --zip",
-        "build:zip:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build --zip",
-        "build:all": [
+        "build": "php ./codegen app:build sdkgenerator --build-version=1.0",
+        "generate:fiken": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/Fiken",
+        "generate:gocardless": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build/GoCardless",
+        "generate:openai": "./builds/sdkgenerator generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build/Openai",
+        "generate:paddle": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build/Paddle",
+        "generate:stripe": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build/Stripe",
+        "generate:tableau": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build/Tableau",
+        "generate:tripletex": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build/Tripletex",
+        "generate:zip:fiken": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build --zip",
+        "generate:zip:gocardless": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build --zip",
+        "generate:zip:openai": "./builds/sdkgenerator generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build --zip",
+        "generate:zip:paddle": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Build --zip",
+        "generate:zip:stripe": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Build --zip",
+        "generate:zip:tableau": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build --zip",
+        "generate:zip:tripletex": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build --zip",
+        "generate:all": [
+            "@build:fiken",
+            "@build:gocardless",
+            "@build:openai",
             "@build:paddle",
             "@build:tableau",
-            "@build:openai",
-            "@build:fiken",
             "@build:tripletex",
-            "@build:gocardless",
             "@build:stripe"
         ],
         "test": "vendor/bin/pest",
@@ -76,6 +78,6 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "bin": [
-        "codegen"
+        "builds/sdkgenerator"
     ]
 }

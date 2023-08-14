@@ -28,10 +28,10 @@ composer require crescat/saloon-sdk-generator
 
 ## Usage
 
-To generate the PHP SDK from an API specification file, run the following Artisan command:
+To generate the PHP SDK from an API specification file, run the following command:
 
 ```shell
-./codegen generate:sdk API_SPEC_FILE.{json|yaml|yml}
+./builds/sdkgenerator generate:sdk API_SPEC_FILE.{json|yaml|yml}
      --type={postman|openapi} 
     [--name=SDK_NAME] 
     [--output=OUTPUT_PATH] 
@@ -56,7 +56,7 @@ Replace the placeholders with the appropriate values:
 so:
 
 ```shell
-./codegen generate:sdk ./tests/Samples/paddle.json 
+./builds/sdkgenerator generate:sdk ./tests/Samples/paddle.json 
   --force 
   --type=postman 
   --name=Paddle  
@@ -125,7 +125,7 @@ build a custom parser to integrate it. Here's how you can do it:
 Start by creating a custom parser class that implements the `Crescat\SaloonSdkGenerator\Contracts\Parser` interface.
 
 There are two ways to initialize a Parser. The first one is through the constructor, which will receive the filePath
-specified when running `./codegen generate:sdk {FILE_PATH}`.
+specified when running `./builds/sdkgenerator generate:sdk {FILE_PATH}`.
 
 Example:
 
@@ -213,7 +213,7 @@ Once registered, you can use your custom parser just like any other built-in par
 option when generating the SDK, and the SDK Generator will use your custom parser to process the API specification.
 
 ```shell
-./codegen generate:sdk API_SPEC_FILE.xxx --type=custom
+./builds/sdkgenerator generate:sdk API_SPEC_FILE.xxx --type=custom
 ```
 
 Replace `API_SPEC_FILE.xxx` with the path to your custom API specification file.
@@ -241,13 +241,13 @@ specifications, we have tested it with the following API specs.
 To generate SDKs from the provided API specs, you can use the following commands:
 
 ```shell
-./codegen build:paddle
-./codegen build:stripe
-./codegen build:tableau
-./codegen build:openai
-./codegen build:fiken
-./codegen build:gocardless
-./codegen build:tripletex
+./builds/sdkgenerator generate:paddle
+./builds/sdkgenerator generate:stripe
+./builds/sdkgenerator generate:tableau
+./builds/sdkgenerator generate:openai
+./builds/sdkgenerator generate:fiken
+./builds/sdkgenerator generate:gocardless
+./builds/sdkgenerator generate:tripletex
 ```
 
 ### Generate Zip Archives
@@ -255,13 +255,13 @@ To generate SDKs from the provided API specs, you can use the following commands
 For your convenience, you can also generate zip archives of the SDKs:
 
 ```shell
-./codegen build:zip:paddle
-./codegen build:zip:stripe
-./codegen build:zip:tableau
-./codegen build:zip:openai
-./codegen build:zip:fiken
-./codegen build:zip:gocardless
-./codegen build:zip:tripletex
+./builds/sdkgenerator generate:zip:paddle
+./builds/sdkgenerator generate:zip:stripe
+./builds/sdkgenerator generate:zip:tableau
+./builds/sdkgenerator generate:zip:openai
+./builds/sdkgenerator generate:zip:fiken
+./builds/sdkgenerator generate:zip:gocardless
+./builds/sdkgenerator generate:zip:tripletex
 ```
 
 Feel free to experiment with these commands to see how the Saloon SDK Generator transforms API specifications into PHP
@@ -290,6 +290,20 @@ reports will contribute to the ongoing development and improvement of this tool 
 - [Postman Collection Format Schema](https://blog.postman.com/introducing-postman-collection-format-schema/)
 - [Importing and Exporting Data in Postman](https://learning.postman.com/docs/getting-started/importing-and-exporting/exporting-data/)
 - [OpenAPI Specification](https://swagger.io/specification/)
+
+## Building binary
+
+To build the binary for distribution on Packagist, run the following command:
+
+```shell
+php ./builds/sdkgenerator app:build sdkgenerator --build-version=1.0
+```
+
+Or use the composer script:
+
+```shell
+composer build
+```
 
 ## Contributing
 

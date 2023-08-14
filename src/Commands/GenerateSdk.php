@@ -24,6 +24,8 @@ class GenerateSdk extends Command
                             {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}
                             {--zip : Generate a zip archive containing all the files}';
 
+    protected $description = 'Generate an SDK based on an API specification file.';
+
     protected array $usedClassNames = [];
 
     protected array $collectionQueue = [];
@@ -32,7 +34,7 @@ class GenerateSdk extends Command
     {
         $inputPath = $this->argument('path');
 
-        // TODO: Support remote URLs
+        // TODO: Support remote URLs or move this into each parser class so they can deal with it instead.
         if (! file_exists($inputPath)) {
             $this->error("File not found: $inputPath");
 

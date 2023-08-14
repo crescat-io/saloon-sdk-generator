@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => 'Crescat Saloon Sdk Generator',
+    'name' => 'Saloon SDK Generator',
 
     /*
     |--------------------------------------------------------------------------

@@ -3,9 +3,10 @@
 namespace Crescat\SaloonSdkGenerator\Commands;
 
 use Crescat\SaloonSdkGenerator\CodeGenerator;
+use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
-use Crescat\SaloonSdkGenerator\Parsers\Factory;
-use Crescat\SaloonSdkGenerator\Utils;
+use Crescat\SaloonSdkGenerator\Factory;
+use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
@@ -16,7 +17,7 @@ class GenerateSdk extends Command
 {
     protected $signature = 'generate:sdk
                             {path : Path to the API specification file to generate the SDK from, must be a local file}
-                            {--type=postman : The type of API Specification (postman, openapi, apiblueprint)}
+                            {--type=postman : The type of API Specification (postman, openapi)}
                             {--name=Unnamed : The name of the SDK}
                             {--namespace=App\\Sdk : The root namespace of the SDK}
                             {--output=./build : The output path where the code will be created, will be created if it does not exist.}
@@ -44,20 +45,23 @@ class GenerateSdk extends Command
         $type = trim(strtolower($this->option('type')));
 
         $generator = new CodeGenerator(
-            namespace: $this->option('namespace'),
-            resourceNamespaceSuffix: 'Resource',
-            requestNamespaceSuffix: 'Requests',
-            dtoNamespaceSuffix: 'Dto',
-            connectorName: $this->option('name'),
-            outputFolder: $this->option('output') ?? './Generated',
-            ignoredQueryParams: [
-                'after',
-                'order_by',
-                'per_page',
-            ]
+            config: new Config(
+                connectorName: $this->option('name'),
+                namespace: $this->option('namespace'),
+                resourceNamespaceSuffix: 'Resource',
+                requestNamespaceSuffix: 'Requests',
+                dtoNamespaceSuffix: 'Dto',
+                ignoredQueryParams: [
+                    'after',
+                    'order_by',
+                    'per_page',
+                ]
+            )
         );
 
-        $result = $generator->run(Factory::parse($type, $inputPath));
+        $specification = Factory::parse($type, $inputPath);
+
+        $result = $generator->run($specification);
 
         if ($this->option('zip')) {
             $this->generateZipArchive($result);

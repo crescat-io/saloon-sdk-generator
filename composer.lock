@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46a62cb91433dd5dc73ad6269161754c",
+    "content-hash": "e4e05bde4e0f03208fc85e5f600b913a",
     "packages": [
         {
             "name": "cebe/php-openapi",
@@ -2419,16 +2419,16 @@
         },
         {
             "name": "saloonphp/saloon",
-            "version": "v2.9.0",
+            "version": "v2.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/saloonphp/saloon.git",
-                "reference": "bee990f9fc24ac3ff6f4453b2878a6bd9859efe4"
+                "reference": "09fffb14e23933a86e96db161834878cfeeed7b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/bee990f9fc24ac3ff6f4453b2878a6bd9859efe4",
-                "reference": "bee990f9fc24ac3ff6f4453b2878a6bd9859efe4",
+                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/09fffb14e23933a86e96db161834878cfeeed7b1",
+                "reference": "09fffb14e23933a86e96db161834878cfeeed7b1",
                 "shasum": ""
             },
             "require": {
@@ -2469,7 +2469,7 @@
                 }
             ],
             "description": "Build beautiful API integrations and SDKs with Saloon",
-            "homepage": "https://github.com/sammyjo20/saloon",
+            "homepage": "https://github.com/saloonphp/saloon",
             "keywords": [
                 "api",
                 "api-integrations",
@@ -2479,7 +2479,7 @@
             ],
             "support": {
                 "issues": "https://github.com/saloonphp/saloon/issues",
-                "source": "https://github.com/saloonphp/saloon/tree/v2.9.0"
+                "source": "https://github.com/saloonphp/saloon/tree/v2.9.1"
             },
             "funding": [
                 {
@@ -2491,7 +2491,7 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2023-08-10T16:47:43+00:00"
+            "time": "2023-08-10T17:58:08+00:00"
         },
         {
             "name": "symfony/console",
@@ -6260,16 +6260,16 @@
         },
         {
             "name": "pestphp/pest",
-            "version": "v2.13.0",
+            "version": "v2.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pestphp/pest.git",
-                "reference": "47f2ae32c14cd3f15520f5a12a3c36fdec25a2ee"
+                "reference": "df2212055b8a11c881ff2f59a8976c51d03e05ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pestphp/pest/zipball/47f2ae32c14cd3f15520f5a12a3c36fdec25a2ee",
-                "reference": "47f2ae32c14cd3f15520f5a12a3c36fdec25a2ee",
+                "url": "https://api.github.com/repos/pestphp/pest/zipball/df2212055b8a11c881ff2f59a8976c51d03e05ed",
+                "reference": "df2212055b8a11c881ff2f59a8976c51d03e05ed",
                 "shasum": ""
             },
             "require": {
@@ -6346,7 +6346,7 @@
             ],
             "support": {
                 "issues": "https://github.com/pestphp/pest/issues",
-                "source": "https://github.com/pestphp/pest/tree/v2.13.0"
+                "source": "https://github.com/pestphp/pest/tree/v2.14.0"
             },
             "funding": [
                 {
@@ -6358,7 +6358,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-09T11:14:39+00:00"
+            "time": "2023-08-14T08:41:14+00:00"
         },
         {
             "name": "pestphp/pest-plugin",

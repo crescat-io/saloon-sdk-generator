@@ -115,6 +115,72 @@ foreach ($result->requestClasses as $requestClass) {
 }
 ```
 
+---
+
+## How It Works
+
+The Saloon SDK Generator automates the creation of PHP SDKs by following these steps:
+
+### 1. Parsing API Specifications
+
+The parser reads and understands different API specification formats, including Postman Collection JSON (v2.1), OpenAPI
+specifications, and custom formats. When executed, it:
+
+- Takes an input file.
+- Converts the contents into an internal format called `ApiSpecification`.
+- This format provides a comprehensive view of the API, which the SDK generator uses.
+
+### 2. Auto-generating SDK Components
+
+This component automatically generates essential SDK components based on parsed specifications:
+
+- Request classes
+- Resource classes
+- Data Transfer Objects (DTOs)
+- Connectors
+- Foundational resource class
+
+### 3. Configurable Generators
+
+The Saloon SDK Generator is modular, allowing you to replace default generators with custom ones to tailor the SDK
+generation to your needs. The following generators can be customized:
+
+- `BaseResourceGenerator`
+- `ConnectorGenerator`
+- `DtoGenerator`
+- `RequestGenerator`
+- `ResourceGenerator`
+
+## Core Data Structures
+
+These foundational structures form the basis of the generated SDK output:
+
+### 1. ApiSpecification
+
+- Represents the entire API specification.
+- Contains metadata like name, description, base URL, and endpoints catalog.
+
+### 2. Config
+
+- Central repository for SDK generator configurations.
+- Defines namespaces, component suffixes, and other parameters.
+- Customizable for specific requirements.
+
+### 3. Endpoint
+
+- Describes individual API endpoints.
+- Includes method types, path segments, and related parameters.
+
+### 4. GeneratedCode
+
+- Captures the complete generated SDK code.
+- Encompasses PHP files for request classes, resource classes, DTOs, connectors, and foundational resource class.
+
+### 5. Parameter
+
+- Describes parameters associated with API endpoints.
+- Includes attributes like type, name, and nullability.
+
 ## Building a Custom Parser
 
 If you're working with an API specification format that isn't natively supported by the Saloon SDK Generator, you can
@@ -200,8 +266,8 @@ To make your custom parser available in the SDK Generator, you need to register 
 class's `registerParser` method.
 
 ```php
-use Crescat\SaloonSdkGenerator\Parsers\Factory;
-use YourNamespace\CustomParser; // Replace with the actual namespace of your custom parser
+use Crescat\SaloonSdkGenerator\Factory;use YourNamespace\CustomParser;
+// Replace with the actual namespace of your custom parser
 
 // Register your custom parser
 Factory::registerParser('custom', CustomParser::class);
@@ -220,6 +286,67 @@ Replace `API_SPEC_FILE.xxx` with the path to your custom API specification file.
 
 Now your custom parser is seamlessly integrated into the Saloon SDK Generator, allowing you to generate SDKs from API
 specifications in your custom format.
+
+## Swapping Out Default Code Generators
+
+The Saloon SDK Generator is built with flexibility in mind. If you need to customize the generation process for any
+component of the SDK, you can easily swap out any of the default generators with your own custom implementation.
+
+### Implementing a Custom Generator
+
+To create a custom generator:
+
+1. Create a new class that implements the `Crescat\SaloonSdkGenerator\Contracts\Generator` interface.
+
+   This interface requires two methods:
+    - A constructor that accepts a `Config` object.
+    - A `generate` method that returns either a single `PhpFile` or an array of `PhpFile` objects.
+
+Example:
+
+```php
+namespace YourNamespace;
+
+use Crescat\SaloonSdkGenerator\Contracts\Generator;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
+use Crescat\SaloonSdkGenerator\Data\Generator\Config;
+use Nette\PhpGenerator\PhpFile;
+
+class CustomRequestGenerator implements Generator
+{
+    public function __construct(Config $config)
+    {
+        // Initialize your generator with the configuration
+    }
+
+    public function generate(ApiSpecification $specification): PhpFile|array
+    {
+        // Your custom generation logic here
+    }
+}
+```
+
+### Using Your Custom Generator
+
+Once you've created your custom generator, you can use it by passing an instance of it when creating
+the `CodeGenerator`:
+
+```php
+$customRequestGenerator = new CustomRequestGenerator($config);
+
+$codeGenerator = new CodeGenerator(
+    config: $config,
+    requestGenerator: $customRequestGenerator
+    // ... you can pass other custom generators as needed
+);
+
+$result = $codeGenerator->run($specification);
+```
+
+By providing your custom generator as an argument to the `CodeGenerator`, it will be used in place of the default one.
+This allows for extensive customization of the SDK generation process to suit your specific needs.
+
+---
 
 ## Tested with Real API Specifications Samples
 
@@ -308,14 +435,15 @@ composer build
 ## TODOs
 
 - Generate DTOs based on JSON responses
+- When no body can be parsed for POST requests, it should warn the user and add a TODO in the generated code.
 - Support older swagger API specification
 - Inject "path" variable in the resource constructor via the connector for clean chaining
-    - exmple: `$sdk->resource(userId: 1)->deleteUser();`
+    - example: `$sdk->resource(userId: 1)->deleteUser();`
 
 ## Contributing
 
 Contributions to this package are welcome! If you find any issues or want to suggest improvements, please submit a pull
-request or open an issue on the [GitHub repository](link-to-your-repo).
+request or open an issue in the [Issue Tracker](https://github.com/crescat-io/saloon-sdk-generator/issues).
 
 ## Credits
 

@@ -19,10 +19,19 @@ class PostmanCollectionParser implements Parser
 
     public function __construct(protected PostmanCollection $postmanCollection)
     {
+
+    }
+
+    public static function build($content): self
+    {
+        return json_validate($content)
+            ? new self(PostmanCollection::fromString($content))
+            : new self(PostmanCollection::fromString(file_get_contents($content)));
     }
 
     public function parse(): Endpoints
     {
+
         return new Endpoints(
             name: $this->postmanCollection->info->name,
             description: $this->postmanCollection->info->description,

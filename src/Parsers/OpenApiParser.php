@@ -2,6 +2,8 @@
 
 namespace Crescat\SaloonSdkGenerator\Parsers;
 
+use cebe\openapi\Reader;
+use cebe\openapi\ReferenceContext;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
@@ -19,6 +21,16 @@ class OpenApiParser implements Parser
 {
     public function __construct(protected OpenApi $openApi)
     {
+    }
+
+    public static function build($content): self
+    {
+
+        return new self(
+            Str::endsWith($content, '.json')
+                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
+                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
+        );
     }
 
     public function parse(): Endpoints

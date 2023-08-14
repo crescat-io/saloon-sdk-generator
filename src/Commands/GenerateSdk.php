@@ -2,13 +2,9 @@
 
 namespace Crescat\SaloonSdkGenerator\Commands;
 
-use cebe\openapi\Reader;
-use cebe\openapi\ReferenceContext;
 use Crescat\SaloonSdkGenerator\CodeGenerator;
-use Crescat\SaloonSdkGenerator\Data\Generator\CodeGenerationResult;
-use Crescat\SaloonSdkGenerator\Data\Postman\PostmanCollection;
-use Crescat\SaloonSdkGenerator\Parsers\OpenApiParser;
-use Crescat\SaloonSdkGenerator\Parsers\PostmanCollectionParser;
+use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
+use Crescat\SaloonSdkGenerator\Parsers\Factory;
 use Crescat\SaloonSdkGenerator\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -17,7 +13,13 @@ use Nette\PhpGenerator\PhpFile;
 
 class GenerateSdk extends Command
 {
-    protected $signature = 'generate:sdk {path} {--type=postman} {--name=Unnamed} {--output=./build} {--force} {--dry}';
+    protected $signature = 'generate:sdk
+                            {path : Path to the API specification file to generate the SDK from, must be a local file}
+                            {--type=postman : The type of API Specification (postman, openapi, apiblueprint)}
+                            {--name=Unnamed : The name of the SDK}
+                            {--output=./build : The output path where the code will be created, will be created if it does not exist.}
+                            {--force : Force overwriting existing files}
+                            {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}';
 
     protected array $usedClassNames = [];
 
@@ -27,32 +29,14 @@ class GenerateSdk extends Command
     {
         $inputPath = $this->argument('path');
 
+        // TODO: Support remote URLs
         if (! file_exists($inputPath)) {
             $this->error("File not found: $inputPath");
 
             return;
         }
 
-        $raw = file_get_contents($inputPath);
-
-        if (! $raw) {
-            $this->error('File is empty');
-
-            return;
-        }
-
         $type = trim(strtolower($this->option('type')));
-        $parser = match ($type) {
-            // TODO: improve "type guessing", should also support remote urls
-            'openapi' => new OpenApiParser(
-                openApi: str_ends_with($inputPath, '.json')
-                    ? Reader::readFromJsonFile(fileName: realpath($inputPath), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
-                    : Reader::readFromYamlFile(fileName: realpath($inputPath), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
-            ),
-            'postman' => new PostmanCollectionParser(
-                PostmanCollection::fromJson(json_decode($raw, true))
-            )
-        };
 
         $generator = new CodeGenerator(
             namespace: "App\Sdk",
@@ -68,14 +52,14 @@ class GenerateSdk extends Command
             ]
         );
 
-        $result = $generator->run($parser);
+        $result = $generator->run(Factory::parse($type, $inputPath));
 
         $this->option('dry')
             ? $this->printGeneratedFiles($result)
             : $this->dumpGeneratedFiles($result);
     }
 
-    protected function printGeneratedFiles(CodeGenerationResult $result): void
+    protected function printGeneratedFiles(GeneratedCode $result): void
     {
         $this->title('Generated Files');
 
@@ -86,7 +70,7 @@ class GenerateSdk extends Command
 
         $this->comment("\nBase Resource:");
         if ($result->resourceBaseClass) {
-            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+            $this->line(Utils::formatNamespaceAndClass($result->resourceBaseClass));
         }
 
         $this->comment("\nResources:");
@@ -100,7 +84,7 @@ class GenerateSdk extends Command
         }
     }
 
-    protected function dumpGeneratedFiles(CodeGenerationResult $result): void
+    protected function dumpGeneratedFiles(GeneratedCode $result): void
     {
 
         $this->title('Generated Files');
@@ -126,9 +110,10 @@ class GenerateSdk extends Command
         }
     }
 
-    protected function dumpToFile(PhpFile $file)
+    protected function dumpToFile(PhpFile $file): void
     {
 
+        // TODO: Cleanup this, brittle and will break if you change the namespace
         $wip = sprintf(
             '%s/%s/%s.php',
             $this->option('output'),

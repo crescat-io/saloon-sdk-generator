@@ -2,10 +2,9 @@
 
 namespace Crescat\SaloonSdkGenerator;
 
-use Crescat\SaloonSdkGenerator\Contracts\Parser;
-use Crescat\SaloonSdkGenerator\Data\Generator\CodeGenerationResult;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
+use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -39,11 +38,9 @@ class CodeGenerator
     ) {
     }
 
-    public function run(Parser $parser): CodeGenerationResult
+    public function run(Endpoints $endpoints): GeneratedCode
     {
-        $endpoints = $parser->parse();
-
-        return new CodeGenerationResult(
+        return new GeneratedCode(
             requestClasses: $this->generateRequestClasses($endpoints),
             resourceClasses: $this->generateResourceClasses($endpoints),
             dtoClasses: $this->generateDTOs($endpoints),
@@ -53,7 +50,6 @@ class CodeGenerator
     }
 
     /**
-     * @param  array|Endpoint[]  $endpoints
      * @return array|PhpFile[]
      */
     protected function generateRequestClasses(Endpoints $endpoints): array

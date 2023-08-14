@@ -4,7 +4,7 @@ namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 use Nette\PhpGenerator\PhpFile;
 
-class CodeGenerationResult
+class GeneratedCode
 {
     /**
      * @param  array|PhpFile[]  $requestClasses

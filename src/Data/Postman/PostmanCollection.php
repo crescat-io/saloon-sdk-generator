@@ -22,4 +22,9 @@ class PostmanCollection
             variables: array_map(fn ($item) => Variable::fromJson($item), $json['variable'] ?? []),
         );
     }
+
+    public static function fromString(string $content): self
+    {
+        return self::fromJson(json_decode($content, true));
+    }
 }

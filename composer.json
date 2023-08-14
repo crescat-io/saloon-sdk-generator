@@ -40,6 +40,7 @@
     },
     "scripts": {
         "build": "php ./codegen app:build sdkgenerator --build-version=1.0",
+        "clean": "rm -rf ./tests/build/*",
         "generate:fiken": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Build/Fiken",
         "generate:gocardless": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Build/GoCardless",
         "generate:openai": "./builds/sdkgenerator generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Build/Openai",
@@ -55,13 +56,13 @@
         "generate:zip:tableau": "./builds/sdkgenerator generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Build --zip",
         "generate:zip:tripletex": "./builds/sdkgenerator generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Build --zip",
         "generate:all": [
-            "@build:fiken",
-            "@build:gocardless",
-            "@build:openai",
-            "@build:paddle",
-            "@build:tableau",
-            "@build:tripletex",
-            "@build:stripe"
+            "@generate:fiken",
+            "@generate:gocardless",
+            "@generate:openai",
+            "@generate:paddle",
+            "@generate:tableau",
+            "@generate:tripletex",
+            "@generate:stripe"
         ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",

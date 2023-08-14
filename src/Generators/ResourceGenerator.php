@@ -13,6 +13,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
+use Saloon\Contracts\Response;
 
 class ResourceGenerator extends Generator
 {
@@ -58,9 +59,11 @@ class ResourceGenerator extends Generator
         foreach ($endpoints as $endpoint) {
             $requestClassName = NameHelper::safeClassName($endpoint->name);
 
-            $namespace->addUse(
-                "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}"
-            );
+            $namespace
+                ->addUse(
+                    "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}"
+                )
+                ->addUse(Response::class);
 
             try {
                 $method = $classType->addMethod(NameHelper::safeVariableName($endpoint->name));
@@ -73,6 +76,8 @@ class ResourceGenerator extends Generator
                 // TODO: handle more gracefully in the future
                 $method = $classType->addMethod($unduplicated);
             }
+
+            $method->setReturnType(Response::class);
 
             $args = [];
 

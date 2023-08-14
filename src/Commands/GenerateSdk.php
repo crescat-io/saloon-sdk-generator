@@ -18,6 +18,7 @@ class GenerateSdk extends Command
                             {path : Path to the API specification file to generate the SDK from, must be a local file}
                             {--type=postman : The type of API Specification (postman, openapi, apiblueprint)}
                             {--name=Unnamed : The name of the SDK}
+                            {--namespace=App\\Sdk : The root namespace of the SDK}
                             {--output=./build : The output path where the code will be created, will be created if it does not exist.}
                             {--force : Force overwriting existing files}
                             {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}
@@ -41,7 +42,7 @@ class GenerateSdk extends Command
         $type = trim(strtolower($this->option('type')));
 
         $generator = new CodeGenerator(
-            namespace: "App\Sdk",
+            namespace: $this->option('namespace'),
             resourceNamespaceSuffix: 'Resource',
             requestNamespaceSuffix: 'Requests',
             dtoNamespaceSuffix: 'Dto',
@@ -125,7 +126,7 @@ class GenerateSdk extends Command
         $wip = sprintf(
             '%s/%s/%s.php',
             $this->option('output'),
-            str_replace('App\Sdk', '', Arr::first($file->getNamespaces())->getName()),
+            str_replace($this->option('namespace'), '', Arr::first($file->getNamespaces())->getName()),
             Arr::first($file->getClasses())->getName(),
         );
 

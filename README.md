@@ -29,6 +29,7 @@ To generate the PHP SDK from an API specification file, run the following Artisa
      --type={postman|openapi} 
     [--name=SDK_NAME] 
     [--output=OUTPUT_PATH] 
+    [--namespace=Company\\Integration] 
     [--force] 
     [--dry] 
     [--zip]
@@ -39,10 +40,23 @@ Replace the placeholders with the appropriate values:
 - `API_SPEC_FILE`: Path to the API specification file (JSON or YAML format).
 - `--type`: Specify the type of API specification (`postman` or `openapi`).
 - `--name`: (Optional) Specify the name of the generated SDK (default: Unnamed).
+- `--namespace`: (Optional) Specify the root namespace for the SDK (default: `App\\Sdk`).
 - `--output`: (Optional) Specify the output path where the generated code will be created (default: ./Generated).
 - `--force`: (Optional) Force overwriting existing files.
 - `--dry`: (Optional) Perform a dry run. It will not save generated files, only show a list of them.
 - `--zip`: (Optional) Use this flag to generate a zip archive containing all the generated files.
+
+**Note:** Due to PHP using Backslashes `\`, when specifying the `--namespace`, you need to escape any backslashes like
+so:
+
+```shell
+./codegen generate:sdk ./tests/Samples/paddle.json 
+  --force 
+  --type=postman 
+  --name=Paddle  
+  --output ./paddle-sdk/src 
+  --namespace=Your\\Sdk\\Namespace # <-- Note the "\\"
+```
 
 ## Using the Code Generator and Parser Programmatically
 

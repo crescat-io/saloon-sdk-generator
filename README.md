@@ -25,7 +25,7 @@ composer require crescat/saloon-sdk-generator
 To generate the PHP SDK from an API specification file, run the following Artisan command:
 
 ```shell
-php artisan generate:sdk API_SPEC_FILE.{json|yaml|yml}
+./codegen generate:sdk API_SPEC_FILE.{json|yaml|yml}
      --type={postman|openapi} 
     [--name=SDK_NAME] 
     [--output=OUTPUT_PATH] 
@@ -193,7 +193,7 @@ Once registered, you can use your custom parser just like any other built-in par
 option when generating the SDK, and the SDK Generator will use your custom parser to process the API specification.
 
 ```shell
-php artisan generate:sdk API_SPEC_FILE.xxx --type=custom
+./codegen generate:sdk API_SPEC_FILE.xxx --type=custom
 ```
 
 Replace `API_SPEC_FILE.xxx` with the path to your custom API specification file.
@@ -204,7 +204,17 @@ specifications in your custom format.
 ## Tested with Real API Specifications Samples
 
 To showcase the capabilities of the Saloon SDK Generator and to ensure its compatibility with real-world API
-specifications, we have tested it with the following API specs. You can also give it a try with these samples:
+specifications, we have tested it with the following API specs.
+
+- [Paddle](https://developer.paddle.com/api-reference/overview) (*Not publicly available*)
+- [Stripe](https://www.postman.com/stripedev/workspace/stripe-developers/collection/665823-fb030f33-dcb4-4475-a812-968d7d449fa4) (
+  *Postman*)
+- [Tableau](https://www.postman.com/salesforce-developers/workspace/salesforce-developers/collection/12721794-7d783742-165f-4d10-8c4c-5719fb60fba2) (
+  *Postman*)
+- [OpenAI](https://www.postman.com/devrel/workspace/openai/api/7e57d35c-a167-487d-bbf2-51b11576a0d8) (*Postman*)
+- [Fiken](https://api.fiken.no/api/v2/docs/swagger.yaml) (*OpenApi*)
+- [GoCardless](https://bankaccountdata.gocardless.com/api/swagger.json) (*OpenApi*)
+- [Tripletex](https://tripletex.no/v2/swagger.json) (*OpenApi*)
 
 ### Generate SDKs
 

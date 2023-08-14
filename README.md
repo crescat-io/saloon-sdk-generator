@@ -2,9 +2,15 @@
 
 # Saloon SDK Generator
 
-This package provides a convenient way to generate a PHP SDK using the [Saloon](https://docs.saloon.dev/) package based
-on a Postman Collection JSON file (v2.1). With this tool, you can quickly transform your Postman Collection into a
-fully-functional PHP SDK for interacting with APIs.
+This package offers a convenient solution for generating a PHP SDK utilizing the [Saloon](https://docs.saloon.dev/)
+package.
+
+It is designed to work with both Postman Collection JSON files (v2.1) and OpenAPI specifications. With this
+tool, you can seamlessly convert your Postman Collection or OpenAPI specifications into a comprehensive PHP SDK,
+enabling smooth interactions with APIs.
+
+Additionally, the package provides support for creating custom parsers, allowing
+you to integrate it with various API specification formats beyond the built-in support.
 
 ## Installation
 
@@ -16,11 +22,11 @@ composer require crescat/saloon-sdk-generator
 
 ## Usage
 
-To generate the PHP SDK from an API specification files run the following Artisan command:
+To generate the PHP SDK from an API specification file, run the following Artisan command:
 
 ```shell
 php artisan generate:sdk API_SPEC_FILE.{json|yaml|yml}
-     --type={postman|openapi|apiblueprint} 
+     --type={postman|openapi} 
     [--name=SDK_NAME] 
     [--output=OUTPUT_PATH] 
     [--force] 
@@ -35,10 +41,8 @@ Replace the placeholders with the appropriate values:
 - `--name`: (Optional) Specify the name of the generated SDK (default: Unnamed).
 - `--output`: (Optional) Specify the output path where the generated code will be created (default: ./Generated).
 - `--force`: (Optional) Force overwriting existing files.
-- `--dry`: (Optional) Perform a dry run. Will not save generated files, only show a list of them.
+- `--dry`: (Optional) Perform a dry run. It will not save generated files, only show a list of them.
 - `--zip`: (Optional) Use this flag to generate a zip archive containing all the generated files.
-
-Sure, here's a concise guide on integrating the code generator and parser into your own projects:
 
 ## Using the Code Generator and Parser Programmatically
 
@@ -58,7 +62,7 @@ $generator = new CodeGenerator(
 );
 ```
 
-2**Parse and Generate:**
+2. **Parse and Generate:**
 
 Parse your API specification file and generate the SDK classes:
 
@@ -69,7 +73,7 @@ $type = 'postman'; // Replace with your API specification type
 $result = $generator->run(Factory::parse($type, $inputPath));
 ```
 
-3**Use Generated Results:**
+3. **Use Generated Results:**
 
 You can access the generated classes and perform actions with them:
 
@@ -100,7 +104,7 @@ build a custom parser to integrate it. Here's how you can do it:
 
 Start by creating a custom parser class that implements the `Crescat\SaloonSdkGenerator\Contracts\Parser` interface.
 
-There are 2 ways to initialize a Parser, the first one is through the constructor, which will receive the filePath
+There are two ways to initialize a Parser. The first one is through the constructor, which will receive the filePath
 specified when running `./codegen generate:sdk {FILE_PATH}`.
 
 Example:
@@ -197,8 +201,6 @@ Replace `API_SPEC_FILE.xxx` with the path to your custom API specification file.
 Now your custom parser is seamlessly integrated into the Saloon SDK Generator, allowing you to generate SDKs from API
 specifications in your custom format.
 
-Absolutely, here's the section with all the individual code blocks combined into a single code block:
-
 ## Tested with Real API Specifications Samples
 
 To showcase the capabilities of the Saloon SDK Generator and to ensure its compatibility with real-world API
@@ -233,8 +235,8 @@ For your convenience, you can also generate zip archives of the SDKs:
 ```
 
 Feel free to experiment with these commands to see how the Saloon SDK Generator transforms API specifications into PHP
-SDKs. While these tests provide valuable insights, keep in mind that the compatibility may vary depending on the
-complexity of your specific API specification.
+SDKs. While these tests provide valuable insights, keep in mind that compatibility may vary depending on the complexity
+of your specific API specification.
 
 ## Reporting Incompatibilities
 
@@ -246,8 +248,8 @@ If you encounter issues or incompatibilities while generating SDKs from your API
 report them on our [GitHub Issue Tracker](https://github.com/crescat-io/saloon-sdk-generator/issues). Your feedback is
 valuable and can help us improve the tool over time.
 
-However, please understand that due to the nature of the project and our own priorities, we may not always be
-able to implement immediate fixes for reported issues.
+However, please understand that due to the nature of the project and our own priorities, we may not always be able to
+implement immediate fixes for reported issues.
 
 We appreciate your understanding and your interest in using the Saloon SDK Generator. Your contributions, feedback, and
 reports will contribute to the ongoing development and improvement of this tool for the broader community.
@@ -280,8 +282,7 @@ professionals.
 
 With a comprehensive suite of features such as day sheets, checklists, reporting, and crew member booking, Crescat
 simplifies event management. Professionals in the live event industry trust Crescat to streamline their workflows,
-reducing the need for
-multiple tools and outdated spreadsheets.
+reducing the need for multiple tools and outdated spreadsheets.
 
 ## License
 

@@ -305,6 +305,13 @@ Or use the composer script:
 composer build
 ```
 
+## TODOs
+
+- Generate DTOs based on JSON responses
+- Support older swagger API specification
+- Inject "path" variable in the resource constructor via the connector for clean chaining
+    - exmple: `$sdk->resource(userId: 1)->deleteUser();`
+
 ## Contributing
 
 Contributions to this package are welcome! If you find any issues or want to suggest improvements, please submit a pull

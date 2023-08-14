@@ -29,7 +29,7 @@ class MethodGeneratorHelper
             )
             ->addPromotedParameter($name)
             ->setType($parameter->type)
-            ->setNullable(false)
+            ->setNullable($parameter->nullable)
             ->setProtected();
 
         return $method;

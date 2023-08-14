@@ -11,8 +11,8 @@ use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
-use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -25,7 +25,6 @@ class OpenApiParser implements Parser
 
     public static function build($content): self
     {
-
         return new self(
             Str::endsWith($content, '.json')
                 ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
@@ -33,9 +32,9 @@ class OpenApiParser implements Parser
         );
     }
 
-    public function parse(): Endpoints
+    public function parse(): ApiSpecification
     {
-        return new Endpoints(
+        return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
             baseUrl: Arr::first($this->openApi->servers)->url,

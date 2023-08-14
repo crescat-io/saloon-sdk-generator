@@ -2,8 +2,8 @@
 
 namespace Crescat\SaloonSdkGenerator;
 
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
-use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use DateTime;
@@ -38,7 +38,7 @@ class CodeGenerator
     ) {
     }
 
-    public function run(Endpoints $endpoints): GeneratedCode
+    public function run(ApiSpecification $endpoints): GeneratedCode
     {
         return new GeneratedCode(
             requestClasses: $this->generateRequestClasses($endpoints),
@@ -52,7 +52,7 @@ class CodeGenerator
     /**
      * @return array|PhpFile[]
      */
-    protected function generateRequestClasses(Endpoints $endpoints): array
+    protected function generateRequestClasses(ApiSpecification $endpoints): array
     {
         $classes = [];
 
@@ -200,7 +200,7 @@ class CodeGenerator
     /**
      * @return array|PhpFile[]
      */
-    protected function generateResourceClasses(Endpoints $endpoints): array
+    protected function generateResourceClasses(ApiSpecification $endpoints): array
     {
         $classes = [];
 
@@ -288,13 +288,13 @@ class CodeGenerator
     /**
      * @return array|PhpFile[]
      */
-    protected function generateDTOs(Endpoints $endpoints): array
+    protected function generateDTOs(ApiSpecification $endpoints): array
     {
         // TODO: Implement generating DTOs for endpoints
         return [];
     }
 
-    protected function generateConnectorClass(Endpoints $endpoints): ?PhpFile
+    protected function generateConnectorClass(ApiSpecification $endpoints): ?PhpFile
     {
         $classType = new ClassType($this->connectorName);
         $classType->setExtends(Connector::class);

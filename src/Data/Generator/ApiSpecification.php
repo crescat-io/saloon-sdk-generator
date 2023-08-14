@@ -2,7 +2,7 @@
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
-class Endpoints
+class ApiSpecification
 {
     /**
      * @param  ?string  $name

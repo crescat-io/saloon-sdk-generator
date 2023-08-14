@@ -3,8 +3,8 @@
 namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
-use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Postman\Item;
 use Crescat\SaloonSdkGenerator\Data\Postman\ItemGroup;
@@ -29,10 +29,10 @@ class PostmanCollectionParser implements Parser
             : new self(PostmanCollection::fromString(file_get_contents($content)));
     }
 
-    public function parse(): Endpoints
+    public function parse(): ApiSpecification
     {
 
-        return new Endpoints(
+        return new ApiSpecification(
             name: $this->postmanCollection->info->name,
             description: $this->postmanCollection->info->description,
             baseUrl: collect($this->postmanCollection->variables)->firstWhere(fn (Variable $var) => $var->key == 'baseUrl')?->value,

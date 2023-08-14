@@ -3,7 +3,7 @@
 namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
-use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 
 class Factory
 {
@@ -33,7 +33,7 @@ class Factory
         return null;
     }
 
-    public static function parse($type, $input): Endpoints
+    public static function parse($type, $input): ApiSpecification
     {
         return self::createParser($type, $input)->parse();
     }

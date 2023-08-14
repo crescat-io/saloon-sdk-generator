@@ -2,9 +2,9 @@
 
 namespace Crescat\SaloonSdkGenerator\Contracts;
 
-use Crescat\SaloonSdkGenerator\Data\Generator\Endpoints;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 
 interface Parser
 {
-    public function parse(): Endpoints;
+    public function parse(): ApiSpecification;
 }

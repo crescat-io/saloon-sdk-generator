@@ -200,11 +200,11 @@ class CodeGenerator
     /**
      * @return array|PhpFile[]
      */
-    protected function generateResourceClasses(ApiSpecification $endpoints): array
+    protected function generateResourceClasses(ApiSpecification $specification): array
     {
         $classes = [];
 
-        $groupedByCollection = collect($endpoints->endpoints)->groupBy(function (Endpoint $endpoint) {
+        $groupedByCollection = collect($specification->endpoints)->groupBy(function (Endpoint $endpoint) {
             return $this->safeClassName(
                 $endpoint->collection ?: $this->fallbackResourceName
             );
@@ -288,23 +288,23 @@ class CodeGenerator
     /**
      * @return array|PhpFile[]
      */
-    protected function generateDTOs(ApiSpecification $endpoints): array
+    protected function generateDTOs(ApiSpecification $specification): array
     {
         // TODO: Implement generating DTOs for endpoints
         return [];
     }
 
-    protected function generateConnectorClass(ApiSpecification $endpoints): ?PhpFile
+    protected function generateConnectorClass(ApiSpecification $specification): ?PhpFile
     {
         $classType = new ClassType($this->connectorName);
         $classType->setExtends(Connector::class);
 
-        if ($endpoints->name) {
-            $classType->addComment($endpoints->name);
+        if ($specification->name) {
+            $classType->addComment($specification->name);
         }
 
-        if ($endpoints->description) {
-            $classType->addComment($endpoints->name ? "\n{$endpoints->description}" : $endpoints->description);
+        if ($specification->description) {
+            $classType->addComment($specification->name ? "\n{$specification->description}" : $specification->description);
         }
 
         $classFile = new PhpFile();
@@ -312,14 +312,14 @@ class CodeGenerator
         $classType->addMethod('resolveBaseUrl')
             ->setReturnType('string')
             ->setBody(
-                new Literal(sprintf(sprintf("return '%s';", $endpoints->baseUrl ?? 'TODO')))
+                new Literal(sprintf(sprintf("return '%s';", $specification->baseUrl ?? 'TODO')))
             );
 
         $namespace = $classFile
             ->addNamespace("{$this->namespace}")
             ->addUse(Connector::class);
 
-        $collections = collect($endpoints->endpoints)
+        $collections = collect($specification->endpoints)
             ->map(function (Endpoint $endpoint) {
                 return $this->safeClassName($endpoint->collection ?: $this->fallbackResourceName);
             })
@@ -334,7 +334,7 @@ class CodeGenerator
             $namespace->addUse($resourceFQN);
 
             // TODO: method names like "authenticate" will cause name collision with the Connector class methods,
-            //  add a blacklist of reserved method names and find a way to rename the method to something else, or add a pre/suffix
+            //  add a list of reserved method names and find a way to rename the method to something else, or add a pre/suffix
 
             $classType
                 ->addMethod($this->safeVariableName($collection))

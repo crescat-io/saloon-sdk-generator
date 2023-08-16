@@ -437,6 +437,19 @@ composer build
 
 ## TODOs
 
+- Create configuration (sdkgenerator --config=sdkgenerator.php/json) file that allows you to override behaviour like:
+    - what body format to use by default or fallback on
+    - ignored parameters,
+    - how to handle Pagination
+    - If you want resource classes or not
+    - failure handling  (AlwaysThrowOnErrors, custom exception classes,
+      or [custom method](https://docs.saloon.dev/the-basics/handling-failures#customising-when-saloon-thinks-a-request-has-failed))
+    - etc... (feel free to [add suggestions](https://github.com/crescat-io/saloon-sdk-generator/issues))
+- Configurable Conflict Resolver
+    - (overwrite (same as --force),
+    - new (parse code and only add code that is "new", aka new params, new methods),
+    - prompt user for each conflict (like git in interactive mode)
+    - etc...
 - Generate DTOs based on JSON responses
 - When no body can be parsed for POST requests, it should warn the user and add a TODO in the generated code.
 - Support older swagger API specification

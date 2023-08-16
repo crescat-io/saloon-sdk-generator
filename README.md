@@ -198,6 +198,8 @@ Example:
 ```php
 <?php
 
+namespace YourNamespace\CustomParser;
+
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
@@ -266,7 +268,8 @@ To make your custom parser available in the SDK Generator, you need to register 
 class's `registerParser` method.
 
 ```php
-use Crescat\SaloonSdkGenerator\Factory;use YourNamespace\CustomParser;
+use Crescat\SaloonSdkGenerator\Factory;
+use YourNamespace\CustomParser;
 // Replace with the actual namespace of your custom parser
 
 // Register your custom parser

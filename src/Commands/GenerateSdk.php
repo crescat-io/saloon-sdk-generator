@@ -27,10 +27,6 @@ class GenerateSdk extends Command
 
     protected $description = 'Generate an SDK based on an API specification file.';
 
-    protected array $usedClassNames = [];
-
-    protected array $collectionQueue = [];
-
     public function handle(): void
     {
         $inputPath = $this->argument('path');

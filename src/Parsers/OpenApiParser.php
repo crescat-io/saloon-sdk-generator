@@ -13,6 +13,7 @@ use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -66,7 +67,7 @@ class OpenApiParser implements Parser
     {
         return new Endpoint(
             name: trim($operation->operationId) ?: trim($operation->summary),
-            method: $method,
+            method: Method::parse($method),
             pathSegments: Str::of($path)->replace('{', ':')->remove('}')->trim('/')->explode('/')->toArray(),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
             response: null, // TODO: implement "definition" parsing

@@ -11,7 +11,7 @@ class Endpoint
      */
     public function __construct(
         public string $name,
-        public string $method,
+        public Method $method,
         public array $pathSegments,
 
         public ?string $collection,

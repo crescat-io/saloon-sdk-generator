@@ -5,6 +5,7 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Postman\Item;
 use Crescat\SaloonSdkGenerator\Data\Postman\ItemGroup;
@@ -71,7 +72,7 @@ class PostmanCollectionParser implements Parser
     {
         return new Endpoint(
             name: $item->name,
-            method: $item->request->method,
+            method: Method::parse($item->request->method),
             pathSegments: $item->request->url->path,
             collection: end($this->collectionQueue),
             response: $item->request->body?->rawAsJson(),

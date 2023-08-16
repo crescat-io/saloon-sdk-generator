@@ -107,7 +107,7 @@ class PostmanCollectionParser implements Parser
             ->map(function ($param) {
                 return new Parameter(
                     type: 'string',
-                    nullable: true,
+                    nullable: false,
                     name: $param,
                 );
             })

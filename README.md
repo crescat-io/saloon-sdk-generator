@@ -441,6 +441,7 @@ composer build
     - what body format to use by default or fallback on
     - ignored parameters,
     - how to handle Pagination
+    - if JSON bodies with null values should be removed 
     - If you want resource classes or not
     - failure handling  (AlwaysThrowOnErrors, custom exception classes,
       or [custom method](https://docs.saloon.dev/the-basics/handling-failures#customising-when-saloon-thinks-a-request-has-failed))

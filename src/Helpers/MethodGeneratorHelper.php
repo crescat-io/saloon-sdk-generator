@@ -23,14 +23,20 @@ class MethodGeneratorHelper
     {
         $name = NameHelper::safeVariableName($parameter->name);
 
-        $method
+        $property = $method
             ->addComment(
                 trim(sprintf('@param %s $%s %s', $parameter->type, $name, $parameter->description))
             )
-            ->addPromotedParameter($name)
+            ->addPromotedParameter($name);
+
+        $property
             ->setType($parameter->type)
             ->setNullable($parameter->nullable)
             ->setProtected();
+
+        if ($parameter->nullable) {
+            $property->setDefaultValue(null);
+        }
 
         return $method;
     }

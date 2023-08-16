@@ -454,6 +454,7 @@ composer build
 - Generate DTOs based on JSON responses
 - When no body can be parsed for POST requests, it should warn the user and add a TODO in the generated code.
 - Support older swagger API specification
+- Generate tests for all endpoints using Request mocking ([see](https://docs.saloon.dev/testing/recording-requests))
 - Inject "path" variable in the resource constructor via the connector for clean chaining
     - example: `$sdk->resource(userId: 1)->deleteUser();`
 

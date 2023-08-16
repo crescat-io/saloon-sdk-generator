@@ -15,8 +15,10 @@ use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
+use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method as SaloonHttpMethod;
 use Saloon\Http\Request;
+use Saloon\Traits\Body\HasJsonBody;
 
 class RequestGenerator extends Generator
 {
@@ -38,17 +40,32 @@ class RequestGenerator extends Generator
 
         $classType = new ClassType($className);
 
+        $classFile = new PhpFile;
+        $namespace = $classFile
+            ->addNamespace("{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}");
+
         $classType->setExtends(Request::class)
             ->setComment($endpoint->name)
             ->addComment('')
             ->addComment(Utils::wrapLongLines($endpoint->description ?? ''));
+
+        // TODO: We assume JSON body if post/patch, make these assumptions configurable in the future.
+        if ($endpoint->method->isPost() || $endpoint->method->isPatch()) {
+            $classType
+                ->addImplement(HasBody::class)
+                ->addTrait(HasJsonBody::class);
+
+            $namespace
+                ->addUse(HasBody::class)
+                ->addUse(HasJsonBody::class);
+        }
 
         $classType->addProperty('method')
             ->setProtected()
             ->setType(SaloonHttpMethod::class)
             ->setValue(
                 new Literal(
-                    sprintf('Method::%s', strtoupper($endpoint->method))
+                    sprintf('Method::%s', $endpoint->method->value)
                 )
             );
 
@@ -103,8 +120,7 @@ class RequestGenerator extends Generator
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams);
         }
 
-        $classFile = new PhpFile;
-        $classFile->addNamespace("{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}")
+        $namespace
             ->addUse(SaloonHttpMethod::class)
             ->addUse(DateTime::class)
             ->addUse(Request::class)

@@ -365,30 +365,30 @@ specifications, we have tested it with the following API specs.
 
 ### Generate SDKs
 
-To generate SDKs from the provided API specs, you can use the following commands:
+To generate SDKs from the provided API specs, you can run the following composer scripts:
 
 ```shell
-./builds/sdkgenerator generate:paddle
-./builds/sdkgenerator generate:stripe
-./builds/sdkgenerator generate:tableau
-./builds/sdkgenerator generate:openai
-./builds/sdkgenerator generate:fiken
-./builds/sdkgenerator generate:gocardless
-./builds/sdkgenerator generate:tripletex
+composer generate:paddle
+composer generate:stripe
+composer generate:tableau
+composer generate:openai
+composer generate:fiken
+composer generate:gocardless
+composer generate:tripletex
 ```
 
 ### Generate Zip Archives
 
-For your convenience, you can also generate zip archives of the SDKs:
+If you prefer, (and partially to show that it can do it), you can also generate zip archives of the SDKs:
 
 ```shell
-./builds/sdkgenerator generate:zip:paddle
-./builds/sdkgenerator generate:zip:stripe
-./builds/sdkgenerator generate:zip:tableau
-./builds/sdkgenerator generate:zip:openai
-./builds/sdkgenerator generate:zip:fiken
-./builds/sdkgenerator generate:zip:gocardless
-./builds/sdkgenerator generate:zip:tripletex
+composer generate:zip:paddle
+composer generate:zip:stripe
+composer generate:zip:tableau
+composer generate:zip:openai
+composer generate:zip:fiken
+composer generate:zip:gocardless
+composer generate:zip:tripletex
 ```
 
 Feel free to experiment with these commands to see how the Saloon SDK Generator transforms API specifications into PHP

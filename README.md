@@ -2,6 +2,10 @@
 
 # Saloon SDK Generator - Simplified SDK Scaffolding 🚀
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/crescat-io/saloon-sdk-generator.svg?style=flat-square)](https://packagist.org/packages/crescat-io/saloon-sdk-generator)
+[![Tests](https://img.shields.io/github/actions/workflow/status/crescat-io/saloon-sdk-generator/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/crescat-io/saloon-sdk-generator/actions/workflows/run-tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/crescat-io/saloon-sdk-generator.svg?style=flat-square)](https://packagist.org/packages/crescat-io/saloon-sdk-generator)
+
 Introducing the Saloon SDK Generator – your tool for quickly creating the basic structure of PHP SDKs using the
 powerful [Saloon](https://docs.saloon.dev/) package.
 

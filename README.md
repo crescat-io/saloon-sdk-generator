@@ -445,7 +445,7 @@ composer build
     - what body format to use by default or fallback on
     - ignored parameters,
     - how to handle Pagination
-    - if JSON bodies with null values should be removed 
+    - if JSON bodies with null values should be removed
     - If you want resource classes or not
     - failure handling  (AlwaysThrowOnErrors, custom exception classes,
       or [custom method](https://docs.saloon.dev/the-basics/handling-failures#customising-when-saloon-thinks-a-request-has-failed))
@@ -484,6 +484,34 @@ professionals.
 With a comprehensive suite of features such as day sheets, checklists, reporting, and crew member booking, Crescat
 simplifies event management. Professionals in the live event industry trust Crescat to streamline their workflows,
 reducing the need for multiple tools and outdated spreadsheets.
+
+## Troubleshooting:
+
+### Fixing `command not found` errors
+
+You most likely don't have the composer `vendor/bin` folder in your `$PATH`
+
+```shell
+# Default config file paths
+# Zsh:   ~/.zshrc
+# Bash:  ~/.bashrc or ~/.bash_profile
+# Fish:  ~/.config/fish/config.fish
+
+# Replace 'YOUR_USERNAME' with your actual username
+# Example: '/Users/john/.composer/vendor/bin'
+
+# Zsh
+echo 'export PATH="/Users/YOUR_USERNAME/.composer/vendor/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Bash
+echo 'export PATH="/Users/YOUR_USERNAME/.composer/vendor/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Fish
+echo 'set -gx PATH "/Users/YOUR_USERNAME/.composer/vendor/bin" $PATH' >> ~/.config/fish/config.fish
+source ~/.config/fish/config.fish
+```
 
 ## License
 

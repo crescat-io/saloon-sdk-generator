@@ -27,7 +27,7 @@ Your journey to crafting a tailored SDK starts here – with the Saloon SDK Gene
 You can install this package using Composer:
 
 ```shell
-composer require crescat-io/saloon-sdk-generator
+composer global require crescat-io/saloon-sdk-generator
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ composer require crescat-io/saloon-sdk-generator
 To generate the PHP SDK from an API specification file, run the following command:
 
 ```shell
-./builds/sdkgenerator generate:sdk API_SPEC_FILE.{json|yaml|yml}
+sdkgenerator generate:sdk API_SPEC_FILE.{json|yaml|yml}
      --type={postman|openapi} 
     [--name=SDK_NAME] 
     [--output=OUTPUT_PATH] 
@@ -60,7 +60,7 @@ Replace the placeholders with the appropriate values:
 so:
 
 ```shell
-./builds/sdkgenerator generate:sdk ./tests/Samples/paddle.json 
+sdkgenerator generate:sdk ./tests/Samples/paddle.json 
   --force 
   --type=postman 
   --name=Paddle  
@@ -195,7 +195,7 @@ build a custom parser to integrate it. Here's how you can do it:
 Start by creating a custom parser class that implements the `Crescat\SaloonSdkGenerator\Contracts\Parser` interface.
 
 There are two ways to initialize a Parser. The first one is through the constructor, which will receive the filePath
-specified when running `./builds/sdkgenerator generate:sdk {FILE_PATH}`.
+specified when running `sdkgenerator generate:sdk {FILE_PATH}`.
 
 Example:
 
@@ -286,7 +286,7 @@ Once registered, you can use your custom parser just like any other built-in par
 option when generating the SDK, and the SDK Generator will use your custom parser to process the API specification.
 
 ```shell
-./builds/sdkgenerator generate:sdk API_SPEC_FILE.xxx --type=custom
+sdkgenerator generate:sdk API_SPEC_FILE.xxx --type=custom
 ```
 
 Replace `API_SPEC_FILE.xxx` with the path to your custom API specification file.

@@ -1,0 +1,5876 @@
+{
+	"info": {
+		"_postman_id": "cc606f65-fd95-4ad3-9b7d-25fbdbd99786",
+		"name": "Altinn",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "Attachments",
+					"item": [
+						{
+							"name": "{who}/messages/{messageId}/attachments/streamedattachment?fileName={fileName}&attachmentType={attachmentType}&language={language}",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/attachments/streamedattachment?fileName=&attachmentType=&language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"attachments",
+										"streamedattachment"
+									],
+									"query": [
+										{
+											"key": "fileName",
+											"value": ""
+										},
+										{
+											"key": "attachmentType",
+											"value": ""
+										},
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Add an attachment to an existing message defined by the message id by uploading the data as a stream"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/attachments/{attachmentId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/attachments/:attachmentId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"attachments",
+										":attachmentId"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "attachmentId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Delete a specific attachment and remove it from its parent message. Only works for FormTask messages."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/attachments/{attachmentId}?language={language}",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"FileName\": \"attachment.pdf\",\r\n    \"AttachmentType\": \"pdf\",\r\n    \"Data\": \"base64 encoded\"\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/attachments/:attachmentId?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"attachments",
+										":attachmentId"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "attachmentId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Add an attachment to an existing message defined by the message id."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/attachments",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/attachments",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"attachments"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get all attachments related to the given message."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/attachments?language={language}",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"FileName\": \"attachment.pdf\",\r\n    \"AttachmentType\": \"pdf\",\r\n    \"Data\": \"base64 encoded\"\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/attachments?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"attachments"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Add an attachment to an existing message defined by the message id."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Attachments/{receiverId}?messageId={messageId}&attachmentId={attachmentId}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Attachments/:receiverId?messageId=&attachmentId=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Attachments",
+										":receiverId"
+									],
+									"query": [
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "attachmentId",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets an attachment based on attachmentId. Note that the messageId and attachmentId must be related."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Authentication",
+					"item": [
+						{
+							"name": "authentication/authenticatewithpassword",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"UserName\": \"olanordmann\",\r\n    \"UserPassword\": \"passord123\"\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/authentication/authenticatewithpassword?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"authentication",
+										"authenticatewithpassword"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null,
+											"description": "Needed to force certificate exchange for autentication with an enterprice certificate user (Can be excluded if authenticating with username/password for a private user)"
+										}
+									]
+								},
+								"description": "Attempts to authenticate the user with the provided social security number or username, and password. The password and username can be configured on the portal profile page. This method also supports authentication using client certificates. To enable client certificate authentication, include the URL-parameter ?ForceEIAuthentication."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "BrokerService",
+					"item": [
+						{
+							"name": "{reportee}/BrokerService/files/{fileReference}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:reportee/BrokerService/files/:fileReference",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":reportee",
+										"BrokerService",
+										"files",
+										":fileReference"
+									],
+									"variable": [
+										{
+											"key": "reportee",
+											"value": ""
+										},
+										{
+											"key": "fileReference",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the broker service file"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ConsentRequests",
+					"item": [
+						{
+							"name": "consentRequests/{authCode}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "{{Cert}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/consentRequests/:authCode?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"consentRequests",
+										":authCode"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get a specific Consent request from the AuthorizationRequest table"
+							},
+							"response": []
+						},
+						{
+							"name": "consentRequests/{authCode}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "{{Cert}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/consentRequests/:authCode?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"consentRequests",
+										":authCode"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Delete a specific consent request from the AuthorizationRequest table"
+							},
+							"response": []
+						},
+						{
+							"name": "consentRequests",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "{{Cert}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"CoveredBy\": \"999888777\",\r\n  \"OfferedBy\": \"999888777\",\r\n  \"OfferedByName\": \"bedriftsnavn\",\r\n  \"HandledBy\": \"999888777\",\r\n  \"RequiredDelegator\": \"12018211111\",\r\n  \"RequiredDelegatorName\": \"olsen\",\r\n  \"ValidTo\": \"2019-06-25T13:17:31.495Z\",\r\n  \"RedirectUrl\": \"https://example.com/example\",\r\n  \"RequestResources\": [\r\n    {\r\n      \"ServiceCode\": \"x1234\",\r\n      \"ServiceEditionCode\": 1112,\r\n      \"Metadata\": {\r\n        \"inntektsaar\": 2019\r\n      }\r\n    }\r\n  ],\r\n  \"RequestMessage\": {\r\n    \"no-nb\": \"string\",\r\n    \"no-nn\": \"string\",\r\n    \"en\": \"string\"\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/consentRequests?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"consentRequests"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									]
+								},
+								"description": "Adds a new Consent request into the AuthorizationRequest table"
+							},
+							"response": []
+						},
+						{
+							"name": "consentRequests?serviceCode={serviceCode}&serviceEditionCode={serviceEditionCode}&direction={direction}&status[0]={status[0]}&status[1]={status[1]}&continuation={continuation}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "{{Cert}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/consentRequests?serviceEditionCode=&ForceEIAuthentication&serviceCode=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"consentRequests"
+									],
+									"query": [
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "direction",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "status[0]",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "status[1]",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "continuation",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										},
+										{
+											"key": "serviceCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all consent requests for authenticated part, optionally filtered by service or pagination"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "DelegationRequests",
+					"item": [
+						{
+							"name": "delegationRequests/{authCode}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "{{Cert}}",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/delegationRequests/:authCode?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"delegationRequests",
+										":authCode"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get a specific delegation request from the AuthorizationRequest table"
+							},
+							"response": []
+						},
+						{
+							"name": "delegationRequests/{authCode}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "{{Cert}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/delegationRequests/:authCode?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"delegationRequests",
+										":authCode"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Delete a specific delegation request from the AuthorizationRequest table"
+							},
+							"response": []
+						},
+						{
+							"name": "delegationRequests",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "{{Cert}}",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"CoveredBy\": \"777888999\",\r\n  \"OfferedBy\": \"999888777\",\r\n  \"RequestResources\": [\r\n    {\r\n      \"ServiceCode\": \"x1234\",\r\n      \"ServiceEditionCode\": 1112\r\n    }\r\n  ],\r\n  \"RequestMessage\": \"Need this right in order to complete the daily task on the service\"\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/delegationRequests?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"delegationRequests"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									]
+								},
+								"description": "Adds a new delegation request into the AuthorizationRequest table"
+							},
+							"response": []
+						},
+						{
+							"name": "delegationRequests?serviceCode={serviceCode}&serviceEditionCode={serviceEditionCode}&direction={direction}&status[0]={status[0]}&status[1]={status[1]}&continuation={continuation}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "{{Cert}}",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/delegationRequests?serviceCode=&ForceEIAuthentication&serviceEditionCode=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"delegationRequests"
+									],
+									"query": [
+										{
+											"key": "direction",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "status[0]",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "status[1]",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "continuation",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all delegation requests for authenticated part, optionally filtered by service or pagination"
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "575d94a4-a3cd-4532-88a7-0a33275126e6",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "2d1b4230-9e9d-4e01-91ca-dd8d5c95c8f5",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Delegations",
+					"item": [
+						{
+							"name": "{who}/authorization/Delegations/{receiverId}/rights",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations/:receiverId/rights",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations",
+										":receiverId",
+										"rights"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all rights for a given right holder\r\n\r\n"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations/{receiverId}/roles?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations/:receiverId/roles?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations",
+										":receiverId",
+										"roles"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all roles for a given receiver"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations/{receiverId}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations/:receiverId?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations",
+										":receiverId"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a right holder by its id. Will include all rights and roles delegated to the right holder"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations?serviceCode={serviceCode}&serviceEdition={serviceEdition}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations?serviceCode=&serviceEdition=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations"
+									],
+									"query": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEdition",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a list of entities that has been delegated rights and/or roles from the given who"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"Email\",\r\n    \"SocialSecurityNumber\": \"01023456789\",\r\n    \"LastName\": \"Nordmann\",\r\n    \"_embedded\" : {\r\n        \"Roles\" : [{\r\n            \"RoleDefinitionId\": 64\r\n        }],\r\n        \"Rights\" : [{\r\n            \"ServiceCode\": \"2308\",\r\n            \"ServiceEditionCode\": 64,\r\n            \"Action\": \"read\"\r\n        },\r\n        {\r\n            \"MessageID\": 64,\r\n            \"ServiceCode\": \"2308\",\r\n            \"ServiceEditionCode\": 64,\r\n            \"Action\": \"read\"\r\n        },\r\n        {\r\n            \"SystemResourceID\": \"12345\",\r\n            \"Action\": \"read\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Delegate roles and/or rights to a given party identified by username, organization number and/or ssn. When delegating to a user, last name must also be given - and when delegating to an organization the organization name must be given."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations?receiverId={receiverId}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations?receiverId=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations"
+									],
+									"query": [
+										{
+											"key": "receiverId",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all rights for a given right holder"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations?receiverId={receiverId}&roleId={roleId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations?receiverId=&roleId=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations"
+									],
+									"query": [
+										{
+											"key": "receiverId",
+											"value": ""
+										},
+										{
+											"key": "roleId",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "This method deletes a role (Single) delegated by the given reportee ID (who)\r\n\r\n"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations?receiverId={receiverId}&authzRuleId={authzRuleId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations?receiverId=&authzRuleId=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations"
+									],
+									"query": [
+										{
+											"key": "receiverId",
+											"value": ""
+										},
+										{
+											"key": "authzRuleId",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "This method deletes a right delegated by the given reportee ID (who)"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations/{receiverId}/roles/{roleId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations/:receiverId/roles/:roleId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations",
+										":receiverId",
+										"roles",
+										":roleId"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										},
+										{
+											"key": "roleId",
+											"value": ""
+										}
+									]
+								},
+								"description": "This method deletes a role (Single) delegated by the given reportee ID (who)"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Delegations/{receiverId}/rights/{authzRuleId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Delegations/:receiverId/rights/:authzRuleId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Delegations",
+										":receiverId",
+										"rights",
+										":authzRuleId"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										},
+										{
+											"key": "authzRuleId",
+											"value": ""
+										}
+									]
+								},
+								"description": "This method deletes a right delegated by the given reportee ID (who)"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Forms",
+					"item": [
+						{
+							"name": "{who}/messages/{messageId}/forms?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all forms related to the given message."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/forms",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"SubForm\",\r\n    \"DataFormatId\": \"1243\",\r\n    \"DataFormatVersion\": \"10656\",\r\n    \"FormData\": \"<Skjema xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"...>...</Skjema>\"\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Add a new form to an existing message."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/forms/{formId}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms/:formId?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms",
+										":formId"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "formId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the specific form based on the given combination of message and form id."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/forms/{formId}",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"SubForm\",\r\n    \"DataFormatId\": \"1243\",\r\n    \"DataFormatVersion\": \"10656\",\r\n    \"FormData\": \"<Skjema xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"...>...</Skjema>\"\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms/:formId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms",
+										":formId"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "formId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Put operation for a existing form on a message. Performs only XSD Validation of the form. Use this to change the content of an existing form."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/forms/{formId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms/:formId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms",
+										":formId"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "formId",
+											"value": ""
+										}
+									]
+								},
+								"description": "\t\r\nDelete operation for a existing form on a message. Use this to remove a form from a message."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/forms/{formId}/formdata?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms/:formId/formdata?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms",
+										":formId",
+										"formdata"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "formId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the xml for a form based on and"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/forms/{formId}/print?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/forms/:formId/print?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"forms",
+										":formId",
+										"print"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										},
+										{
+											"key": "formId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the PDF representation of the message with the given messageId"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "LookUp",
+					"item": [
+						{
+							"name": "{who}/lookup/{serviceCode}/{serviceEdition}?authorizationCode={authorizationCode}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/lookup/:serviceCode/:serviceEdition?authorizationCode=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"lookup",
+										":serviceCode",
+										":serviceEdition"
+									],
+									"query": [
+										{
+											"key": "authorizationCode",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEdition",
+											"value": ""
+										}
+									]
+								},
+								"description": "This operation performs a call to a LookUp service defined by the input parameters ServiceCode and ServiceEditionCode."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Messages",
+					"item": [
+						{
+							"name": "{who}/Messages/{messageId}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a specific message by its messageId."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}?language={language}&complete={complete}&sign={sign}",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"FormTask\",\r\n    \"ServiceCode\": \"2308\",\r\n    \"ServiceEdition\": 64,\r\n    \"_embedded\" : {\r\n        \"forms\" : [{\r\n            \"Type\": \"MainForm\",\r\n            \"DataFormatId\": \"1243\",\r\n            \"DataFormatVersion\": \"10656\",\r\n            \"FormData\": \"<Skjema xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"...>...</Skjema>\"\r\n        }],\r\n        \"attachments\" : [{\r\n            \"FileName\": \"attachment.pdf\",\r\n            \"AttachmentType\": \"pdf\",\r\n            \"Data\": \"base64 encoded\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId?language=&complete=&sign=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										},
+										{
+											"key": "complete",
+											"value": ""
+										},
+										{
+											"key": "sign",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to update existing message instance already registered in Altinn."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Performs a delete of the identified message if possible. If the user has access to the system resource 'rolleadministrator', this action will permanently delete any correspondences or achived elements for organizations. In all other use cases, this action will perform a soft delete of any correspondences or archived elements for organizations. Additionally selected elements might be protected in a way that prevents deletion."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										},
+										{
+											"key": "$filter",
+											"value": "ServiceOwner eq \"testest\"",
+											"disabled": true
+										},
+										{
+											"key": "$skip",
+											"value": "1000",
+											"disabled": true
+										},
+										{
+											"key": "$top",
+											"value": "200",
+											"disabled": true
+										},
+										{
+											"key": "$orderby",
+											"value": "Status eq \"Active\"",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all messages for the given 'who'. These can optionally be retrieved in the language specified."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages?language={language}&complete={complete}&sign={sign}",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"FormTask\",\r\n    \"ServiceCode\": \"2308\",\r\n    \"ServiceEdition\": 64,\r\n    \"_embedded\" : {\r\n        \"forms\" : [{\r\n            \"Type\": \"MainForm\",\r\n            \"DataFormatId\": \"1243\",\r\n            \"DataFormatVersion\": \"10656\",\r\n            \"FormData\": \"<Skjema xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"...>...</Skjema>\"\r\n        }],\r\n        \"attachments\" : [{\r\n            \"FileName\": \"attachment.pdf\",\r\n            \"AttachmentType\": \"pdf\",\r\n            \"Data\": \"base64 encoded\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages?language=&complete=&sign=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										},
+										{
+											"key": "complete",
+											"value": ""
+										},
+										{
+											"key": "sign",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to instantiate, sign and archive the message for the given who."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}/Print?language={language}&dataFormatId={dataFormatId}&dataFormatVersion={dataFormatVersion}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId/Print?language=&dataFormatId=&dataFormatVersion=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId",
+										"Print"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										},
+										{
+											"key": "dataFormatId",
+											"value": ""
+										},
+										{
+											"key": "dataFormatVersion",
+											"value": ""
+										},
+										{
+											"key": "$filter",
+											"value": "ServiceOwner eq \"testest\"",
+											"disabled": true
+										},
+										{
+											"key": "$skip",
+											"value": "1000",
+											"disabled": true
+										},
+										{
+											"key": "$top",
+											"value": "200",
+											"disabled": true
+										},
+										{
+											"key": "$orderby",
+											"value": "Status eq \"Active\"",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the PDF representation of the message with the given messageId"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}/Archive?language={language}",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"FormTask\",\r\n    \"ServiceCode\": \"2308\",\r\n    \"ServiceEdition\": 64,\r\n    \"_embedded\" : {\r\n        \"forms\" : [{\r\n            \"Type\": \"MainForm\",\r\n            \"DataFormatId\": \"1243\",\r\n            \"DataFormatVersion\": \"10656\",\r\n            \"FormData\": \"<Skjema xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"...>...</Skjema>\"\r\n        }],\r\n        \"attachments\" : [{\r\n            \"FileName\": \"attachment.pdf\",\r\n            \"AttachmentType\": \"pdf\",\r\n            \"Data\": \"base64 encoded\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId/Archive?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId",
+										"Archive"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to archive an existing Correspondence in Altinn."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}/Confirm?language={language}",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Type\": \"FormTask\",\r\n    \"ServiceCode\": \"2308\",\r\n    \"ServiceEdition\": 64,\r\n    \"_embedded\" : {\r\n        \"forms\" : [{\r\n            \"Type\": \"MainForm\",\r\n            \"DataFormatId\": \"1243\",\r\n            \"DataFormatVersion\": \"10656\",\r\n            \"FormData\": \"<Skjema xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"...>...</Skjema>\"\r\n        }],\r\n        \"attachments\" : [{\r\n            \"FileName\": \"attachment.pdf\",\r\n            \"AttachmentType\": \"pdf\",\r\n            \"Data\": \"base64 encoded\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId/Confirm?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId",
+										"Confirm"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to confirm an existing Correspondence in Altinn."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}/Validate?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId/Validate?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId",
+										"Validate"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to validate an existing reporting service in Altinn."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/{messageId}/signingtext?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/:messageId/signingtext?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										":messageId",
+										"signingtext"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get the signing text that will be used when a person signs the message. The message need to be based on a service with a process step for signing and be at the correct step. Otherwise there will be no signing text to be found and 404 is returned."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/messages/{messageId}/custommessagedata",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/messages/:messageId/custommessagedata",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"messages",
+										":messageId",
+										"custommessagedata"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "messageId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the custom message data content of a specific message by its messageId."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/Messages/trashbin?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/Messages/trashbin?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"Messages",
+										"trashbin"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										},
+										{
+											"key": "$filter",
+											"value": "ServiceOwner eq \"testest\"",
+											"disabled": true
+										},
+										{
+											"key": "$skip",
+											"value": "1000",
+											"disabled": true
+										},
+										{
+											"key": "$top",
+											"value": "200",
+											"disabled": true
+										},
+										{
+											"key": "$orderby",
+											"value": "Status eq \"Active\"",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all soft deleted messages for the given 'who'. These can optionally be retrieved in the language specified."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Metadata",
+					"item": [
+						{
+							"name": "metadata?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the list of available services in Altinn."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/correspondence/{serviceCode}/{serviceEditionCode}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/correspondence/:serviceCode/:serviceEditionCode?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"correspondence",
+										":serviceCode",
+										":serviceEditionCode"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get more details for a specific correspondence service by its service code and service edition version."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/formtask/{serviceCode}/{serviceEditionCode}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/formtask/:serviceCode/:serviceEditionCode?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"formtask",
+										":serviceCode",
+										":serviceEditionCode"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get more details for a specific form task (Reporting) service by its service code and service edition version."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/lookup/{serviceCode}/{serviceEditionCode}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/lookup/:serviceCode/:serviceEditionCode/schemas/:schema",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"lookup",
+										":serviceCode",
+										":serviceEditionCode",
+										"schemas",
+										":schema"
+									],
+									"variable": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "schema",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get more details for a specific lookup service by its service code and service edition version."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/lookup/{serviceCode}/{serviceEditionCode}/schemas/{schema}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}api/metadata/formtask/:serviceCode/:serviceEditionCode/attachmentrules/:ruleId/xsd",
+									"host": [
+										"{{envUrl}}api"
+									],
+									"path": [
+										"metadata",
+										"formtask",
+										":serviceCode",
+										":serviceEditionCode",
+										"attachmentrules",
+										":ruleId",
+										"xsd"
+									],
+									"variable": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "ruleId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get schema data for a lookup service, either the response schema or the request schema. These schemas are used to validate input or output for the service."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/formtask/{serviceCode}/{serviceEditionCode}/forms/{dataFormatId}/{dataFormatVersion}/xsd",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/formtask/:serviceCode/:serviceEditionCode/forms/:dataFormatId/:dataFormatVersion/xsd",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"formtask",
+										":serviceCode",
+										":serviceEditionCode",
+										"forms",
+										":dataFormatId",
+										":dataFormatVersion",
+										"xsd"
+									],
+									"variable": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "dataFormatId",
+											"value": ""
+										},
+										{
+											"key": "dataFormatVersion",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get the XSD for a form specified by service identifiers, and the DataFormatId and DataFormatVersion for the logical form."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/formtask/{serviceCode}/{serviceEditionCode}/attachmentrules/{ruleId}/xsd",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/formtask/:serviceCode/:serviceEditionCode/attachmentrules/:ruleId/xsd",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"formtask",
+										":serviceCode",
+										":serviceEditionCode",
+										"attachmentrules",
+										":ruleId",
+										"xsd"
+									],
+									"variable": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "ruleId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get the attachment rule validation file for attachments with xml content. Very few services require xml attachments and perform xsd validation."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/codelists?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/codelists?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"codelists"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									]
+								},
+								"description": "Retrieve a complete overview of all code lists available in the given language."
+							},
+							"response": []
+						},
+						{
+							"name": "metadata/codelists/{name}/{version}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/codelists/:name/:version?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"codelists",
+										":name",
+										":version"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": ""
+										},
+										{
+											"key": "version",
+											"value": ""
+										}
+									]
+								},
+								"description": "Retrieve a specific code list in the given language if available."
+							},
+							"response": []
+						},
+						{
+							"name": "/metadata/rolerequirements?serviceCode=&serviceEditionCode=&language=1044",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/rolerequirements?serviceCode=&serviceEditionCode=&language=1044",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"rolerequirements"
+									],
+									"query": [
+										{
+											"key": "serviceCode",
+											"value": "",
+											"description": "The service code for an AltinnII service or 'AppId:{AppId}' if a maskinporten delegationscheme or AltinnIII app. Can be found using /api/metadata."
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": "",
+											"description": "The service edition code for an AltinnII service or left blank if using an 'AppId:{AppId}' service code."
+										},
+										{
+											"key": "language",
+											"value": "1044",
+											"description": "1044: bokmål, 1033: english, 2068: nynorsk"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/metadata/rolerequirements?app=&language=1044",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/metadata/rolerequirements?app=org/appname&language=1044",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"metadata",
+										"rolerequirements"
+									],
+									"query": [
+										{
+											"key": "app",
+											"value": "org/appname",
+											"description": "The App identifier from AltinnIII in the format: org/appname"
+										},
+										{
+											"key": "language",
+											"value": "1044",
+											"description": "1044: bokmål, 1033: english, 2068: nynorsk"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Organizations",
+					"item": [
+						{
+							"name": "organizations?showConsentReportees={showConsentReportees}&includeInactiveReportees={includeInactiveReportees}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/organizations?showConsentReportees=&includeInactiveReportees=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"organizations"
+									],
+									"query": [
+										{
+											"key": "showConsentReportees",
+											"value": ""
+										},
+										{
+											"key": "includeInactiveReportees",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a list of all organizations the currently logged in user can represent."
+							},
+							"response": []
+						},
+						{
+							"name": "organizations/{organizationId}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/organizations/:organizationId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"organizations",
+										":organizationId"
+									],
+									"variable": [
+										{
+											"key": "organizationId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets an organization by its organization number."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "my/profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/my/profile",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"my",
+										"profile"
+									]
+								},
+								"description": "Gets the user profile of the currently authenticated user."
+							},
+							"response": []
+						},
+						{
+							"name": "{orgno}/profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:orgno/profile",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":orgno",
+										"profile"
+									],
+									"variable": [
+										{
+											"key": "orgno",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets profile of the given organization number."
+							},
+							"response": []
+						},
+						{
+							"name": "{orgno}/profile/contactinformation",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:orgno/profile/contactinformation",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":orgno",
+										"profile",
+										"contactinformation"
+									],
+									"variable": [
+										{
+											"key": "orgno",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get a list of contacts for an organization. The contacts are the people Altinn will send notifications to when the organization receives messages."
+							},
+							"response": []
+						},
+						{
+							"name": "{orgno}/profile/contactinformation",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:orgno/profile/contactinformation",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":orgno",
+										"profile",
+										"contactinformation"
+									],
+									"variable": [
+										{
+											"key": "orgno",
+											"value": ""
+										}
+									]
+								},
+								"description": "Create a new contact address for an organization. The contacts are the people Altinn will send notifications to when the organization receives messages. The only field that can contain any values are either Email or MobileNumber. You can not supply both at the same time. All other fields should be default/null."
+							},
+							"response": []
+						},
+						{
+							"name": "{orgno}/profile/contactinformation/{id}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:orgno/profile/contactinformation/:id",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":orgno",
+										"profile",
+										"contactinformation",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "orgno",
+											"value": ""
+										},
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get the details for a specified contact from the list of contacts."
+							},
+							"response": []
+						},
+						{
+							"name": "{orgno}/profile/contactinformation/{id}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:orgno/profile/contactinformation/:id",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":orgno",
+										"profile",
+										"contactinformation",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "orgno",
+											"value": ""
+										},
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Delete the details for a specified contact from the list of contacts."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Reportee",
+					"item": [
+						{
+							"name": "reportees?showConsentReportees={showConsentReportees}&includeInactiveReportees={includeInactiveReportees}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/reportees?showConsentReportees=&includeInactiveReportees=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"reportees"
+									],
+									"query": [
+										{
+											"key": "showConsentReportees",
+											"value": ""
+										},
+										{
+											"key": "includeInactiveReportees",
+											"value": ""
+										},
+										{
+											"key": "$filter",
+											"value": "ServiceOwner eq \"testest\"",
+											"disabled": true
+										},
+										{
+											"key": "$skip",
+											"value": "1000",
+											"disabled": true
+										},
+										{
+											"key": "$top",
+											"value": "200",
+											"disabled": true
+										},
+										{
+											"key": "$orderby",
+											"value": "Status eq \"Active\"",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Gets a list of entities that the current user can represent."
+							},
+							"response": []
+						},
+						{
+							"name": "reportees/{reporteeId}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/reportees/:reporteeId",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"reportees",
+										":reporteeId"
+									],
+									"variable": [
+										{
+											"key": "reporteeId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a reportee entity by its id."
+							},
+							"response": []
+						},
+						{
+							"name": "reportees?serviceCode={serviceCode}&serviceEdition={serviceEdition}&showConsentReportees={showConsentReportees}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/reportees?serviceCode=&serviceEdition=&showConsentReportees=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"reportees"
+									],
+									"query": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEdition",
+											"value": ""
+										},
+										{
+											"key": "showConsentReportees",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all entities with access to the given service (identified by ServiceCode and ServiceEdition"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Reportee/{receiverId}?reporteeId={reporteeId}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Reportee/:receiverId?reporteeId=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Reportee",
+										":receiverId"
+									],
+									"query": [
+										{
+											"key": "reporteeId",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a reportee entity by its id."
+							},
+							"response": []
+						},
+						{
+							"name": "reportees/ReporteeConversion",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"SocialSecurityNumber\": \"\",\n\t\"LastName\": \"\",\n\t\"OrganizationNumber\": \"\",\n\t\"OrganizationName\": \"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/reportees/ReporteeConversion",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"reportees",
+										"ReporteeConversion"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Rights",
+					"item": [
+						{
+							"name": "{who}/authorization/rights",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/rights",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"rights"
+									],
+									"query": [
+										{
+											"key": "$filter",
+											"value": "ServiceOwner eq \"testest\"",
+											"disabled": true
+										},
+										{
+											"key": "$skip",
+											"value": "1000",
+											"disabled": true
+										},
+										{
+											"key": "$top",
+											"value": "200",
+											"disabled": true
+										},
+										{
+											"key": "$orderby",
+											"value": "Status eq \"Active\"",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the rights."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/rights/{rightID}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/rights/:rightID",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"rights",
+										":rightID"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "rightID",
+											"value": ""
+										}
+									]
+								},
+								"description": "Deletes the specified right."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/Rights/{receiverId}/rights/{authzRuleID}?rightID={rightID}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/Rights/:receiverId/rights/:authzRuleID?rightID=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"Rights",
+										":receiverId",
+										"rights",
+										":authzRuleID"
+									],
+									"query": [
+										{
+											"key": "rightID",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "receiverId",
+											"value": ""
+										},
+										{
+											"key": "authzRuleID",
+											"value": ""
+										}
+									]
+								},
+								"description": "Deletes the specified right."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Roles",
+					"item": [
+						{
+							"name": "{who}/authorization/roles?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/{who}/authorization/roles?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"{who}",
+										"authorization",
+										"roles"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the role list."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/roles/{roleID}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/roles/:roleID",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"roles",
+										":roleID"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "roleID",
+											"value": ""
+										}
+									]
+								},
+								"description": "Deletes the specified role for the user."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "RoleDefinitions",
+					"item": [
+						{
+							"name": "{who}/authorization/RoleDefinitions/{roleTypeID}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/RoleDefinitions/roleTypeID?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"RoleDefinitions",
+										"roleTypeID"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the role type. This operation will retrieve details specific to the role type given in the url."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/RoleDefinitions/{roleTypeID}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/RoleDefinitions/:roleTypeID",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"RoleDefinitions",
+										":roleTypeID"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "roleTypeID",
+											"value": ""
+										}
+									]
+								},
+								"description": "This method deletes a role definition delegated for given reportee ID (who)"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/RoleDefinitions/{roleTypeID}?language={language}",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"RoleName\": \"string example 34\",\r\n    \"RoleDescription\": 64,\r\n    \"RoleType\": \"string example 34\",\r\n    \"_embedded\" : {\r\n        \"Rights\" : [{\r\n            \"ServiceCode\": \"2308\",\r\n            \"ServiceEditionCode\": \"38\",\r\n            \"Action\": \"read\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/RoleDefinitions/:roleTypeID?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"RoleDefinitions",
+										":roleTypeID"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										},
+										{
+											"key": "roleTypeID",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to update role type"
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/RoleDefinitions?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/RoleDefinitions",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"RoleDefinitions"
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the role types."
+							},
+							"response": []
+						},
+						{
+							"name": "{who}/authorization/RoleDefinitions?language={language}",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKey}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"RoleName\": \"string example 34\",\r\n    \"RoleDescription\": 64,\r\n    \"RoleType\": \"string example 34\",\r\n    \"_embedded\" : {\r\n        \"Rights\" : [{\r\n            \"ServiceCode\": \"2308\",\r\n            \"ServiceEditionCode\": 64,\r\n            \"Action\": \"read\"\r\n        }]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/:who/authorization/RoleDefinitions?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										":who",
+										"authorization",
+										"RoleDefinitions"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Attempts to create role type"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Token",
+					"item": [
+						{
+							"name": "authorization/token/{authCode}/loguse",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceCode\": \"2308\",\r\n    \"ServiceEditionCode\": 64,\r\n    \"UsageDateTime\": \"datetime, ISO 8601\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/authorization/token/:authCode/loguse?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"authorization",
+										"token",
+										":authCode",
+										"loguse"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Use this to register that you have used the right given to you with the consent."
+							},
+							"response": []
+						},
+						{
+							"name": "authorization/token/{authCode}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/authorization/token/:authCode?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"authorization",
+										"token",
+										":authCode"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "Use this to obtain a JSON web token with claims associated with your authorization code."
+							},
+							"response": []
+						},
+						{
+							"name": "authorization/token/{authCode}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKey}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/authorization/token/:authCode?ForceEIAuthentication",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"authorization",
+										"token",
+										":authCode"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null
+										}
+									],
+									"variable": [
+										{
+											"key": "authCode",
+											"value": ""
+										}
+									]
+								},
+								"description": "\t\r\nUse this to discard the rights you obtained with a consent, based on an authorization code."
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2e6c9dfa-8732-432e-815f-289f3cd5b535",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "9b162dcb-0604-4ecc-a9cc-11bfffa13f4c",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "service owner",
+			"item": [
+				{
+					"name": "Consents",
+					"item": [
+						{
+							"name": "{{envUrl}}/api/serviceowner/consents?serviceCode&serviceEditionCode=&status=&continuation=",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKeyServiceOwner}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/consents?serviceCode=&serviceEditionCode=&status=&continuation=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"consents"
+									],
+									"query": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "status",
+											"value": ""
+										},
+										{
+											"key": "continuation",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get all the consents for a service. The serviceCode and serviceEditionCode specifies which service to retrieve consents for. It is possible to specify the consent status that should be included in the list. By default, both active and revoked status will be included. The continuation parameter will allow user to only include new consents or consents that have changed status since last request."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "DelegationRequests",
+					"item": [
+						{
+							"name": "serviceowner/delegationRequests?serviceCode&serviceEditionCode=&status=&continuation=",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/delegationRequests?ForceEIAuthentication=true",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"delegationRequests"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": "true"
+										},
+										{
+											"key": "serviceCode",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "continuation",
+											"value": "",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all the created delegation requests service by the serviceOwner. The serviceCode and serviceEditionCode specifies which service to retrieve delegation requests for. The continuation parameter will allow user to only include new delegation requests or delegation requests that have changed status since last request."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/delegationRequests/{id}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/delegationRequests/:id?ForceEIAuthentication=true",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"delegationRequests",
+										":id"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get a spesific delegation request by its GUID"
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/delegationRequests/{id}",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"CoveredBy\": \"10055051041\",\n    \"OfferedBy\": \"810475552\",\n    \"RequestResources\": [\n        {\n        \t\"ServiceCode\": \"x1337\",\n            \"ServiceEditionCode\": 1234567\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/delegationRequests?ForceEIAuthentication=true",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"delegationRequests"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": "true"
+										}
+									]
+								},
+								"description": "Posting a new delegation request for services owned by the service owner"
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/delegationRequests/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/delegationRequests/:id?ForceEIAuthentication=true",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"delegationRequests",
+										":id"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": "true"
+										}
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Deleting a delegation request by its GUID"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Events",
+					"item": [
+						{
+							"name": "serviceowner/events/feed?eventOffset={eventOffset}&fetch={fetch}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/events/feed?ForceEIAuthentication=&eventOffset=&fetch=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"events",
+										"feed"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": ""
+										},
+										{
+											"key": "eventOffset",
+											"value": ""
+										},
+										{
+											"key": "fetch",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get all saved events for Correspondence items. The eventOffset parameter is used to offset the start of the feed. The feed will return up to 10 000 events starting with the first available event after the eventOffset. If no eventOffset is provided, the feed will start from the first event available. The fetch parameter is used to limit the number of results. If no fetch parameter is provided, the feed returns up to 10 000 events. It is not possible to get more than 10 000 elements by setting a higher value for the fetch parameter"
+							},
+							"response": []
+						}
+					],
+					"description": "Actions for retrieving the status of Correspondence elements. The information is presented in a feed that holds all events related to Correspondece items. The users of this API are responsible for keeping track of what events they have already read. If the id of the last read event is provided as an offset, the feed will return up to the 10 000 next events registered (the last read event will not be included).",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "2ca38f83-c7e9-41d0-bfcb-0f8bb9d22f0f",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "c20e35ce-8b67-4635-a681-1f5a36717907",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Organizations",
+					"item": [
+						{
+							"name": "serviceowner/organizations?email={email}&phoneNumber={phoneNumber}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/organizations?email=&phoneNumber=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"organizations"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": ""
+										},
+										{
+											"key": "phoneNumber",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get a list of organizations that match the provided filters.\r\n\r\nThe special email and phone number parameters can be used to search for all organizations that have those values as their official or personal contact point.\r\n\r\nThere are support for OData, but with some limitations:\r\n\r\n$top - Number of organizations to retrieve. The value can be from 1 to 1000. Values outside this range will be adjusted automatically.\r\n$skip - Number of organizations to skip. (Use this together with $top to create paging functionality.) The value can be 0 or higher. Negative values will be ignored.\r\n$orderby - Can be used to change sorting. It is possible to sort by Name or OrganizationNumber. The default is OrganizationNumber.\r\n$filter - Can be used to filter the result. Currently limited to filtering on Type with exact value. Eg: $filter=Type eq 'ENK'\r\n$expand - Can be used to include official contacts of each organization in the list. Use: $expand=OfficialContacts"
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/organizations/{organizationNumber}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/organizations/:organizationNumber",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"organizations",
+										":organizationNumber"
+									],
+									"variable": [
+										{
+											"key": "organizationNumber",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets information about a single organization. The operation supports the OData keyword $expand. Example: \"$expand=OfficialContacts\"."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/organizations/{organizationNumber}/officialcontacts",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/organizations/:organizationNumber/officialcontacts",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"organizations",
+										":organizationNumber",
+										"officialcontacts"
+									],
+									"variable": [
+										{
+											"key": "organizationNumber",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a list of official contacts for a specific organization."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/organizations/{organizationNumber}/personalcontacts?roleDefinitionCode={roleDefinitionCode}&serviceCode={serviceCode}&serviceEdition={serviceEdition}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/organizations/:organizationNumber/personalcontacts?roleDefinitionCode=&serviceCode=&serviceEdition=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"organizations",
+										":organizationNumber",
+										"personalcontacts"
+									],
+									"query": [
+										{
+											"key": "roleDefinitionCode",
+											"value": ""
+										},
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEdition",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "organizationNumber",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a list of all personal contacts for an organization. If no parameters are given for filtering, all personal contacts will be returned.\r\n\r\nIf roleTypeCode is set, the returned list will be filtered based on the role which the creators of the endpoints has.\r\nIf serviceCode and serviceEdition is set, the returned list will be filtered based on whether the creator of the endpoint has access to the service identified by the parameters, and if the creator has opted to receive notification for it."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/organizations/{organizationNumber}/personalcontacts/{who}/roles",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKeyServiceOwner}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/organizations/:organizationNumber/personalcontacts/:who/roles",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"organizations",
+										":organizationNumber",
+										"personalcontacts",
+										":who",
+										"roles"
+									],
+									"variable": [
+										{
+											"key": "organizationNumber",
+											"value": ""
+										},
+										{
+											"key": "who",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a list of all roles a given personal contact / reportee has on behalf of the given organization"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Reportees",
+					"item": [
+						{
+							"name": "serviceowner/reportees?subject={subject}&serviceCode={serviceCode}&serviceEdition={serviceEdition}&roleDefinitionId={roleDefinitionId}&showConsentReportees={showConsentReportees}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/reportees?subject=&serviceCode=&serviceEdition=&roleDefinitionId=&showConsentReportees=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"reportees"
+									],
+									"query": [
+										{
+											"key": "subject",
+											"value": ""
+										},
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEdition",
+											"value": ""
+										},
+										{
+											"key": "roleDefinitionId",
+											"value": ""
+										},
+										{
+											"key": "showConsentReportees",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets a list of entities that the current user can represent. The list can optionally be filtered to only display entities by a specific service (identified by ServiceCode and ServiceEdition) or role definition (identified by RoleDefinitionId)."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Rights",
+					"item": [
+						{
+							"name": "serviceowner/authorization/rights?subject={subject}&reportee={reportee}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/authorization/rights?subject=&reportee=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"authorization",
+										"rights"
+									],
+									"query": [
+										{
+											"key": "subject",
+											"value": ""
+										},
+										{
+											"key": "reportee",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the rights the subject has for the specified reportee."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Roles",
+					"item": [
+						{
+							"name": "serviceowner/authorization/roles?subject={subject}&reportee={reportee}&language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/authorization/roles?subject=&reportee=&language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"authorization",
+										"roles"
+									],
+									"query": [
+										{
+											"key": "subject",
+											"value": ""
+										},
+										{
+											"key": "reportee",
+											"value": ""
+										},
+										{
+											"key": "language",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the roles the subject has for the specified reportee."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "RoleDefinitions",
+					"item": [
+						{
+							"name": "serviceowner/roledefinitions?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/roledefinitions?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"roledefinitions"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get all general role definitions."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/roledefinitions/{roleDefinitionId}?language={language}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/roledefinitions/:roleDefinitionId?language=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"roledefinitions",
+										":roleDefinitionId"
+									],
+									"query": [
+										{
+											"key": "language",
+											"value": ""
+										}
+									],
+									"variable": [
+										{
+											"key": "roleDefinitionId",
+											"value": ""
+										}
+									]
+								},
+								"description": "Get a specific role definition."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "SrrRight",
+					"item": [
+						{
+							"name": "serviceowner/srr?serviceCode={serviceCode}&serviceEditionCode={serviceEditionCode}&reportee={reportee}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/srr?serviceCode=&serviceEditionCode=&reportee=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"srr"
+									],
+									"query": [
+										{
+											"key": "serviceCode",
+											"value": ""
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": ""
+										},
+										{
+											"key": "reportee",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets all SRR rights for a specific service (specified by ServiceCode and ServiceEditionCode), with an optional parameter of reportee. If OK this action returns a list with all SRR rights for the service. Authenticated service owner must be the owner of the service."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/srr/{id}",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": "",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/srr/:id",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"srr",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Gets the SRR rule with the specified id. If OK this action returns the specified SRR right. Authenticated service owner must be the owner of the service."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/srr",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n    {\r\n        \"ServiceCode\": \"sample string 19\",\r\n        \"ServiceEditionCode\": 2,\r\n        \"Reportee\": \"string sample\",\r\n        \"Right\": \"Write\",\r\n        \"ValidTo\": \"2019-04-29T07:56:20.0590584+02:00\",\r\n        \"Condition\": {\r\n            \"HandledBy\": \"901234567\",\r\n            \"IsRecipient\": true,\r\n            \"IsSender\": true,\r\n            \"KeepSessionAlive\": true,\r\n            \"AllowedRedirectDomain\": [\r\n                \"*.vg.no\",\r\n                \"www.nrk.no\"\r\n            ]\r\n        }\r\n    },\r\n    {\r\n        \"ServiceCode\": \"sample string 19\",\r\n        \"ServiceEditionCode\": 2,\r\n        \"Reportee\": \"string sample\",\r\n        \"Right\": \"Read\",\r\n        \"ValidTo\": \"2019-04-29T07:56:20.0590584+02:00\"\r\n    }\r\n]"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/srr",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"srr"
+									]
+								},
+								"description": "\t\r\nCreates one or more new SRR rights for a specific service. The service's ServiceCode and ServiceEditionCode are specified as part of each SrrRight object in the input. If OK this action returns a list with of SrrRight objects with the added rights and the result of the operation in the OperationStatus field for each object. Authenticated service owner must be the owner of the service."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/srr/{id}",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \r\n    \"ServiceCode\": \"sample string 19\",\r\n    \"ServiceEditionCode\": 2,\r\n    \"Reportee\": \"24129845645/901234567\",\r\n    \"Right\": \"Write\",\r\n    \"ValidTo\": \"2019-04-29T07:56:20.0590584+02:00\",\r\n    \"Condition\": {\r\n        \"HandledBy\": \"901234567\",\r\n        \"IsRecipient\": true,\r\n        \"IsSender\": true,\r\n        \"KeepSessionAlive\": true,\r\n        \"AllowedRedirectDomain\": [\r\n          \"*.vg.no\",\r\n          \"www.nrk.no\"\r\n        ]\r\n    }\r\n}"
+								},
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/srr/:id",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"srr",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Updates an SRR rule based on the rule id. The id is specified as part of the url, and a SrrRight object with the changed value(s) is passed in the request body. The response will indicate the result of the operation in the OperationStatus field. Authenticated service owner must be the owner of the service."
+							},
+							"response": []
+						},
+						{
+							"name": "serviceowner/srr/{id}",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "ApiKey",
+										"type": "text",
+										"value": "{{ApiKeyServiceOwner}}"
+									},
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "Accept",
+										"type": "text",
+										"value": "application/hal+json"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"type": "text",
+										"value": ""
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/srr/:id",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"srr",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								},
+								"description": "Deletes an SRR right based on the right id. The id is passed as part of the url. Authenticated service owner must be the owner of the service.\r\n\r\n"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Notifications",
+					"item": [
+						{
+							"name": "serviceowner/notifications/validaterecipient",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "ApiKey",
+										"value": "{{ApiKeyServiceOwner}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/hal+json",
+										"type": "text"
+									},
+									{
+										"key": "X-ENV-SSL_CLIENT_CERTIFICATE",
+										"value": "{{Cert}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{envUrl}}/api/serviceowner/notifications/validaterecipient?ForceEIAuthentication&organizationNumber=&socialSecurityNumber=&lastName=&serviceCode=&serviceEditionCode=",
+									"host": [
+										"{{envUrl}}"
+									],
+									"path": [
+										"api",
+										"serviceowner",
+										"notifications",
+										"validaterecipient"
+									],
+									"query": [
+										{
+											"key": "ForceEIAuthentication",
+											"value": null,
+											"description": "Needed to force certificate exchange for autentication (Excluded if using Bearer token autentication)"
+										},
+										{
+											"key": "organizationNumber",
+											"value": "",
+											"description": "The organization to be checked (Excluded if validating for a user)"
+										},
+										{
+											"key": "socialSecurityNumber",
+											"value": "",
+											"description": "The social security number of the user to be checked, must be paired with a last name (Excluded if validating for an organization)"
+										},
+										{
+											"key": "lastName",
+											"value": "",
+											"description": "The last name of user, must be given when socialSecurityNumber is filled and correspond to socialSecurityNumber (Excluded if validating for an organization)"
+										},
+										{
+											"key": "serviceCode",
+											"value": "",
+											"description": "Optional: ServiceCode if validating notification for a specific service"
+										},
+										{
+											"key": "serviceEditionCode",
+											"value": "",
+											"description": "Optional: ServiceEditionCode if validating notification for a specific service"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b7802e19-8024-4c36-8f7e-13d10a189761",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1509a12-255e-4016-9500-d66e20cf9208",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}

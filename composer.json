@@ -50,6 +50,7 @@
         "generate:tripletex": "./codegen generate:sdk --force --namespace=Crescat\\\\Tripletex --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Output/Tripletex",
         "generate:checkmango": "./codegen generate:sdk --force --namespace=Checkmango\\\\Sdk --type=openapi --name=Checkmango tests/Samples/checkmango.json --output tests/Output/Checkmango",
         "generate:kassalapp": "./codegen generate:sdk --force --namespace=Kassalapp\\\\Sdk --type=openapi --name=Kassalapp tests/Samples/kassalapp.json --output tests/Output/Kassalapp",
+        "generate:altinn": "./codegen generate:sdk --force --namespace=Altinn\\\\Sdk --type=postman --name=Altinn tests/Samples/altinn.json --output tests/Output/Altinn",
         "generate:zip:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Output --zip",
         "generate:zip:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Output --zip",
         "generate:zip:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Output --zip",
@@ -66,7 +67,8 @@
             "@generate:tripletex",
             "@generate:stripe",
             "@generate:checkmango",
-            "@generate:kassalapp"
+            "@generate:kassalapp",
+            "@generate:altinn"
         ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",

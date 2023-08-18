@@ -124,6 +124,22 @@ class PostmanCollectionParser implements Parser
             return [];
         }
 
+        // TODO:
+        //  This body parameter looks like it is a list of objects,
+        //  currently don't generate DTOs, so lets simply tag this as a nullable array for now,
+        //  in the future we can dive deeper into the structure of the individual items to generate
+        //  a PHPDoc array shape or DTO that represents the permitted options, however the latter assumes
+        //  that the example provided is complete, which is rarely the case.
+        if (array_is_list($body)) {
+            return [
+                new Parameter(
+                    type: 'array',
+                    nullable: true,
+                    name: 'values', // TODO: No way to derive a useful names, let's just use a standard name.
+                ),
+            ];
+        }
+
         return collect(array_keys($body))
             ->filter()
             ->map(function ($param) {

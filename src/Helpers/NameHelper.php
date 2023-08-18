@@ -34,6 +34,11 @@ class NameHelper
             ->trim();
     }
 
+    /**
+     * Transforms a string into something that can be used
+     * as a method or variable identifier in PHP
+     * ex: "list all (_new_) users" -> listAllNewUsers
+     */
     public static function safeVariableName(string $value): string
     {
         if (isset(self::$variableNameCache[$value])) {
@@ -46,6 +51,11 @@ class NameHelper
         return $result;
     }
 
+    /**
+     * Transforms a string into something that can be used
+     * as a method or variable identifier in PHP
+     * ex: "list all (_new_) users" -> ListAllNewUsers
+     */
     public static function safeClassName(string $value): string
     {
         if (isset(self::$classNameCache[$value])) {

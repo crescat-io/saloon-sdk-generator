@@ -7,7 +7,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
-use Illuminate\Support\Str;
 use Nette\InvalidStateException;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
@@ -56,8 +55,11 @@ class ResourceGenerator extends Generator
             ->addNamespace("{$this->config->namespace}\\{$this->config->resourceNamespaceSuffix}")
             ->addUse("{$this->config->namespace}\\Resource");
 
+        $duplicateCounter = 1;
+
         foreach ($endpoints as $endpoint) {
             $requestClassName = NameHelper::safeClassName($endpoint->name);
+            $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
 
@@ -69,15 +71,18 @@ class ResourceGenerator extends Generator
                 );
 
             try {
-                $method = $classType->addMethod($requestClassName);
+                $method = $classType->addMethod($methodName);
             } catch (InvalidStateException $exception) {
                 // TODO: handle more gracefully in the future
-                $deduplicated = NameHelper::safeVariableName(
-                    sprintf('%s%s', $endpoint->name, Str::random(3))
+                $deduplicatedMethodName = NameHelper::safeVariableName(
+                    sprintf('%s%s', $methodName, 'Duplicate'.$duplicateCounter)
                 );
-                dump('DUPLICATE: '.$requestClassName.' -> '.$deduplicated);
+                $duplicateCounter++;
+                dump("DUPLICATE: {$requestClassName} -> {$deduplicatedMethodName}");
 
-                $method = $classType->addMethod($deduplicated);
+                $method = $classType
+                    ->addMethod($deduplicatedMethodName)
+                    ->addComment('@todo Fix duplicated method name');
             }
 
             $method->setReturnType(Response::class);

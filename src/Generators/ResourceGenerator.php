@@ -58,23 +58,26 @@ class ResourceGenerator extends Generator
 
         foreach ($endpoints as $endpoint) {
             $requestClassName = NameHelper::safeClassName($endpoint->name);
+            $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
+            $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
 
             $namespace
+                ->addUse(Response::class)
                 ->addUse(
-                    "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}"
-                )
-                ->addUse(Response::class);
+                    name: $requestClassFQN,
+                    alias: $requestClassNameAlias,
+                );
 
             try {
-                $method = $classType->addMethod(NameHelper::safeVariableName($endpoint->name));
+                $method = $classType->addMethod($requestClassName);
             } catch (InvalidStateException $exception) {
-                $unduplicated = NameHelper::safeVariableName(
-                    $endpoint->name.' '.Str::random(3)
-                );
-                dump('DUPLICATE: '.NameHelper::safeVariableName($endpoint->name).' -> '.$unduplicated);
-
                 // TODO: handle more gracefully in the future
-                $method = $classType->addMethod($unduplicated);
+                $deduplicated = NameHelper::safeVariableName(
+                    sprintf('%s%s', $endpoint->name, Str::random(3))
+                );
+                dump('DUPLICATE: '.$requestClassName.' -> '.$deduplicated);
+
+                $method = $classType->addMethod($deduplicated);
             }
 
             $method->setReturnType(Response::class);
@@ -104,7 +107,7 @@ class ResourceGenerator extends Generator
             }
 
             $method->setBody(
-                new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassName, implode(', ', $args)))
+                new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassNameAlias ?? $requestClassName, implode(', ', $args)))
             );
 
         }

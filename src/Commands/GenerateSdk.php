@@ -59,15 +59,16 @@ class GenerateSdk extends Command
 
         $result = $generator->run($specification);
 
-        if ($this->option('zip')) {
-            $this->generateZipArchive($result);
+        if ($this->option('dry')) {
+            $this->printGeneratedFiles($result);
 
             return;
         }
 
-        $this->option('dry')
-            ? $this->printGeneratedFiles($result)
+        $this->option('zip')
+            ? $this->generateZipArchive($result)
             : $this->dumpGeneratedFiles($result);
+
     }
 
     protected function printGeneratedFiles(GeneratedCode $result): void

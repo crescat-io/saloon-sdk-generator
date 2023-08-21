@@ -29,7 +29,7 @@ class ResourceGenerator extends Generator
         $classes = [];
 
         $groupedByCollection = collect($specification->endpoints)->groupBy(function (Endpoint $endpoint) {
-            return NameHelper::safeClassName(
+            return NameHelper::resourceClassName(
                 $endpoint->collection ?: $this->config->fallbackResourceName
             );
         });
@@ -58,7 +58,7 @@ class ResourceGenerator extends Generator
         $duplicateCounter = 1;
 
         foreach ($endpoints as $endpoint) {
-            $requestClassName = NameHelper::safeClassName($endpoint->name);
+            $requestClassName = NameHelper::resourceClassName($endpoint->name);
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";

@@ -35,8 +35,8 @@ class RequestGenerator extends Generator
 
     protected function generateRequestClass(Endpoint $endpoint): PhpFile
     {
-        $resourceName = NameHelper::safeClassName($endpoint->collection ?: $this->config->fallbackResourceName);
-        $className = NameHelper::safeClassName($endpoint->name);
+        $resourceName = NameHelper::resourceClassName($endpoint->collection ?: $this->config->fallbackResourceName);
+        $className = NameHelper::requestClassName($endpoint->name);
 
         $classType = new ClassType($className);
 

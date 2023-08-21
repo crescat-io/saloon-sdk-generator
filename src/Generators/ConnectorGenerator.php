@@ -45,14 +45,14 @@ class ConnectorGenerator extends Generator
 
         $collections = collect($specification->endpoints)
             ->map(function (Endpoint $endpoint) {
-                return NameHelper::safeClassName($endpoint->collection ?: $this->config->fallbackResourceName);
+                return NameHelper::connectorClassName($endpoint->collection ?: $this->config->fallbackResourceName);
             })
             ->unique()
             ->sort()
             ->all();
 
         foreach ($collections as $collection) {
-            $resourceClassName = NameHelper::safeClassName($collection);
+            $resourceClassName = NameHelper::connectorClassName($collection);
             $resourceFQN = "{$this->config->namespace}\\{$this->config->resourceNamespaceSuffix}\\{$resourceClassName}";
 
             $namespace->addUse($resourceFQN);

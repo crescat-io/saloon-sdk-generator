@@ -25,7 +25,12 @@ class MethodGeneratorHelper
 
         $property = $method
             ->addComment(
-                trim(sprintf('@param %s $%s %s', $parameter->type, $name, $parameter->description))
+                trim(sprintf(
+                    '@param %s $%s %s',
+                    $parameter->nullable ? "null|{$parameter->type}" : $parameter->type,
+                    $name,
+                    $parameter->description
+                ))
             )
             ->addPromotedParameter($name);
 
@@ -44,11 +49,18 @@ class MethodGeneratorHelper
     /**
      * Generates a method that returns parameters as an array.
      */
-    public static function generateArrayReturnMethod(ClassType $classType, string $name, array $parameters): Method
+    public static function generateArrayReturnMethod(ClassType $classType, string $name, array $parameters, bool $withArrayFilterWrapper = false): Method
     {
         $paramArray = self::buildParameterArray($parameters);
 
-        return self::addMethodToClass($classType, $name, $paramArray);
+        $body = $withArrayFilterWrapper
+            ? sprintf('return array_filter(%s);', (new Dumper)->dump($paramArray))
+            : sprintf('return %s;', (new Dumper)->dump($paramArray));
+
+        return $classType
+            ->addMethod($name)
+            ->setReturnType('array')
+            ->addBody($body);
     }
 
     /**
@@ -65,18 +77,5 @@ class MethodGeneratorHelper
                 ];
             })
             ->toArray();
-    }
-
-    /**
-     * Adds a new method to the given class type with the specified name and body.
-     */
-    protected static function addMethodToClass(ClassType $classType, string $name, array $paramArray): Method
-    {
-        $body = sprintf('return %s;', (new Dumper)->dump($paramArray));
-
-        return $classType
-            ->addMethod($name)
-            ->setReturnType('array')
-            ->addBody($body);
     }
 }

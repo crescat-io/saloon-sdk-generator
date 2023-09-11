@@ -103,7 +103,7 @@ class RequestGenerator extends Generator
                 MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $bodyParam);
             }
 
-            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultBody', $bodyParams);
+            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultBody', $bodyParams, withArrayFilterWrapper: true);
         }
 
         // Priority 3. - Query Parameters
@@ -117,7 +117,7 @@ class RequestGenerator extends Generator
                 MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $queryParam);
             }
 
-            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams);
+            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);
         }
 
         $namespace

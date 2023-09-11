@@ -69,7 +69,7 @@
             "@generate:stripe",
             "@generate:checkmango",
             "@generate:kassalapp",
-            "@generate:altinn"
+            "@generate:crescat"
         ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",

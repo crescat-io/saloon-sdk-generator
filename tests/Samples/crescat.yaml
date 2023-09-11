@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: Crescat
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: app.crescat.io
+paths:
+  /external/v1/festivals:
+    get:
+      summary: 'GET Festival List'
+      description: 'Array of all festivals for your organization.'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\nArray of all festivals for your organization.\n [\n   {\n     \"id\": 1,\n     \"name\": \"Name of Your Festival\",\n     \"start\": 2000-01-01 12:00:00,\n     \"end\": 2000-01-01 15:00:00,\n   }\n ]\n}"
+      tags:
+        - Festival
+  '/external/v1/festivals/{festivalId}/performances':
+    get:
+      summary: 'GET Festival Performance List'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n [\n   {\n     \"id\": 1,\n     \"name\": \"Performance Name\",\n     \"type\": \"Performance Type\",\n      \"fields\": [\n       {\n         \"id\": 1,\n         \"value\": *,\n        }\n        for details on formatting: see performance field format\n     ],\n     \"events\": [\n       {\n         \"id\": 1,\n         \"name\": \"Name of Event\",\n        }\n     ],\n   }\n ]\n}"
+      tags:
+        - Festival
+    parameters:
+      -
+        in: path
+        name: festivalId
+        description: 'The id of the festival you want to get performances for.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/external/v1/festivals/{festivalId}/events':
+    get:
+      summary: 'GET Festival Event List'
+      description: ''
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n [\n   {\n     \"id\": 1,\n     \"name\": \"Event Name\",\n     \"start_date\": 2000-01-01,\n     \"end_date\": 2000-01-01,\n     \"production_period\": [\n         \"start\": 2000-01-01 12:00:00,\n         \"end\": 2000-01-01 15:00:00,\n     ],\n     \"fields\": [\n       {\n         \"id\": 1,\n         \"show_time_id\": 1,\n         \"value\": *,\n        }\n        for details on formatting: see event field format\n     ],\n     \"show_times\": [\n       {\n         \"id\": 1,\n         \"title\": \"Show Title\",\n         \"start\": 2000-01-01 12:00:00,\n         \"end\": 2000-01-01 15:00:00,\n        }\n     ],\n     \"festival_resources\": [\n       {\n         \"id\": 1,\n         \"name\": \"Festival Resource\",\n        }\n     ],\n     \"rooms\": [\n       {\n         \"id\": 1,\n         \"title\": \"Show Title\",\n         \"start\": 2000-01-01 12:00:00,\n         \"end\": 2000-01-01 15:00:00,\n        }\n     ],\n     \"performances\": [\n       {\n         \"id\": 1,\n         \"name\": \"Performance Name\",\n        }\n     ],\n     \"venue\": {\n         \"id\": 1,\n         \"name\": \"Venue Name\",\n         \"address\": \"Venue Address\",\n         \"city\": \"Venue City\",\n         \"postal_code\": \"Postal Code\",\n         \"country\": \"Country\",\n         \"website\": \"Website\",\n         \"phone\": \"Phone\",\n        },\n   }\n ]\n}"
+      tags:
+        - Festival
+    parameters:
+      -
+        in: path
+        name: festivalId
+        description: 'The id of the festival you want to get events for.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/external/v1/festivals/{festivalId}/performances/format':
+    get:
+      summary: 'GET Festival Performance Response Format & Definitions'
+      description: 'Get format of all performance fields that will be included when requesting performances'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n fields [\n   {\n     \"id\": 1,\n     \"title\": \"Title of Your Field\",\n     \"format\": String,\n   }\n ]\n\nFormats of Fields:\n String\n Rich formatted Text\n Date (2000-01-01)\n Time (12:00:00)\n Document url\n Boolean\n}"
+        401:
+          description: 'Festival Not Found: either not existing, or not your festival.'
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ''
+      tags:
+        - Festival
+    parameters:
+      -
+        in: path
+        name: festivalId
+        description: 'The id of the festival you want to get performances for.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/external/v1/festivals/{festivalId}/events/format':
+    get:
+      summary: 'GET Festival Event Response Format & Definitions'
+      description: 'Get format and info from fields that will be included when requesting events'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n fields [\n   {\n     \"id\": 1,\n     \"title\": \"Title of Your Field\",\n     \"format\": String,\n   }\n ],\n festival_event_types [\n   {\n     \"id\": 1,\n     \"name\": \"Concert\",\n   }\n ]\n\nFormats of Fields:\n String\n Rich formatted Text\n Date (2000-01-01)\n Time (12:00:00)\n Document url\n Boolean\n}"
+        401:
+          description: 'Festival Not Found: either not existing, or not your festival.'
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ''
+      tags:
+        - Festival
+    parameters:
+      -
+        in: path
+        name: festivalId
+        description: 'The id of the festival you want to get events for.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  /external/v1/calendar:
+    get:
+      summary: 'GET Group Event List'
+      description: 'Get array of all events for your group'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n [\n   {\n     \"id\": 1,\n     \"name\": \"Event Name\",\n     \"start\": 2000-01-01 12:00:00,\n     \"end\": 2000-01-01 15:00:00,\n     \"event_type_id\": 1,\n     \"fields\": [\n       {\n         \"id\": 1,\n         \"show_time_id\": 1,\n         \"value\": *,\n        }\n        for details on formatting: see event field format\n     ],\n     \"show_times\": [\n       {\n         \"id\": 1,\n         \"title\": \"Show Title\",\n         \"start\": 2000-01-01 12:00:00,\n         \"end\": 2000-01-01 15:00:00,\n        }\n     ],\n     \"rooms\": [\n       {\n         \"id\": 1,\n         \"name\": \"Room Name\",\n         \"title\": \"Show Title\",\n         \"start\": 2000-01-01 12:00:00,\n         \"end\": 2000-01-01 15:00:00,\n        }\n     ],\n   }\n ]\n}"
+      tags:
+        - Group
+    parameters:
+      -
+        in: path
+        name: start
+        description: 'Optional parameter. Start of dates to query. <br><strong>If not provided</strong>: today. <br><strong>Format</strong>: 2000-01-01'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: nam
+      -
+        in: path
+        name: end
+        description: 'Optional parameter. End of dates to query. <br><strong>If not provided</strong>: today. <br><strong>Format</strong>: 2000-01-01'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: eum
+  /external/v1/calendar/format:
+    get:
+      summary: 'GET Group Event Response Format'
+      description: 'Get format of events returned when requesting events'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n event_types [\n   {\n     \"id\": 1,\n     \"name\": \"Event Type\",\n   }\n ],\n fields [\n   {\n     \"id\": 1,\n     \"title\": \"Title of Your Field\",\n     \"format\": String,\n   }\n ]\n\nFormats of Fields:\n String\n Rich formatted Text\n Date (2000-01-01)\n Time (12:00:00)\n Document url\n Boolean\n}"
+        401:
+          description: 'Festival Not Found: either not existing, or not your festival.'
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ''
+      tags:
+        - Group
+  /external/v1/rooms:
+    get:
+      summary: 'GET Venue Rooms List'
+      description: 'Get array of all rooms on your venue'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n [\n   {\n     \"id\": 1,\n     \"name\": \"Room Name\",\n   }\n ]\n}"
+      tags:
+        - Venue/Rooms
+  '/external/v1/rooms/{roomId}/calendar':
+    get:
+      summary: 'GET Room Booking List'
+      description: 'Get array of all bookings for room'
+      parameters:
+        -
+          in: header
+          name: Authorization
+          description: ''
+          example: 'Bearer {YOUR_AUTH_KEY}'
+          schema:
+            type: string
+        -
+          in: header
+          name: Content-Type
+          description: ''
+          example: application/json
+          schema:
+            type: string
+        -
+          in: header
+          name: Accept
+          description: ''
+          example: application/json
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "{\n [\n   {\n     \"id\": 1,\n     \"name\": \"Event Name\",\n     \"start\": 2000-01-01 12:00:00,\n     \"end\": 2000-01-01 15:00:00,\n   }\n ]\n}"
+      tags:
+        - Venue/Rooms
+    parameters:
+      -
+        in: path
+        name: roomId
+        description: 'The id of the room you want to get calendar for.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: start
+        description: 'Optional parameter. Start of dates to query. <br><strong>If not provided</strong>: today. <br><strong>Format</strong>: 2000-01-01'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: saepe
+      -
+        in: path
+        name: end
+        description: 'Optional parameter. End of dates to query. <br><strong>If not provided</strong>: today. <br><strong>Format</strong>: 2000-01-01'
+        required: true
+        schema:
+          type: string
+        examples:
+          omitted:
+            summary: 'When the value is omitted'
+            value: ''
+          present:
+            summary: 'When the value is present'
+            value: ipsa
+tags:
+  -
+    name: Festival
+    description: ''
+  -
+    name: Group
+    description: ''
+  -
+    name: Venue/Rooms
+    description: ''
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: ''
+security:
+  -
+    default: []

@@ -89,7 +89,7 @@ class OpenApiParser implements Parser
             ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
-                nullable: $parameter->schema?->nullable ?? true,
+                nullable: $parameter->required == false,
                 name: $parameter->name,
                 description: $parameter->description,
             ))

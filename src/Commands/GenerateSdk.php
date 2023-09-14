@@ -5,6 +5,7 @@ namespace Crescat\SaloonSdkGenerator\Commands;
 use Crescat\SaloonSdkGenerator\CodeGenerator;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
+use Crescat\SaloonSdkGenerator\Exceptions\ParserNotRegisteredException;
 use Crescat\SaloonSdkGenerator\Factory;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Arr;
@@ -55,7 +56,20 @@ class GenerateSdk extends Command
             )
         );
 
-        $specification = Factory::parse($type, $inputPath);
+        try {
+            $specification = Factory::parse($type, $inputPath);
+        } catch (ParserNotRegisteredException) {
+            // TODO: Prettier errors using termwind
+            $this->error("No parser registered for --type='$type'");
+
+            if (in_array($type, ['yml', 'yaml', 'json', 'xml'])) {
+                $this->warn('Note: the --type option is used to specify the API Specification type (ex: openapi, postman), not the file format.');
+            }
+
+            $this->line('Available types: '.implode(', ', Factory::getRegisteredParserTypes()));
+
+            return;
+        }
 
         $result = $generator->run($specification);
 

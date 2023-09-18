@@ -66,7 +66,7 @@ class OpenApiParser implements Parser
     protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
     {
         return new Endpoint(
-            name:  trim($operation->operationId ?: $operation->summary ?: ''),
+            name: trim($operation->operationId ?: $operation->summary ?: ''),
             method: Method::parse($method),
             pathSegments: Str::of($path)->replace('{', ':')->remove('}')->trim('/')->explode('/')->toArray(),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...

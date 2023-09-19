@@ -155,7 +155,6 @@ class PostmanCollectionParser implements Parser
     protected function parseHeaderParameters(Item $item): array
     {
         return collect($item->request->header)
-//            ->filter(fn ($segment) => Str::startsWith($segment, ':'))
             ->map(function ($param) {
                 if (! Arr::get($param, 'key')) {
                     return null;

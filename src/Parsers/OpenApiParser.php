@@ -4,17 +4,20 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use cebe\openapi\Reader;
 use cebe\openapi\ReferenceContext;
+use cebe\openapi\spec\Components;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
+use cebe\openapi\spec\SecurityRequirement;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -39,6 +42,8 @@ class OpenApiParser implements Parser
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
             baseUrl: Arr::first($this->openApi->servers)->url,
+            securityRequirements: $this->parseSecurityRequirements($this->openApi->security),
+            components: $this->parseComponents($this->openApi->components),
             endpoints: $this->parseItems($this->openApi->paths)
         );
     }
@@ -63,6 +68,57 @@ class OpenApiParser implements Parser
         return $requests;
     }
 
+    /**
+     * @param SecurityRequirement[] $security
+     * @return \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement[]
+     */
+    protected function parseSecurityRequirements(array $security): array
+    {
+        $securityRequirements = [];
+
+        foreach ($security as $key => $securityOption) {
+            $data = $securityOption->getSerializableData();
+            if (gettype($data) !== 'object') continue;
+
+            $securityProperties = get_object_vars($data);
+
+            foreach ($securityProperties as $name => $scopes) {
+                $securityRequirements[] = new \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement(
+                    $name,
+                    $scopes
+                );
+            }
+        }
+
+        return $securityRequirements;
+    }
+
+    /**
+     * @param \cebe\openapi\spec\Components $components
+     * @return \Crescat\SaloonSdkGenerator\Data\Generator\Components
+     */
+    protected function parseComponents(Components $components): \Crescat\SaloonSdkGenerator\Data\Generator\Components
+    {
+        $securitySchemes = [];
+        foreach ($components->securitySchemes as $securityScheme) {
+
+            $securitySchemes[] = new SecurityScheme(
+                $securityScheme->type,
+                $securityScheme->name,
+                $securityScheme->in,
+                $securityScheme->scheme,
+                $securityScheme->description,
+                $securityScheme->bearerFormat,
+                $securityScheme->flows,
+                $securityScheme->openIdConnectUrl
+            );
+        }
+
+        return new \Crescat\SaloonSdkGenerator\Data\Generator\Components(
+            securitySchemes: $securitySchemes
+        );
+    }
+
     protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
     {
         return new Endpoint(
@@ -80,14 +136,14 @@ class OpenApiParser implements Parser
     }
 
     /**
-     * @param  OpenApiParameter[]  $parameters
+     * @param OpenApiParameter[] $parameters
      * @return Parameter[] array
      */
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
-            ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
-            ->map(fn (OpenApiParameter $parameter) => new Parameter(
+            ->filter(fn(OpenApiParameter $parameter) => $parameter->in == $in)
+            ->map(fn(OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 nullable: $parameter->required == false,
                 name: $parameter->name,

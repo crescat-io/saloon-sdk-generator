@@ -4,10 +4,14 @@ namespace Crescat\SaloonSdkGenerator\Generators;
 
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
 use Crescat\SaloonSdkGenerator\Generator;
+use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Http\Connector;
 
@@ -20,6 +24,7 @@ class ConnectorGenerator extends Generator
 
     protected function generateConnectorClass(ApiSpecification $specification): ?PhpFile
     {
+
         $classType = new ClassType($this->config->connectorName);
         $classType->setExtends(Connector::class);
 
@@ -33,16 +38,87 @@ class ConnectorGenerator extends Generator
 
         $classFile = new PhpFile();
 
+        $this->addConstructor($classType, $specification);
+        $this->addResolveBaseUrlMethod($classType, $specification);
+
+        $namespace = $classFile
+            ->addNamespace("{$this->config->namespace}")
+            ->addUse(Connector::class);
+
+        $this->addMethodsForResources($namespace, $classType, $specification);
+
+        $namespace->add($classType);
+
+        return $classFile;
+    }
+
+    protected function addConstructor(
+        ClassType        $classType,
+        ApiSpecification $specification
+    ): ClassType
+    {
+        $classConstructor = $classType->addMethod('__construct');
+
+        $this->addAuthToConstructor($classConstructor, $specification);
+
+        return $classType;
+    }
+
+    protected function addResolveBaseUrlMethod($classType, $specification): ClassType
+    {
         $classType->addMethod('resolveBaseUrl')
             ->setReturnType('string')
             ->setBody(
                 new Literal(sprintf(sprintf("return '%s';", $specification->baseUrl ?? 'TODO')))
             );
 
-        $namespace = $classFile
-            ->addNamespace("{$this->config->namespace}")
-            ->addUse(Connector::class);
+        return $classType;
+    }
 
+    protected function addAuthToConstructor(
+        Method           $classConstructor,
+        ApiSpecification $specification,
+        string           $preferredSecurity = SecurityScheme::TYPE_API_KEY
+    ): Method
+    {
+        // API Key support
+        foreach ($specification->securityRequirements as $securityRequirement) {
+            foreach ($specification->components->securitySchemes as $securityScheme) {
+                if ($securityRequirement->name === $securityScheme->name) {
+                    if ($securityScheme->type === SecurityScheme::TYPE_API_KEY
+                        && $preferredSecurity === SecurityScheme::TYPE_API_KEY) {
+
+                        $parameter = $this->getApiKeyParameter($securityScheme);
+                        MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $parameter);
+
+                        $classConstructor->addBody(sprintf('$this->withTokenAuth($%s);', $parameter->name));
+                    }
+                }
+            }
+        }
+
+        return $classConstructor;
+    }
+
+    protected function getApiKeyParameter(SecurityScheme $securityScheme): Parameter
+    {
+        // Remove X- header prefix
+        $name = preg_replace('/^X-/', '', $securityScheme->name);
+
+        return new Parameter(
+            'string',
+            false,
+            NameHelper::safeVariableName($name),
+            $securityScheme->description
+        );
+    }
+
+    protected function addMethodsForResources(
+        $namespace,
+        ClassType $classType,
+        ApiSpecification $specification
+    ): ClassType
+    {
         $collections = collect($specification->endpoints)
             ->map(function (Endpoint $endpoint) {
                 return NameHelper::connectorClassName($endpoint->collection ?: $this->config->fallbackResourceName);
@@ -69,8 +145,6 @@ class ConnectorGenerator extends Generator
 
         }
 
-        $namespace->add($classType);
-
-        return $classFile;
+        return $classType;
     }
 }

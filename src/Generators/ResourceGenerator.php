@@ -12,7 +12,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
-use Saloon\Contracts\Response;
+use Saloon\Http\Response;
 
 class ResourceGenerator extends Generator
 {

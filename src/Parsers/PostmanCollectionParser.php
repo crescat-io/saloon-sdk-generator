@@ -5,7 +5,6 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
-use Crescat\SaloonSdkGenerator\Data\Generator\Components;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
@@ -34,7 +33,6 @@ class PostmanCollectionParser implements Parser
 
     public function parse(): ApiSpecification
     {
-
         $baseUrlVariable = collect($this->postmanCollection->variables)->firstWhere(
             fn(Variable $var) => $var->key == 'baseUrl'
         );

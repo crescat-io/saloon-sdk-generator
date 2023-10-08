@@ -6,9 +6,11 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
+use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Helpers\TemplateHelper;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
@@ -59,18 +61,38 @@ class ConnectorGenerator extends Generator
     {
         $classConstructor = $classType->addMethod('__construct');
 
+        $this->addBaseUrlParametersToContructor($classConstructor, $specification);
         $this->addAuthToConstructor($classConstructor, $specification);
 
         return $classType;
     }
 
-    protected function addResolveBaseUrlMethod($classType, $specification): ClassType
+    protected function addBaseUrlParametersToContructor(
+        Method           $classConstructor,
+        ApiSpecification $specification
+    ): Method
     {
+        array_map(function (ServerParameter $param) use ($classConstructor) {
+            MethodGeneratorHelper::addParameterAsPromotedProperty(
+                $classConstructor,
+                new Parameter('string', false, $param->name, $param->description)
+            );
+        }, $specification->baseUrl->parameters);
+
+        return $classConstructor;
+    }
+
+    protected function addResolveBaseUrlMethod(ClassType $classType, ApiSpecification $specification): ClassType
+    {
+        $params = [];
+        foreach ($specification->baseUrl->parameters as $parameter) {
+            $params[$parameter->name] = sprintf("{\$this->%s}", NameHelper::safeVariableName($parameter->name));
+        }
+        $baseUrlWithParams = TemplateHelper::render($specification->baseUrl->url ?? 'TODO', $params);
+
         $classType->addMethod('resolveBaseUrl')
             ->setReturnType('string')
-            ->setBody(
-                new Literal(sprintf(sprintf("return '%s';", $specification->baseUrl ?? 'TODO')))
-            );
+            ->setBody(new Literal(sprintf("return \"%s\";", $baseUrlWithParams)));
 
         return $classType;
     }

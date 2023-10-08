@@ -11,13 +11,16 @@ use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
 use cebe\openapi\spec\SecurityRequirement;
+use cebe\openapi\spec\Server;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
+use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
+use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -41,11 +44,32 @@ class OpenApiParser implements Parser
         return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
-            baseUrl: Arr::first($this->openApi->servers)->url,
+            baseUrl: $this->parseBaseUrl($this->openApi->servers),
             securityRequirements: $this->parseSecurityRequirements($this->openApi->security),
             components: $this->parseComponents($this->openApi->components),
             endpoints: $this->parseItems($this->openApi->paths)
         );
+    }
+
+
+    /**
+     * @param Server[] $servers
+     * @return BaseUrl
+     */
+    protected function parseBaseUrl(array $servers): BaseUrl
+    {
+        /** @var Server $server */
+        $server = array_shift($servers);
+        if (is_null($server->variables)) {
+            return new BaseUrl('');
+        }
+
+        $parameters = [];
+        foreach ($server->variables as $name => $variable) {
+            $parameters[] = new ServerParameter($name, $variable->default, $variable->description);
+        }
+
+        return new BaseUrl($server->url, $parameters);
     }
 
     /**

@@ -4,6 +4,8 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
+use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
+use Crescat\SaloonSdkGenerator\Data\Generator\Components;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
@@ -33,11 +35,17 @@ class PostmanCollectionParser implements Parser
     public function parse(): ApiSpecification
     {
 
+        $baseUrlVariable = collect($this->postmanCollection->variables)->firstWhere(
+            fn(Variable $var) => $var->key == 'baseUrl'
+        );
+
         return new ApiSpecification(
             name: $this->postmanCollection->info->name,
             description: $this->postmanCollection->info->description,
-            baseUrl: collect($this->postmanCollection->variables)->firstWhere(fn (Variable $var) => $var->key == 'baseUrl')?->value,
-            endpoints: $this->parseItems($this->postmanCollection->item),
+            baseUrl: new BaseUrl($baseUrlVariable?->value ?: ''),
+            securityRequirements: [],
+            components: null,
+            endpoints: $this->parseItems($this->postmanCollection->item)
         );
     }
 
@@ -52,7 +60,7 @@ class PostmanCollectionParser implements Parser
 
             if ($item instanceof ItemGroup) {
                 // Nested resource Ids aka "{customer_id}" are not considered a "collection", skip those
-                if (! Str::contains($item->name, ['{', '}'])) {
+                if (!Str::contains($item->name, ['{', '}'])) {
                     $this->collectionQueue[] = $item->name;
                 }
 
@@ -87,7 +95,7 @@ class PostmanCollectionParser implements Parser
     protected function parseQueryParameters(Item $item): array
     {
         return collect($item->request->url->query)->map(function ($param) {
-            if (! Arr::get($param, 'key')) {
+            if (!Arr::get($param, 'key')) {
                 return null;
             }
 
@@ -103,7 +111,7 @@ class PostmanCollectionParser implements Parser
     protected function parsePathParameters(Item $item): array
     {
         return collect($item->request->url->path)
-            ->filter(fn ($segment) => Str::startsWith($segment, ':'))
+            ->filter(fn($segment) => Str::startsWith($segment, ':'))
             ->map(function ($param) {
                 return new Parameter(
                     type: 'string',
@@ -120,7 +128,7 @@ class PostmanCollectionParser implements Parser
     {
         $body = $item->request->body?->rawAsJson();
 
-        if (! $body) {
+        if (!$body) {
             return [];
         }
 

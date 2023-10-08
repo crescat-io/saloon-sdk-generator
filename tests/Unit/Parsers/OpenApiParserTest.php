@@ -2,6 +2,18 @@
 
 use Crescat\SaloonSdkGenerator\Parsers\OpenApiParser;
 
+test('Parsed base url', function () {
+    $specFile = __DIR__ . '/../../Samples/bigcommerce/abandoned_carts.v3.yml';
+    $parser = OpenApiParser::build($specFile);
+    $spec = $parser->parse();
+
+    expect($spec->baseUrl->url)->toBe('https://api.bigcommerce.com/stores/{store_hash}/v3')
+        ->and($spec->baseUrl->parameters)->toHaveCount(1)
+        ->and($spec->baseUrl->parameters[0]->name)->toBe('store_hash')
+        ->and($spec->baseUrl->parameters[0]->default)->toBe('store_hash')
+        ->and($spec->baseUrl->parameters[0]->description)->toBe('Permanent ID of the BigCommerce store.');
+});
+
 test('Parsed security requirements', function () {
 
     $specFile = __DIR__ . '/../../Samples/bigcommerce/abandoned_carts.v3.yml';

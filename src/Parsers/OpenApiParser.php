@@ -53,7 +53,7 @@ class OpenApiParser implements Parser
     /**
      * @param  Server[]  $servers
      */
-    protected function parseBaseUrl(array $servers): BaseUrl
+    protected function parseBaseUrl(?array $servers): BaseUrl
     {
         /** @var Server $server */
         $server = array_shift($servers);
@@ -72,8 +72,12 @@ class OpenApiParser implements Parser
     /**
      * @return array|Endpoint[]
      */
-    protected function parseItems(Paths $items): array
+    protected function parseItems(?Paths $items): array
     {
+        if (! $items) {
+            return [];
+        }
+
         $requests = [];
 
         foreach ($items as $path => $item) {
@@ -116,10 +120,17 @@ class OpenApiParser implements Parser
         return $securityRequirements;
     }
 
-    protected function parseComponents(Components $components): \Crescat\SaloonSdkGenerator\Data\Generator\Components
+    protected function parseComponents(?Components $components): \Crescat\SaloonSdkGenerator\Data\Generator\Components
     {
+
+        if (! $components) {
+            return new \Crescat\SaloonSdkGenerator\Data\Generator\Components(
+                securitySchemes: []
+            );
+        }
+
         $securitySchemes = [];
-        foreach ($components->securitySchemes as $securityScheme) {
+        foreach ($components?->securitySchemes as $securityScheme) {
 
             $securitySchemes[] = new SecurityScheme(
                 $securityScheme->type,

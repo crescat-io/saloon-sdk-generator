@@ -14,20 +14,20 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-zip": "*",
         "cebe/php-openapi": "^1.7",
         "laravel-zero/phar-updater": "^1.3",
         "nette/php-generator": "^4.0",
         "nunomaduro/termwind": "^1.15.1",
         "saloonphp/saloon": "^3.0",
-        "saloonphp/laravel-plugin": "^3.0"
+        "saloonphp/laravel-plugin": "^3.2"
     },
     "require-dev": {
-        "laravel-zero/framework": "^10.0.2",
-        "laravel/pint": "^1.8",
+        "laravel-zero/framework": "^10.3.0",
+        "laravel/pint": "^1.13",
         "mockery/mockery": "^1.5.1",
-        "pestphp/pest": "^2.5"
+        "pestphp/pest": "^2.28.0"
     },
     "autoload": {
         "psr-4": {
@@ -53,6 +53,7 @@
         "generate:kassalapp": "./codegen generate:sdk --force --namespace=Kassalapp\\\\Sdk --type=openapi --name=Kassalapp tests/Samples/kassalapp.json --output tests/Output/Kassalapp",
         "generate:altinn": "./codegen generate:sdk --force --namespace=Altinn\\\\Sdk --type=postman --name=Altinn tests/Samples/altinn.json --output tests/Output/Altinn",
         "generate:crescat": "./codegen generate:sdk --force --namespace=Crescat\\\\Sdk --type=openapi --name=Crescat tests/Samples/crescat.yaml --output tests/Output/Crescat",
+        "generate:bigcommerce": "./codegen generate:sdk --force --namespace=BigCommerce\\\\Sdk --type=openapi --name=BigCommerce tests/samples/bigcommerce_abandoned_carts.v3.yml --output tests/Output/BigCommerce",
         "generate:zip:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Output --zip",
         "generate:zip:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Output --zip",
         "generate:zip:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Output --zip",
@@ -70,9 +71,10 @@
             "@generate:stripe",
             "@generate:checkmango",
             "@generate:kassalapp",
-            "@generate:crescat"
+            "@generate:crescat",
+            "@generate:bigcommerce"
         ],
-        "test": "vendor/bin/pest",
+        "test": "vendor/bin/pest tests",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint"
     },

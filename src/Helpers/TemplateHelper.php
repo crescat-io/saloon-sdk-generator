@@ -8,11 +8,7 @@ class TemplateHelper
     {
         $result = preg_replace_callback(
             pattern: '/\{([^{}]+)\}/',
-            callback: function ($matched) use ($variables) {
-                dump($matched);
-
-                return $variables[$matched[1]];
-            },
+            callback: fn ($matched) => $variables[$matched[1]],
             subject: $template
         );
 

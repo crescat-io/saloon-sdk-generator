@@ -2,8 +2,8 @@
 
 namespace Crescat\SaloonSdkGenerator\Generators;
 
+use cebe\openapi\spec\Schema;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
-use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
@@ -14,27 +14,27 @@ use Spatie\LaravelData\Data;
 
 class DtoGenerator extends Generator
 {
+    protected array $generated = [];
+
     public function generate(ApiSpecification $specification): PhpFile|array
     {
-        $items = [];
+
+        // TODO: since we are resolving the references, we get dupliate DTOs, this generator must be ran without reference resolution so we can handle references internally (generate only the base schema instead of duplicating the same dto with a different name)
 
         if ($specification->components) {
-            $this->parseSchemas($specification->components->schemas);
             foreach ($specification->components->schemas as $className => $schema) {
-                $items[] = $this->generateDtoClass(NameHelper::safeClassName($className), $schema);
+
+                $this->generateDtoClass(NameHelper::safeClassName($className), $schema);
             }
         }
 
-        return $items;
+        return $this->generated;
     }
 
-    protected function parseSchemas()
+    protected function generateDtoClass($className, Schema $schema)
     {
 
-    }
-
-    protected function generateDtoClass($className, \cebe\openapi\spec\Schema $schema)
-    {
+        /** @var Schema[] $properties */
         $properties = $schema->properties ?? [];
 
         $dtoName = NameHelper::dtoClassName($className ?: $this->config->fallbackResourceName);
@@ -54,22 +54,30 @@ class DtoGenerator extends Generator
         $generatedMappings = false;
 
         foreach ($properties as $propertyName => $propertySpec) {
-            $type = $this->convertOpenApiTypeToPhp($propertySpec->type);
 
-            if ($type === 'object') {
-                $type = $this->generateDtoClass($propertyName, $propertySpec);
+            $type = $this->convertOpenApiTypeToPhp($propertyName, $propertySpec);
+
+            if ($type === 'object' || $type == 'array') {
+                $sub = NameHelper::dtoClassName($propertyName);
+
+                if (! isset($this->generated[$sub])) {
+                    // NOTE: RECURSION!
+                    $this->generated[$sub] = $this->generateDtoClass($propertyName, $propertySpec);
+                }
+
             }
-
-            $param = new Parameter(
-                type: $type,
-                nullable: true,
-                name: $propertyName,
-            );
 
             $name = NameHelper::safeVariableName($propertyName);
 
             $property = $classConstructor->addPromotedParameter($name)
-                ->setType($type)
+                ->setType(match ($type) {
+                    'object' => $namespace->resolveName($sub ?? throw new \LogicException('TODO: Something broke, $sub was never defined')),
+                    default => $type,
+                })
+                ->addComment(match ($type) {
+                    'array' => trim(sprintf('@param %s[]|array $%s %s', $namespace->resolveName($sub), $name, $propertySpec->description)),
+                    default => '',
+                })
                 ->setNullable(true)
                 ->setPublic()
                 ->setDefaultValue(null);
@@ -83,38 +91,47 @@ class DtoGenerator extends Generator
 
         }
 
-        $namespace->addUse(Data::class)->add($classType);
+        $namespace->addUse(Data::class, alias: 'SpatieData')->add($classType);
 
         if ($generatedMappings) {
             $namespace->addUse(MapName::class);
         }
 
+        $this->generated[$dtoName] = $classFile;
+
         return $classFile;
     }
 
-    protected function convertOpenApiTypeToPhp($openApiType)
+    protected function convertOpenApiTypeToPhp($name, Schema $schema)
     {
-        if (is_string($openApiType)) {
-            return match ($openApiType) {
-                'integer' => 'int',
-                'string' => 'string',
-                'boolean' => 'bool',
-                'object' => 'object', // Recurse
-                default => 'mixed',
-            };
+
+        if (is_array($schema->type)) {
+            return collect($schema->type)->map(fn ($type) => $this->mapType($type))->implode('|');
         }
 
-        if (is_array($openApiType)) {
-            // ex: "null" and "string" => ?string
-            if (count($openApiType) == 2 && in_array('null', $openApiType)) {
-                $type = collect($openApiType)->first(fn ($type) => $type != 'null');
-
-                return "?$type";
-            }
-
-            return implode('|', array_map(fn ($type) => $this->convertOpenApiTypeToPhp($type), $openApiType));
+        if (is_string($schema->type)) {
+            return $this->mapType($schema->type, $schema->format);
         }
 
         return 'mixed';
+    }
+
+    protected function mapType($type, $format = null): string
+    {
+        return match ($type) {
+            'integer' => 'int',
+            'string' => 'string',
+            'boolean' => 'bool',
+            'object' => 'object', // Recurse
+            'number' => match ($format) {
+                'float' => 'float',
+                'int32', 'int64	' => 'int',
+                default => 'int|float',
+            },
+            'array' => 'array',
+            'null' => 'null',
+            //                default => dd($schema),
+            default => 'mixed',
+        };
     }
 }

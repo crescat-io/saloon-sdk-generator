@@ -3,7 +3,7 @@
 use Crescat\SaloonSdkGenerator\Parsers\OpenApiParser;
 
 test('Parsed base url', function () {
-    $specFile = __DIR__ . '/../../Samples/bigcommerce/abandoned_carts.v3.yml';
+    $specFile = sample_path('bigcommerce_abandoned_carts.v3.yml');
     $parser = OpenApiParser::build($specFile);
     $spec = $parser->parse();
 
@@ -16,7 +16,7 @@ test('Parsed base url', function () {
 
 test('Parsed security requirements', function () {
 
-    $specFile = __DIR__ . '/../../Samples/bigcommerce/abandoned_carts.v3.yml';
+    $specFile = sample_path('bigcommerce_abandoned_carts.v3.yml');
     $parser = OpenApiParser::build($specFile);
     $spec = $parser->parse();
 
@@ -26,7 +26,7 @@ test('Parsed security requirements', function () {
 
 test('Parsed components: security schemes', function () {
 
-    $specFile = __DIR__ . '/../../Samples/bigcommerce/abandoned_carts.v3.yml';
+    $specFile = sample_path('bigcommerce_abandoned_carts.v3.yml');
     $parser = OpenApiParser::build($specFile);
     $spec = $parser->parse();
 

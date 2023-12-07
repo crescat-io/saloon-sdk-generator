@@ -3,7 +3,8 @@
 use Crescat\SaloonSdkGenerator\Parsers\PostmanCollectionParser;
 
 test('Parse collection', function () {
-    $specFile = __DIR__ . '/../../Samples/openai.json';
+    $specFile = sample_path('openai.json');
+
     $parser = PostmanCollectionParser::build($specFile);
     $spec = $parser->parse();
 

@@ -55,10 +55,9 @@ class ConnectorGenerator extends Generator
     }
 
     protected function addConstructor(
-        ClassType        $classType,
+        ClassType $classType,
         ApiSpecification $specification
-    ): ClassType
-    {
+    ): ClassType {
         $classConstructor = $classType->addMethod('__construct');
 
         $this->addBaseUrlParametersToContructor($classConstructor, $specification);
@@ -68,10 +67,9 @@ class ConnectorGenerator extends Generator
     }
 
     protected function addBaseUrlParametersToContructor(
-        Method           $classConstructor,
+        Method $classConstructor,
         ApiSpecification $specification
-    ): Method
-    {
+    ): Method {
         array_map(function (ServerParameter $param) use ($classConstructor) {
             MethodGeneratorHelper::addParameterAsPromotedProperty(
                 $classConstructor,
@@ -86,23 +84,22 @@ class ConnectorGenerator extends Generator
     {
         $params = [];
         foreach ($specification->baseUrl->parameters as $parameter) {
-            $params[$parameter->name] = sprintf("{\$this->%s}", NameHelper::safeVariableName($parameter->name));
+            $params[$parameter->name] = sprintf('{$this->%s}', NameHelper::safeVariableName($parameter->name));
         }
         $baseUrlWithParams = TemplateHelper::render($specification->baseUrl->url ?? 'TODO', $params);
 
         $classType->addMethod('resolveBaseUrl')
             ->setReturnType('string')
-            ->setBody(new Literal(sprintf("return \"%s\";", $baseUrlWithParams)));
+            ->setBody(new Literal(sprintf('return "%s";', $baseUrlWithParams)));
 
         return $classType;
     }
 
     protected function addAuthToConstructor(
-        Method           $classConstructor,
+        Method $classConstructor,
         ApiSpecification $specification,
-        string           $preferredSecurity = SecurityScheme::TYPE_API_KEY
-    ): Method
-    {
+        string $preferredSecurity = SecurityScheme::TYPE_API_KEY
+    ): Method {
         // API Key support
         foreach ($specification->securityRequirements as $securityRequirement) {
             foreach ($specification->components->securitySchemes as $securityScheme) {
@@ -139,8 +136,7 @@ class ConnectorGenerator extends Generator
         $namespace,
         ClassType $classType,
         ApiSpecification $specification
-    ): ClassType
-    {
+    ): ClassType {
         $collections = collect($specification->endpoints)
             ->map(function (Endpoint $endpoint) {
                 return NameHelper::connectorClassName($endpoint->collection ?: $this->config->fallbackResourceName);

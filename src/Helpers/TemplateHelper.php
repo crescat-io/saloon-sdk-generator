@@ -7,11 +7,13 @@ class TemplateHelper
     public static function render(string $template, array $variables = []): string
     {
         $result = preg_replace_callback(
-            '/{(.+?)}/',
-            function ($matches) use ($variables) {
-                return $variables[$matches[1]];
+            pattern: '/\{([^{}]+)\}/',
+            callback: function ($matched) use ($variables) {
+                dump($matched);
+
+                return $variables[$matched[1]];
             },
-            $template
+            subject: $template
         );
 
         return $result ?? $template;

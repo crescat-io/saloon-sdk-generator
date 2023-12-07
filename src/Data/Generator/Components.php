@@ -4,18 +4,8 @@ namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 class Components
 {
-
     /**
-     * @param array $schemas
-     * @param array $responses
-     * @param array $parameters
-     * @param array $examples
-     * @param array $requestBodies
-     * @param array $headers
-     * @param SecurityScheme[] $securitySchemes
-     * @param array $links
-     * @param array $callbacks
-     * @param array $pathItems
+     * @param  SecurityScheme[]  $securitySchemes
      */
     public function __construct(
         public readonly array $schemas = [],
@@ -28,7 +18,6 @@ class Components
         public readonly array $links = [],
         public readonly array $callbacks = [],
         public readonly array $pathItems = []
-    )
-    {
+    ) {
     }
 }

@@ -21,7 +21,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
@@ -51,10 +50,8 @@ class OpenApiParser implements Parser
         );
     }
 
-
     /**
-     * @param Server[] $servers
-     * @return BaseUrl
+     * @param  Server[]  $servers
      */
     protected function parseBaseUrl(array $servers): BaseUrl
     {
@@ -93,7 +90,7 @@ class OpenApiParser implements Parser
     }
 
     /**
-     * @param SecurityRequirement[] $security
+     * @param  SecurityRequirement[]  $security
      * @return \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement[]
      */
     protected function parseSecurityRequirements(array $security): array
@@ -102,7 +99,9 @@ class OpenApiParser implements Parser
 
         foreach ($security as $key => $securityOption) {
             $data = $securityOption->getSerializableData();
-            if (gettype($data) !== 'object') continue;
+            if (gettype($data) !== 'object') {
+                continue;
+            }
 
             $securityProperties = get_object_vars($data);
 
@@ -117,10 +116,6 @@ class OpenApiParser implements Parser
         return $securityRequirements;
     }
 
-    /**
-     * @param \cebe\openapi\spec\Components $components
-     * @return \Crescat\SaloonSdkGenerator\Data\Generator\Components
-     */
     protected function parseComponents(Components $components): \Crescat\SaloonSdkGenerator\Data\Generator\Components
     {
         $securitySchemes = [];
@@ -160,14 +155,14 @@ class OpenApiParser implements Parser
     }
 
     /**
-     * @param OpenApiParameter[] $parameters
+     * @param  OpenApiParameter[]  $parameters
      * @return Parameter[] array
      */
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
-            ->filter(fn(OpenApiParameter $parameter) => $parameter->in == $in)
-            ->map(fn(OpenApiParameter $parameter) => new Parameter(
+            ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
+            ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 nullable: $parameter->required == false,
                 name: $parameter->name,

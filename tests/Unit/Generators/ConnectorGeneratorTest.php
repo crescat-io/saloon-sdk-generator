@@ -8,18 +8,23 @@ use Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Crescat\SaloonSdkGenerator\Generators\ConnectorGenerator;
+use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Method;
 
 test('Constructor', function () {
 
-    $generator = new ConnectorGenerator(new Config('MyConnector', 'VendorName'));
+    $generator = new ConnectorGenerator(new Config(
+        connectorName: 'MyConnector',
+        namespace: 'VendorName'
+    ));
     $apiSpec = getApiSpec();
     $phpFile = $generator->generate($apiSpec);
     $class = $phpFile->getNamespaces()['VendorName']->getClasses()['MyConnector'];
 
-    expect($class)->toBeInstanceOf(\Nette\PhpGenerator\ClassType::class);
+    expect($class)->toBeInstanceOf(ClassType::class);
 
     $constructor = $class->getMethods()['__construct'];
-    expect($constructor)->toBeInstanceOf(\Nette\PhpGenerator\Method::class)
+    expect($constructor)->toBeInstanceOf(Method::class)
         ->and($constructor->getParameters())->toHaveCount(2)
         ->and($constructor->getBody())->toBe("\$this->withTokenAuth(\$authToken);\n");
 
@@ -35,14 +40,17 @@ test('Constructor', function () {
 });
 
 test('Resolve Base URL', function () {
-    $generator = new ConnectorGenerator(new Config('MyConnector', 'VendorName'));
+    $generator = new ConnectorGenerator(new Config(
+        connectorName: 'MyConnector',
+        namespace: 'VendorName'
+    ));
     $apiSpec = getApiSpec();
     $phpFile = $generator->generate($apiSpec);
     $class = $phpFile->getNamespaces()['VendorName']->getClasses()['MyConnector'];
 
     $resolveBaseUrl = $class->getMethods()['resolveBaseUrl'];
     expect($resolveBaseUrl->getParameters())->toBeEmpty()
-        ->and($resolveBaseUrl->getBody())->toBe("return \"https://api-{\$this->region}.example.com/v1/\";");
+        ->and($resolveBaseUrl->getBody())->toBe('return "https://api-{$this->region}.example.com/v1/";');
 });
 
 function getApiSpec(): ApiSpecification
@@ -51,8 +59,10 @@ function getApiSpec(): ApiSpecification
         name: 'ApiName',
         description: 'Example API',
         baseUrl: new BaseUrl(
-            'https://api-{region}.example.com/v1/',
-            [new ServerParameter('region', 'eu')]
+            url: 'https://api-{region}.example.com/v1/',
+            parameters: [
+                new ServerParameter('region', 'eu'),
+            ]
         ),
         securityRequirements: [
             new SecurityRequirement('X-Auth-Token'),
@@ -63,7 +73,7 @@ function getApiSpec(): ApiSpecification
                     type: 'apiKey',
                     name: 'X-Auth-Token',
                     in: 'header',
-                )
+                ),
             ]
         ),
         endpoints: []

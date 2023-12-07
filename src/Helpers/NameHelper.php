@@ -156,6 +156,11 @@ class NameHelper
         return $result;
     }
 
+    public static function dtoClassName(string $value): string
+    {
+        return self::safeClassName($value, 'Dto');
+    }
+
     public static function resourceClassName(string $value): string
     {
         return self::safeClassName($value, 'Resource');

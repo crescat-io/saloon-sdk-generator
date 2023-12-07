@@ -4,6 +4,9 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
 use Crescat\SaloonSdkGenerator\Data\Generator\Components;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
+use Crescat\SaloonSdkGenerator\Data\Generator\Method;
+use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Crescat\SaloonSdkGenerator\Generators\RequestGenerator;
 
@@ -25,7 +28,21 @@ beforeEach(function () {
         ),
         securityRequirements: [],
         components: new Components(),
-        endpoints: []
+        endpoints: [
+            new Endpoint(
+                name: 'getUser',
+                method: Method::GET,
+                pathSegments: ['users', ':user_id'],
+                collection: 'Users',
+                response: null,
+                description: 'Get user',
+                queryParameters: [
+                    new Parameter('int', true, 'channel_id', 'Channel ID to use for channel-level data.'),
+                ],
+                pathParameters: [new Parameter('int', false, 'user_id', 'ID of the user')],
+                bodyParameters: []
+            ),
+        ]
     );
 });
 

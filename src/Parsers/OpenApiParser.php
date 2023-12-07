@@ -40,6 +40,7 @@ class OpenApiParser implements Parser
 
     public function parse(): ApiSpecification
     {
+
         return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
@@ -145,6 +146,7 @@ class OpenApiParser implements Parser
         }
 
         return new \Crescat\SaloonSdkGenerator\Data\Generator\Components(
+            schemas: $components->schemas,
             securitySchemes: $securitySchemes
         );
     }

@@ -108,6 +108,11 @@ class GenerateSdk extends Command
         foreach ($result->requestClasses as $requestClass) {
             $this->line(Utils::formatNamespaceAndClass($requestClass));
         }
+
+        $this->comment("\nDTOs:");
+        foreach ($result->dtoClasses as $dtoClass) {
+            $this->line(Utils::formatNamespaceAndClass($dtoClass));
+        }
     }
 
     protected function dumpGeneratedFiles(GeneratedCode $result): void
@@ -133,6 +138,11 @@ class GenerateSdk extends Command
         $this->comment("\nRequests:");
         foreach ($result->requestClasses as $requestClass) {
             $this->dumpToFile($requestClass);
+        }
+
+        $this->comment("\nDTOs:");
+        foreach ($result->dtoClasses as $dtoClass) {
+            $this->dumpToFile($dtoClass);
         }
     }
 

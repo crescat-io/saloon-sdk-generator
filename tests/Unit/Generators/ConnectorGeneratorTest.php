@@ -15,8 +15,7 @@ beforeEach(function () {
     $this->generator = new ConnectorGenerator(new Config(
         connectorName: 'MyConnector',
         namespace: 'VendorName'
-    )
-    );
+    ));
 
     $this->dummySpec = new ApiSpecification(
         name: 'ApiName',

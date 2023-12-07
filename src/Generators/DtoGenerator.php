@@ -56,6 +56,10 @@ class DtoGenerator extends Generator
         foreach ($properties as $propertyName => $propertySpec) {
             $type = $this->convertOpenApiTypeToPhp($propertySpec->type);
 
+            if ($type === 'object') {
+                $type = $this->generateDtoClass($propertyName, $propertySpec);
+            }
+
             $param = new Parameter(
                 type: $type,
                 nullable: true,
@@ -95,7 +99,7 @@ class DtoGenerator extends Generator
                 'integer' => 'int',
                 'string' => 'string',
                 'boolean' => 'bool',
-                //                'object' => 'mixed', // TODO: Recurse
+                'object' => 'object', // Recurse
                 default => 'mixed',
             };
         }

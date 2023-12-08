@@ -156,14 +156,20 @@ class PostmanCollectionParser implements Parser
     {
         return collect($item->request->header)
             ->map(function ($param) {
-                if (! Arr::get($param, 'key')) {
+                $headerName = Arr::get($param, 'key');
+                if (! $headerName) {
+                    return null;
+                }
+
+                // Exclude headers already handled in Connectors
+                if (in_array($headerName, ['Authorization', 'Content-Type', 'Accept'])) {
                     return null;
                 }
 
                 return new Parameter(
                     type: 'string',
                     nullable: false,
-                    name: Arr::get($param, 'key'),
+                    name: $headerName,
                 );
             })
             ->filter()

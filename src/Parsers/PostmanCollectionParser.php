@@ -162,7 +162,7 @@ class PostmanCollectionParser implements Parser
                 }
 
                 // Exclude headers already handled in Connectors
-                if (in_array($headerName, ['Authorization', 'Content-Type', 'Accept'])) {
+                if (in_array($headerName, $this->getExcludedHeaders())) {
                     return null;
                 }
 
@@ -175,5 +175,10 @@ class PostmanCollectionParser implements Parser
             ->filter()
             ->values()
             ->toArray();
+    }
+
+    public function getExcludedHeaders(): array
+    {
+        return ['Authorization', 'Content-Type', 'Accept'];
     }
 }

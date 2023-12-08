@@ -80,7 +80,7 @@ class PostmanCollectionParser implements Parser
             queryParameters: $this->parseQueryParameters($item),
             pathParameters: $this->parsePathParameters($item),
             bodyParameters: $this->parseBodyParameters($item),
-
+            headerParameters: $this->parseHeaderParameters($item),
         );
     }
 
@@ -150,5 +150,35 @@ class PostmanCollectionParser implements Parser
                 );
             })
             ->toArray();
+    }
+
+    protected function parseHeaderParameters(Item $item): array
+    {
+        return collect($item->request->header)
+            ->map(function ($param) {
+                $headerName = Arr::get($param, 'key');
+                if (! $headerName) {
+                    return null;
+                }
+
+                // Exclude headers already handled in Connectors
+                if (in_array($headerName, $this->getExcludedHeaders())) {
+                    return null;
+                }
+
+                return new Parameter(
+                    type: 'string',
+                    nullable: false,
+                    name: $headerName,
+                );
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    public function getExcludedHeaders(): array
+    {
+        return ['Authorization', 'Content-Type', 'Accept'];
     }
 }

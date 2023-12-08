@@ -76,6 +76,7 @@ class OpenApiParser implements Parser
             // TODO: Check if this differs between spec versions
             pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
             bodyParameters: [], // TODO: implement "definition" parsing
+            headerParameters: $this->mapParams($operation->parameters, 'header', $this->getExcludedHeaders()),
         );
     }
 
@@ -83,10 +84,10 @@ class OpenApiParser implements Parser
      * @param  OpenApiParameter[]  $parameters
      * @return Parameter[] array
      */
-    protected function mapParams(array $parameters, string $in): array
+    protected function mapParams(array $parameters, string $in, array $exclude = []): array
     {
         return collect($parameters)
-            ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
+            ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in && ! in_array($parameter->name, $exclude))
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 nullable: $parameter->required == false,
@@ -106,5 +107,10 @@ class OpenApiParser implements Parser
             Type::OBJECT, Type::ARRAY => 'array',
             default => 'mixed',
         };
+    }
+
+    public function getExcludedHeaders(): array
+    {
+        return ['Authorization', 'Content-Type', 'Accept'];
     }
 }

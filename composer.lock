@@ -1727,16 +1727,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.72.0",
+            "version": "2.72.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "a6885fcbad2ec4360b0e200ee0da7d9b7c90786b"
+                "reference": "2b3b3db0a2d0556a177392ff1a3bf5608fa09f78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/a6885fcbad2ec4360b0e200ee0da7d9b7c90786b",
-                "reference": "a6885fcbad2ec4360b0e200ee0da7d9b7c90786b",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/2b3b3db0a2d0556a177392ff1a3bf5608fa09f78",
+                "reference": "2b3b3db0a2d0556a177392ff1a3bf5608fa09f78",
                 "shasum": ""
             },
             "require": {
@@ -1830,7 +1830,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-11-28T10:13:25+00:00"
+            "time": "2023-12-08T23:47:49+00:00"
         },
         {
             "name": "nette/php-generator",
@@ -2758,16 +2758,16 @@
         },
         {
             "name": "saloonphp/saloon",
-            "version": "v3.3.1",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/saloonphp/saloon.git",
-                "reference": "d6f38f34437f7e3c58fae8567420227b06b89caa"
+                "reference": "bf4157098f4c867999e031062865265e34cbd645"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/d6f38f34437f7e3c58fae8567420227b06b89caa",
-                "reference": "d6f38f34437f7e3c58fae8567420227b06b89caa",
+                "url": "https://api.github.com/repos/saloonphp/saloon/zipball/bf4157098f4c867999e031062865265e34cbd645",
+                "reference": "bf4157098f4c867999e031062865265e34cbd645",
                 "shasum": ""
             },
             "require": {
@@ -2825,7 +2825,7 @@
             ],
             "support": {
                 "issues": "https://github.com/saloonphp/saloon/issues",
-                "source": "https://github.com/saloonphp/saloon/tree/v3.3.1"
+                "source": "https://github.com/saloonphp/saloon/tree/v3.3.2"
             },
             "funding": [
                 {
@@ -2837,7 +2837,7 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2023-12-04T13:45:09+00:00"
+            "time": "2023-12-07T23:10:46+00:00"
         },
         {
             "name": "spatie/laravel-data",

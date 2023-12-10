@@ -2,11 +2,13 @@
 
 namespace Crescat\SaloonSdkGenerator\Generators;
 
+use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
+use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 use Spatie\LaravelData\Attributes\MapName;
@@ -23,7 +25,6 @@ class DtoGenerator extends Generator
 
         if ($specification->components) {
             foreach ($specification->components->schemas as $className => $schema) {
-
                 $this->generateDtoClass(NameHelper::safeClassName($className), $schema);
             }
         }
@@ -55,40 +56,28 @@ class DtoGenerator extends Generator
 
         foreach ($properties as $propertyName => $propertySpec) {
 
-            $type = $this->convertOpenApiTypeToPhp($propertyName, $propertySpec);
+            $type = $this->convertOpenApiTypeToPhp($propertySpec);
+            $sub = NameHelper::dtoClassName($type);
 
             if ($type === 'object' || $type == 'array') {
-                $sub = NameHelper::dtoClassName($propertyName);
 
-                if (! isset($this->generated[$sub])) {
-                    // NOTE: RECURSION!
+                if (! isset($this->generated[$sub]) && ! empty($propertySpec->properties)) {
                     $this->generated[$sub] = $this->generateDtoClass($propertyName, $propertySpec);
                 }
-
             }
 
             $name = NameHelper::safeVariableName($propertyName);
 
             $property = $classConstructor->addPromotedParameter($name)
-                ->setType(match ($type) {
-                    'object' => $namespace->resolveName($sub ?? throw new \LogicException('TODO: Something broke, $sub was never defined')),
-                    default => $type,
-                })
-                ->addComment(match ($type) {
-                    'array' => trim(sprintf('@param %s[]|array $%s %s', $namespace->resolveName($sub), $name, $propertySpec->description)),
-                    default => '',
-                })
+                ->setType($propertySpec instanceof Reference ? $namespace->resolveName($sub) : $type)
                 ->setNullable(true)
                 ->setPublic()
                 ->setDefaultValue(null);
 
-            // TODO: Make this configurable, its not really necessary if the naming is "sane",
-            //  or if the original name is different from the variable name and cant be inferred by snake/camelcasing it.
             if ($name != $propertyName) {
                 $property->addAttribute(MapName::class, [$propertyName]);
                 $generatedMappings = true;
             }
-
         }
 
         $namespace->addUse(Data::class, alias: 'SpatieData')->add($classType);
@@ -102,8 +91,11 @@ class DtoGenerator extends Generator
         return $classFile;
     }
 
-    protected function convertOpenApiTypeToPhp($name, Schema $schema)
+    protected function convertOpenApiTypeToPhp(Schema|Reference $schema)
     {
+        if ($schema instanceof Reference) {
+            return Str::afterLast($schema->getReference(), '/');
+        }
 
         if (is_array($schema->type)) {
             return collect($schema->type)->map(fn ($type) => $this->mapType($type))->implode('|');
@@ -130,7 +122,6 @@ class DtoGenerator extends Generator
             },
             'array' => 'array',
             'null' => 'null',
-            //                default => dd($schema),
             default => 'mixed',
         };
     }

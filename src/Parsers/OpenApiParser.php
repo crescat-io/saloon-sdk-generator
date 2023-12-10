@@ -33,8 +33,8 @@ class OpenApiParser implements Parser
     {
         return new self(
             Str::endsWith($content, '.json')
-                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
-                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
+                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_INLINE)
+                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_INLINE)
         );
     }
 
@@ -174,6 +174,7 @@ class OpenApiParser implements Parser
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
+            ->whereInstanceOf(OpenApiParameter::class)
             ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),

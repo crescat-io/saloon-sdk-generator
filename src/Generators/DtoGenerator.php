@@ -70,7 +70,6 @@ class DtoGenerator extends Generator
 
             $property = $classConstructor->addPromotedParameter($name)
                 ->setType($propertySpec instanceof Reference ? $namespace->resolveName($sub) : $type)
-                ->setNullable(true)
                 ->setPublic()
                 ->setDefaultValue(null);
 

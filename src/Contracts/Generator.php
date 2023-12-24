@@ -11,7 +11,7 @@ interface Generator
     public function __construct(Config $config);
 
     /**
-     * @return PhpFile|PhpFile[]
+     * @return PhpFile|PhpFile[]|null
      */
-    public function generate(ApiSpecification $specification): PhpFile|array;
+    public function generate(ApiSpecification $specification): PhpFile|array|null;
 }

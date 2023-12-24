@@ -11,10 +11,12 @@ class Config
 {
     const CONFIG_OPTS = [
         'connectorName', 'namespace', 'resourceNamespaceSuffix', 'requestNamespaceSuffix', 'dtoNamespaceSuffix', 'fallbackResourceName',
+        'type', 'outputDir', 'force',
         'ignoredQueryParams', 'ignoredBodyParams', 'extra',
     ];
 
     const REQUIRED_OPTS = ['connectorName', 'namespace'];
+
     /**
      * @param  string|null  $connectorName The name of the connector class.
      * @param  string|null  $namespace The main namespace for the generated SDK.
@@ -22,6 +24,9 @@ class Config
      * @param  string|null  $requestNamespaceSuffix The suffix for the request namespace.
      * @param  string|null  $dtoNamespaceSuffix The suffix for the DTO namespace.
      * @param  string|null  $fallbackResourceName The default name to use for resources if none could be inferred from the specification.
+     * @param  string|null  $type The type of API specification to parse.
+     * @param  string|null  $outputDir The output directory where the generated code will be saved.
+     * @param  bool|null  $force Whether to overwrite existing files.
      * @param  array  $ignoredQueryParams List of query parameters that should be ignored.
      * @param  array  $ignoredBodyParams List of body parameters that should be ignored.
      * @param  array  $extra Additional configuration for custom code generators.
@@ -33,6 +38,11 @@ class Config
         public readonly ?string $requestNamespaceSuffix = 'Requests',
         public readonly ?string $dtoNamespaceSuffix = 'Dto',
         public readonly ?string $fallbackResourceName = 'Misc',
+
+        public readonly ?string $type = 'postman',
+        public readonly ?string $outputDir = './build',
+        public readonly ?bool $force = false,
+
         public readonly array $ignoredQueryParams = [],
         public readonly array $ignoredBodyParams = [],
         public readonly array $extra = [],
@@ -71,6 +81,8 @@ class Config
             echo '[WARNING] Unknown config file keys: '.implode(', ', $unknownKeys)."\n";
         }
 
+        $outputDir = Arr::get($config, 'outputDir', './build');
+
         return new static(
             connectorName: $config['connectorName'],
             namespace: $config['namespace'],
@@ -79,6 +91,9 @@ class Config
             dtoNamespaceSuffix: Arr::get($config, 'dtoNamespaceSuffix', 'Dto'),
             fallbackResourceName: Arr::get($config, 'fallbackResourceName', 'Misc'),
 
+            type: Arr::get($config, 'type', 'postman'),
+            outputDir: trim($outputDir, '/'),
+            force: Arr::get($config, 'force', false),
 
             ignoredQueryParams: Arr::get($config, 'ignoredQueryParams', []),
             ignoredBodyParams: Arr::get($config, 'ignoredBodyParams', []),

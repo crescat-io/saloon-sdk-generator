@@ -9,7 +9,6 @@ use Crescat\SaloonSdkGenerator\Exceptions\ParserNotRegisteredException;
 use Crescat\SaloonSdkGenerator\Factory;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use LaravelZero\Framework\Commands\Command;
 use Nette\PhpGenerator\PhpFile;
 use ZipArchive;
@@ -27,6 +26,8 @@ class GenerateSdk extends Command
                             {--zip : Generate a zip archive containing all the files}';
 
     protected $description = 'Generate an SDK based on an API specification file.';
+
+    protected GeneratedCode $result;
 
     public function handle(): void
     {
@@ -71,87 +72,73 @@ class GenerateSdk extends Command
             return;
         }
 
-        $result = $generator->run($specification);
+        $this->result = $generator->run($specification);
 
         if ($this->option('dry')) {
-            $this->printGeneratedFiles($result);
+            $this->printGeneratedFiles();
 
             return;
         }
 
         $this->option('zip')
-            ? $this->generateZipArchive($result)
-            : $this->dumpGeneratedFiles($result);
+            ? $this->generateZipArchive()
+            : $this->dumpGeneratedFiles();
 
     }
 
-    protected function printGeneratedFiles(GeneratedCode $result): void
+    protected function printGeneratedFiles(): void
     {
         $this->title('Generated Files');
 
         $this->comment("\nConnector:");
-        if ($result->connectorClass) {
-            $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
+        if ($this->result->connectorClass) {
+            $this->line(Utils::formatNamespaceAndClass($this->result->connectorClass));
         }
 
         $this->comment("\nBase Resource:");
-        if ($result->resourceBaseClass) {
-            $this->line(Utils::formatNamespaceAndClass($result->resourceBaseClass));
+        if ($this->result->resourceBaseClass) {
+            $this->line(Utils::formatNamespaceAndClass($this->result->resourceBaseClass));
         }
 
         $this->comment("\nResources:");
-        foreach ($result->resourceClasses as $resourceClass) {
+        foreach ($this->result->resourceClasses as $resourceClass) {
             $this->line(Utils::formatNamespaceAndClass($resourceClass));
         }
 
         $this->comment("\nRequests:");
-        foreach ($result->requestClasses as $requestClass) {
+        foreach ($this->result->requestClasses as $requestClass) {
             $this->line(Utils::formatNamespaceAndClass($requestClass));
         }
     }
 
-    protected function dumpGeneratedFiles(GeneratedCode $result): void
+    protected function dumpGeneratedFiles(): void
     {
-
         $this->title('Generated Files');
 
         $this->comment("\nConnector:");
-        if ($result->connectorClass) {
-            $this->dumpToFile($result->connectorClass);
+        if ($this->result->connectorClass) {
+            $this->result->dumpToFile($this->result->connectorClass);
         }
 
         $this->comment("\nBase Resource:");
-        if ($result->resourceBaseClass) {
-            $this->dumpToFile($result->resourceBaseClass);
+        if ($this->result->resourceBaseClass) {
+            $this->dumpToFile($this->result->resourceBaseClass);
         }
 
         $this->comment("\nResources:");
-        foreach ($result->resourceClasses as $resourceClass) {
+        foreach ($this->result->resourceClasses as $resourceClass) {
             $this->dumpToFile($resourceClass);
         }
 
         $this->comment("\nRequests:");
-        foreach ($result->requestClasses as $requestClass) {
+        foreach ($this->result->requestClasses as $requestClass) {
             $this->dumpToFile($requestClass);
         }
     }
 
     protected function dumpToFile(PhpFile $file): void
     {
-
-        // TODO: Cleanup this, brittle and will break if you change the namespace
-        $wip = sprintf(
-            '%s/%s/%s.php',
-            $this->option('output'),
-            str_replace($this->option('namespace'), '', Arr::first($file->getNamespaces())->getName()),
-            Arr::first($file->getClasses())->getName(),
-        );
-
-        $filePath = Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
-
-        if (! file_exists(dirname($filePath))) {
-            mkdir(dirname($filePath), recursive: true);
-        }
+        $filePath = $this->result->outputPath($file);
 
         if (file_exists($filePath) && ! $this->option('force')) {
             $this->warn("- File already exists: $filePath");
@@ -159,8 +146,7 @@ class GenerateSdk extends Command
             return;
         }
 
-        $ok = file_put_contents($filePath, (string) $file);
-
+        $ok = $this->result->dumpToFile($file);
         if ($ok === false) {
             $this->error("- Failed to write: $filePath");
         } else {
@@ -168,7 +154,7 @@ class GenerateSdk extends Command
         }
     }
 
-    protected function generateZipArchive(GeneratedCode $result): void
+    protected function generateZipArchive(): void
     {
         $zipFileName = $this->option('name').'_sdk.zip';
         $zipPath = $this->option('output').DIRECTORY_SEPARATOR.$zipFileName;
@@ -192,9 +178,9 @@ class GenerateSdk extends Command
         }
 
         $filesToZip = array_merge(
-            [$result->connectorClass, $result->resourceBaseClass],
-            $result->resourceClasses,
-            $result->requestClasses
+            [$this->result->connectorClass, $this->result->resourceBaseClass],
+            $this->result->resourceClasses,
+            $this->result->requestClasses
         );
 
         foreach ($filesToZip as $file) {

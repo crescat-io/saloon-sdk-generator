@@ -23,6 +23,7 @@ class Config
      * @param  string|null  $resourceNamespaceSuffix The suffix for the resource namespace.
      * @param  string|null  $requestNamespaceSuffix The suffix for the request namespace.
      * @param  string|null  $dtoNamespaceSuffix The suffix for the DTO namespace.
+     * @param  string|null  $baseResourceNamespace The namespace for the base resource class.
      * @param  string|null  $fallbackResourceName The default name to use for resources if none could be inferred from the specification.
      * @param  string|null  $type The type of API specification to parse.
      * @param  string|null  $outputDir The output directory where the generated code will be saved.
@@ -37,6 +38,7 @@ class Config
         public readonly ?string $resourceNamespaceSuffix = 'Resource',
         public readonly ?string $requestNamespaceSuffix = 'Requests',
         public readonly ?string $dtoNamespaceSuffix = 'Dto',
+        public readonly ?string $baseResourceNamespace = null,
         public readonly ?string $fallbackResourceName = 'Misc',
 
         public readonly ?string $type = 'postman',
@@ -91,6 +93,7 @@ class Config
             resourceNamespaceSuffix: $getOpt('resourceNamespaceSuffix', 'Resource'),
             requestNamespaceSuffix: $getOpt('requestNamespaceSuffix', 'Requests'),
             dtoNamespaceSuffix: $getOpt('dtoNamespaceSuffix', 'Dto'),
+            baseResourceNamespace: $getOpt('baseResourceNamespace', null),
             fallbackResourceName: $getOpt('fallbackResourceName', 'Misc'),
 
             type: $getOpt('type', 'postman'),

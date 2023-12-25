@@ -20,7 +20,8 @@ class BaseResourceGenerator extends Generator
             ->setProtected();
 
         $classFile = new PhpFile();
-        $classFile->addNamespace("{$this->config->namespace}")
+        $namespace = $this->config->baseResourceNamespace ?? $this->config->namespace;
+        $classFile->addNamespace($namespace)
             ->addUse(Connector::class)
             ->add($classType);
 

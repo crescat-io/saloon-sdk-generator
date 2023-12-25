@@ -24,9 +24,9 @@ class OpenApiParser implements Parser
     {
     }
 
-    public static function build($content): self
+    public static function build($content): static
     {
-        return new self(
+        return new static(
             Str::endsWith($content, '.json')
                 ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
                 : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)

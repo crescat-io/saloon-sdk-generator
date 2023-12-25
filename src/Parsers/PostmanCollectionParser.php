@@ -23,11 +23,11 @@ class PostmanCollectionParser implements Parser
 
     }
 
-    public static function build($content): self
+    public static function build($content): static
     {
         return json_validate($content)
-            ? new self(PostmanCollection::fromString($content))
-            : new self(PostmanCollection::fromString(file_get_contents($content)));
+            ? new static(PostmanCollection::fromString($content))
+            : new static(PostmanCollection::fromString(file_get_contents($content)));
     }
 
     public function parse(): ApiSpecification

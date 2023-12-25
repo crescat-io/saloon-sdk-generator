@@ -35,12 +35,12 @@ To generate the PHP SDK from an API specification file, run the following comman
 
 ```shell
 sdkgenerator generate:sdk API_SPEC_FILE.{json|yaml|yml}
-     --type={postman|openapi} 
-    [--name=SDK_NAME] 
-    [--output=OUTPUT_PATH] 
-    [--namespace=Company\\Integration] 
-    [--force] 
-    [--dry] 
+     --type={postman|openapi}
+    [--name=SDK_NAME]
+    [--output=OUTPUT_PATH]
+    [--namespace=Company\\Integration]
+    [--force]
+    [--dry]
     [--zip]
 ```
 
@@ -59,11 +59,11 @@ Replace the placeholders with the appropriate values:
 so:
 
 ```shell
-sdkgenerator generate:sdk ./tests/Samples/paddle.json 
-  --force 
-  --type=postman 
-  --name=Paddle  
-  --output ./paddle-sdk/src 
+sdkgenerator generate:sdk ./tests/Samples/paddle.json
+  --force
+  --type=postman
+  --name=Paddle
+  --output ./paddle-sdk/src
   --namespace=Your\\Sdk\\Namespace # <-- Note the "\\"
 ```
 
@@ -254,10 +254,10 @@ constructor, you may add a `build` method, which will be called instead.
 Example from the OpenApiParser:
 
 ```php
-public static function build($content): self
+public static function build($content): static
 {
     // Call file readers depending on the filetype provided (supports JSON and YAML)
-    return new self(
+    return new static(
         Str::endsWith($content, '.json')
             ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
             : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)

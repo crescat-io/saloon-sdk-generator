@@ -49,7 +49,7 @@ class Utils
         return $outputString;
     }
 
-    public static function parseNestedStringToArray($input): string
+    public static function parseNestedStringToArray($input): array
     {
         $result = [];
         $parts = preg_split('/\]\[|\[|\]/', $input, -1, PREG_SPLIT_NO_EMPTY);

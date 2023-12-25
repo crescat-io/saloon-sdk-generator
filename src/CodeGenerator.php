@@ -2,11 +2,13 @@
 
 namespace Crescat\SaloonSdkGenerator;
 
+use Crescat\SaloonSdkGenerator\Contracts\FileHandler;
 use Crescat\SaloonSdkGenerator\Contracts\Generator;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
 use Crescat\SaloonSdkGenerator\Exceptions\ParserNotRegisteredException;
+use Crescat\SaloonSdkGenerator\FileHandlers\BasicFileHandler;
 use Crescat\SaloonSdkGenerator\Generators\BaseResourceGenerator;
 use Crescat\SaloonSdkGenerator\Generators\ConnectorGenerator;
 use Crescat\SaloonSdkGenerator\Generators\DtoGenerator;
@@ -22,6 +24,7 @@ class CodeGenerator
         protected ?Generator $dtoGenerator = null,
         protected ?Generator $connectorGenerator = null,
         protected ?Generator $baseResourceGenerator = null,
+        protected ?FileHandler $fileHandler = null,
     ) {
         $this->config = $config ?? Config::load();
         $this->requestGenerator ??= new RequestGenerator($config);
@@ -29,6 +32,7 @@ class CodeGenerator
         $this->dtoGenerator ??= new DtoGenerator($config);
         $this->connectorGenerator ??= new ConnectorGenerator($config);
         $this->baseResourceGenerator ??= new BaseResourceGenerator($config);
+        $this->fileHandler ??= new BasicFileHandler($config);
     }
 
     /**
@@ -52,6 +56,7 @@ class CodeGenerator
             dtoClasses: $this->dtoGenerator->generate($specification),
             connectorClass: $this->connectorGenerator->generate($specification),
             resourceBaseClass: $this->baseResourceGenerator->generate($specification),
+            fileHandler: $this->fileHandler,
         );
     }
 }

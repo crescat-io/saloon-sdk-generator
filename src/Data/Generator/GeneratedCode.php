@@ -2,8 +2,8 @@
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Crescat\SaloonSdkGenerator\Contracts\FileHandler;
+use Crescat\SaloonSdkGenerator\FileHandlers\BasicFileHandler;
 use Nette\PhpGenerator\PhpFile;
 
 class GeneratedCode
@@ -20,7 +20,9 @@ class GeneratedCode
         public array $dtoClasses = [],
         public ?PhpFile $connectorClass = null,
         public ?PhpFile $resourceBaseClass = null,
+        public ?FileHandler $fileHandler = null,
     ) {
+        $this->fileHandler ??= new BasicFileHandler($config);
     }
 
     /**
@@ -29,57 +31,40 @@ class GeneratedCode
     public function dumpFiles(): void
     {
         if ($this->connectorClass) {
-            $this->dumpToFile($this->connectorClass);
+            $path = $this->fileHandler->connectorPath($this->connectorClass);
+            $this->dumpToFile($this->connectorClass, $path);
         }
 
         if ($this->resourceBaseClass) {
-            $this->dumpToFile($this->resourceBaseClass);
+            $path = $this->fileHandler->baseResourcePath($this->resourceBaseClass);
+            $this->dumpToFile($this->resourceBaseClass, $path);
         }
 
         foreach ($this->resourceClasses as $resourceClass) {
-            $this->dumpToFile($resourceClass);
+            $path = $this->fileHandler->resourcePath($resourceClass);
+            $this->dumpToFile($resourceClass, $path);
         }
 
         foreach ($this->requestClasses as $requestClass) {
-            $this->dumpToFile($requestClass);
+            $path = $this->fileHandler->requestPath($requestClass);
+            $this->dumpToFile($requestClass, $path);
         }
     }
 
     /**
      * Dump a generated file to disk. Return the file creation status (from file_put_contents).
      */
-    public function dumpToFile(PhpFile $file): bool
+    public function dumpToFile(PhpFile $file, string $filePath): bool
     {
-        $filePath = $this->outputPath($file);
         if (file_exists($filePath) && ! $this->config->force) {
             return true;
+        }
+        if (! file_exists(dirname($filePath))) {
+            mkdir(dirname($filePath), recursive: true);
         }
 
         $ok = file_put_contents($filePath, (string) $file);
 
         return $ok;
-    }
-
-    /**
-     * Generate the output path for a given generated file. If necessary, create
-     * the directory structure.
-     */
-    public function outputPath(PhpFile $file): string
-    {
-        // TODO: Cleanup this, brittle and will break if you change the namespace
-        $wip = sprintf(
-            '%s/%s/%s.php',
-            $this->config->outputDir,
-            str_replace($this->config->namespace, '', Arr::first($file->getNamespaces())->getName()),
-            Arr::first($file->getClasses())->getName(),
-        );
-
-        $filePath = Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
-
-        if (! file_exists(dirname($filePath))) {
-            mkdir(dirname($filePath), recursive: true);
-        }
-
-        return $filePath;
     }
 }

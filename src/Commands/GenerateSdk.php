@@ -116,37 +116,41 @@ class GenerateSdk extends Command
         $this->title('Generated Files');
 
         $this->comment("\nConnector:");
+        $result = $this->result;
+        $fileHandler = $result->fileHandler;
         if ($this->result->connectorClass) {
-            $this->result->dumpToFile($this->result->connectorClass);
+            $path = $fileHandler->connectorPath($result->connectorClass);
+            $this->result->dumpToFile($result->connectorClass, $path);
         }
 
         $this->comment("\nBase Resource:");
         if ($this->result->resourceBaseClass) {
-            $this->dumpToFile($this->result->resourceBaseClass);
+            $path = $fileHandler->baseResourcePath($result->resourceBaseClass);
+            $this->dumpToFile($result->resourceBaseClass, $path);
         }
 
         $this->comment("\nResources:");
-        foreach ($this->result->resourceClasses as $resourceClass) {
-            $this->dumpToFile($resourceClass);
+        foreach ($result->resourceClasses as $resourceClass) {
+            $path = $fileHandler->resourcePath($resourceClass);
+            $this->dumpToFile($resourceClass, $path);
         }
 
         $this->comment("\nRequests:");
-        foreach ($this->result->requestClasses as $requestClass) {
-            $this->dumpToFile($requestClass);
+        foreach ($result->requestClasses as $requestClass) {
+            $path = $fileHandler->requestPath($requestClass);
+            $this->dumpToFile($requestClass, $path);
         }
     }
 
-    protected function dumpToFile(PhpFile $file): void
+    protected function dumpToFile(PhpFile $file, string $filePath): void
     {
-        $filePath = $this->result->outputPath($file);
-
         if (file_exists($filePath) && ! $this->option('force')) {
             $this->warn("- File already exists: $filePath");
 
             return;
         }
 
-        $ok = $this->result->dumpToFile($file);
+        $ok = $this->result->dumpToFile($file, $filePath);
         if ($ok === false) {
             $this->error("- Failed to write: $filePath");
         } else {

@@ -53,7 +53,8 @@ class ConnectorGenerator extends Generator
 
         foreach ($collections as $collection) {
             $resourceClassName = NameHelper::connectorClassName($collection);
-            $resourceFQN = "{$this->config->namespace}\\{$this->config->resourceNamespaceSuffix}\\{$resourceClassName}";
+            $resourceNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->resourceNamespaceSuffix);
+            $resourceFQN = "{$this->config->namespace}{$resourceNamespaceSuffix}\\{$resourceClassName}";
 
             $namespace->addUse($resourceFQN);
 

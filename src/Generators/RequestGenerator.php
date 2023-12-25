@@ -41,8 +41,9 @@ class RequestGenerator extends Generator
         $classType = new ClassType($className);
 
         $classFile = new PhpFile;
+        $requestNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->requestNamespaceSuffix);
         $namespace = $classFile
-            ->addNamespace("{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}");
+            ->addNamespace("{$this->config->namespace}{$requestNamespaceSuffix}\\{$resourceName}");
 
         $classType->setExtends(Request::class)
             ->setComment($endpoint->name)

@@ -153,6 +153,15 @@ class NameHelper
         return $result;
     }
 
+    /**
+     * Given a string that might be a namespace suffix (e.g. a sub-namespace),
+     * return it with a leading backslash if it's not empty.
+     */
+    public static function optionalNamespaceSuffix(?string $suffix): string
+    {
+        return $suffix ? "\\{$suffix}" : '';
+    }
+
     public static function resourceClassName(string $value): string
     {
         return self::safeClassName($value, 'Resource');

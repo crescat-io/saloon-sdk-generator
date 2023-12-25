@@ -51,8 +51,9 @@ class ResourceGenerator extends Generator
         $classType->setExtends("{$this->config->namespace}\\Resource");
 
         $classFile = new PhpFile;
+        $resourceNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->resourceNamespaceSuffix);
         $namespace = $classFile
-            ->addNamespace("{$this->config->namespace}\\{$this->config->resourceNamespaceSuffix}")
+            ->addNamespace("{$this->config->namespace}{$resourceNamespaceSuffix}")
             ->addUse("{$this->config->namespace}\\Resource");
 
         $duplicateCounter = 1;
@@ -61,7 +62,8 @@ class ResourceGenerator extends Generator
             $requestClassName = NameHelper::resourceClassName($endpoint->name);
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
-            $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
+            $requestNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->requestNamespaceSuffix);
+            $requestClassFQN = "{$this->config->namespace}{$requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
 
             $namespace
                 ->addUse(Response::class)

@@ -11,6 +11,7 @@ class Config
 {
     const CONFIG_OPTS = [
         'connectorName', 'namespace', 'resourceNamespaceSuffix', 'requestNamespaceSuffix', 'dtoNamespaceSuffix', 'fallbackResourceName',
+        'baseResourceNamespace',
         'type', 'outputDir', 'force',
         'ignoredQueryParams', 'ignoredBodyParams', 'extra',
     ];
@@ -88,8 +89,8 @@ class Config
         $outputDir = $getOpt('outputDir', './build');
 
         return new static(
-            connectorName: $config['connectorName'],
-            namespace: $config['namespace'],
+            connectorName: $overrides['connectorName'] ?? $config['connectorName'],
+            namespace: $overrides['namespace'] ?? $config['namespace'],
             resourceNamespaceSuffix: $getOpt('resourceNamespaceSuffix', 'Resource'),
             requestNamespaceSuffix: $getOpt('requestNamespaceSuffix', 'Requests'),
             dtoNamespaceSuffix: $getOpt('dtoNamespaceSuffix', 'Dto'),

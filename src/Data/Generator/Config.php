@@ -55,7 +55,7 @@ class Config
      *
      * @throws Exception
      */
-    public static function load(?string $path = null): static
+    public static function load(?string $path = null, array $overrides = []): static
     {
         // Find the root project directory
         $reflection = new ReflectionClass(ClassLoader::class);
@@ -81,23 +81,25 @@ class Config
             echo '[WARNING] Unknown config file keys: '.implode(', ', $unknownKeys)."\n";
         }
 
-        $outputDir = Arr::get($config, 'outputDir', './build');
+        $getOpt = fn ($key, $default) => isset($overrides[$key]) ? $overrides[$key] : Arr::get($config, $key, $default ?? null);
+
+        $outputDir = $getOpt('outputDir', './build');
 
         return new static(
             connectorName: $config['connectorName'],
             namespace: $config['namespace'],
-            resourceNamespaceSuffix: Arr::get($config, 'resourceNamespaceSuffix', 'Resource'),
-            requestNamespaceSuffix: Arr::get($config, 'requestNamespaceSuffix', 'Requests'),
-            dtoNamespaceSuffix: Arr::get($config, 'dtoNamespaceSuffix', 'Dto'),
-            fallbackResourceName: Arr::get($config, 'fallbackResourceName', 'Misc'),
+            resourceNamespaceSuffix: $getOpt('resourceNamespaceSuffix', 'Resource'),
+            requestNamespaceSuffix: $getOpt('requestNamespaceSuffix', 'Requests'),
+            dtoNamespaceSuffix: $getOpt('dtoNamespaceSuffix', 'Dto'),
+            fallbackResourceName: $getOpt('fallbackResourceName', 'Misc'),
 
-            type: Arr::get($config, 'type', 'postman'),
+            type: $getOpt('type', 'postman'),
             outputDir: trim($outputDir, '/'),
-            force: Arr::get($config, 'force', false),
+            force: $getOpt('force', false),
 
-            ignoredQueryParams: Arr::get($config, 'ignoredQueryParams', []),
-            ignoredBodyParams: Arr::get($config, 'ignoredBodyParams', []),
-            extra: Arr::get($config, 'extra', []),
+            ignoredQueryParams: $getOpt('ignoredQueryParams', []),
+            ignoredBodyParams: $getOpt('ignoredBodyParams', []),
+            extra: $getOpt('extra', []),
         );
     }
 }

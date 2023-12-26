@@ -13,4 +13,5 @@ interface FileHandler
     public function resourcePath(PhpFile $file): string;
 
     public function requestPath(PhpFile $file): string;
+    public function dtoPath(PhpFile $file): string;
 }

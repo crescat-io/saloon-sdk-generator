@@ -9,12 +9,15 @@ use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
+use cebe\openapi\spec\Reference as OpenApiReference;
+use cebe\openapi\spec\Schema as OpenApiSchema;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -35,11 +38,15 @@ class OpenApiParser implements Parser
 
     public function parse(): ApiSpecification
     {
+        $preprocessedSchemas = $this->preprocessSchemas($this->openApi->components->schemas) ?? [];
+        $schemas = $this->parseSchemas($preprocessedSchemas);
+
         return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
             baseUrl: Arr::first($this->openApi->servers)->url,
-            endpoints: $this->parseItems($this->openApi->paths)
+            endpoints: $this->parseItems($this->openApi->paths),
+            schemas: $schemas,
         );
     }
 
@@ -80,6 +87,86 @@ class OpenApiParser implements Parser
     }
 
     /**
+     * @param  OpenApiSchema[]  $schemas
+     * @return OpenApiSchema[]
+     */
+    protected function preprocessSchemas(array $schemas): array
+    {
+        $preprocessedSchemas = [];
+        foreach ($schemas as $name => $schema) {
+            if (array_key_exists($name, $preprocessedSchemas)) {
+                continue;
+            }
+
+            if ($schema instanceof OpenApiReference) {
+                $schema = $schema->resolve();
+            }
+
+            if (! $schema->title) {
+                $schema->title = $name;
+            }
+
+            $preprocessedSchemas[$name] = $schema;
+        }
+
+        return $preprocessedSchemas;
+    }
+
+    /**
+     * @param  OpenApiSchema[]|OpenApiReference[]  $schemas
+     * @param  Parameter[]  $parsedSchemas
+     * @return Schema[]
+     */
+    protected function parseSchemas(array $schemas): array
+    {
+        foreach ($schemas as $name => $schema) {
+            $parsed = $this->parseSchema($schema);
+            if ($parsed) {
+                $parsedSchemas[$name] = $parsed;
+            }
+        }
+
+        return $parsedSchemas;
+    }
+
+    protected function parseSchema(OpenApiSchema $schema): Schema
+    {
+        if (Type::isScalar($schema->type)) {
+            return new Schema(
+                name: $schema->title,
+                nullable: $schema->nullable,
+                type: $this->mapSchemaTypeToPhpType($schema->type),
+                description: $schema->description,
+            );
+        } elseif ($schema->type === Type::ARRAY) {
+            if (str_contains($schema->title, 'List')) {
+                $noList = str_replace('List', '', $schema->title);
+                $pluralized = Str::plural($noList);
+                $schema->title = $pluralized;
+            }
+
+            return new Schema(
+                name: $schema->title,
+                nullable: $schema->nullable,
+                type: $this->mapSchemaTypeToPhpType($schema->type),
+                description: $schema->description,
+                items: $this->parseSchema($schema->items),
+            );
+        } else {
+            $preprocessedProperties = $this->preprocessSchemas($schema->properties);
+
+            return new Schema(
+                name: $schema->title,
+                nullable: $schema->nullable,
+                type: $schema->title,
+                description: $schema->description,
+                properties: $this->parseSchemas($preprocessedProperties),
+                required: $schema->required ?? [],
+            );
+        }
+    }
+
+    /**
      * @param  OpenApiParameter[]  $parameters
      * @return Parameter[] array
      */
@@ -103,7 +190,8 @@ class OpenApiParser implements Parser
             Type::NUMBER => 'float|int', // TODO: is "number" always a float in openapi specs?
             Type::STRING => 'string',
             Type::BOOLEAN => 'bool',
-            Type::OBJECT, Type::ARRAY => 'array',
+            Type::ARRAY => 'array',
+            Type::OBJECT => $type,  // For schema references
             default => 'mixed',
         };
     }

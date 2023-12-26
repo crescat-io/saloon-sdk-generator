@@ -48,6 +48,11 @@ class GeneratedCode
         foreach ($this->requestClasses as $requestClass) {
             $path = $this->fileHandler->requestPath($requestClass);
             $this->dumpToFile($requestClass, $path);
+        foreach ($this->dtoClasses as $dtoClass) {
+            $path = $this->fileHandler->dtoPath($dtoClass);
+            $this->dumpToFile($dtoClass, $path);
+        }
+
         }
     }
 

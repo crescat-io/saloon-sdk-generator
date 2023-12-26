@@ -24,6 +24,11 @@ class BasicFileHandler extends AbstractFileHandler
     }
 
     public function requestPath(PhpFile $file): string
+    public function dtoPath(PhpFile $file): string
+    {
+        return $this->outputPath($file);
+    }
+
     {
         return $this->outputPath($file);
     }

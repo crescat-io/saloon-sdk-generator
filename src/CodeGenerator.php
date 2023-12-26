@@ -14,12 +14,14 @@ use Crescat\SaloonSdkGenerator\Generators\ConnectorGenerator;
 use Crescat\SaloonSdkGenerator\Generators\DtoGenerator;
 use Crescat\SaloonSdkGenerator\Generators\RequestGenerator;
 use Crescat\SaloonSdkGenerator\Generators\ResourceGenerator;
+use Crescat\SaloonSdkGenerator\Generators\ResponseGenerator;
 
 class CodeGenerator
 {
     public function __construct(
         protected ?Config $config = null,
         protected ?Generator $requestGenerator = null,
+        protected ?Generator $responseGenerator = null,
         protected ?Generator $resourceGenerator = null,
         protected ?Generator $dtoGenerator = null,
         protected ?Generator $connectorGenerator = null,
@@ -28,6 +30,7 @@ class CodeGenerator
     ) {
         $this->config = $config ?? Config::load();
         $this->requestGenerator ??= new RequestGenerator($config);
+        $this->responseGenerator ??= new ResponseGenerator($config);
         $this->resourceGenerator ??= new ResourceGenerator($config);
         $this->dtoGenerator ??= new DtoGenerator($config);
         $this->connectorGenerator ??= new ConnectorGenerator($config);
@@ -52,6 +55,7 @@ class CodeGenerator
         return new GeneratedCode(
             config: $this->config,
             requestClasses: $this->requestGenerator->generate($specification),
+            responseClasses: $this->responseGenerator->generate($specification),
             resourceClasses: $this->resourceGenerator->generate($specification),
             dtoClasses: $this->dtoGenerator->generate($specification),
             connectorClass: $this->connectorGenerator->generate($specification),

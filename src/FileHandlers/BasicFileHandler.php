@@ -8,12 +8,12 @@ use Nette\PhpGenerator\PhpFile;
 
 class BasicFileHandler extends AbstractFileHandler
 {
-    public function baseResourcePath(PhpFile $file): string
+    public function requestPath(PhpFile $file): string
     {
         return $this->outputPath($file);
     }
 
-    public function connectorPath(PhpFile $file): string
+    public function responsePath(PhpFile $file): string
     {
         return $this->outputPath($file);
     }
@@ -23,12 +23,17 @@ class BasicFileHandler extends AbstractFileHandler
         return $this->outputPath($file);
     }
 
-    public function requestPath(PhpFile $file): string
     public function dtoPath(PhpFile $file): string
     {
         return $this->outputPath($file);
     }
 
+    public function baseResourcePath(PhpFile $file): string
+    {
+        return $this->outputPath($file);
+    }
+
+    public function connectorPath(PhpFile $file): string
     {
         return $this->outputPath($file);
     }

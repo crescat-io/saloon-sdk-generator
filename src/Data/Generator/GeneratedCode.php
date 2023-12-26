@@ -10,12 +10,14 @@ class GeneratedCode
 {
     /**
      * @param  array|PhpFile[]  $requestClasses
+     * @param  array|PhpFile[]  $responseClasses
      * @param  array|PhpFile[]  $resourceClasses
      * @param  array|PhpFile[]  $dtoClasses
      */
     public function __construct(
         public Config $config,
         public array $requestClasses = [],
+        public array $responseClasses = [],
         public array $resourceClasses = [],
         public array $dtoClasses = [],
         public ?PhpFile $connectorClass = null,
@@ -30,6 +32,26 @@ class GeneratedCode
      */
     public function dumpFiles(): void
     {
+        foreach ($this->requestClasses as $requestClass) {
+            $path = $this->fileHandler->requestPath($requestClass);
+            $this->dumpToFile($requestClass, $path);
+        }
+
+        foreach ($this->responseClasses as $responseClass) {
+            $path = $this->fileHandler->responsePath($requestClass);
+            $this->dumpToFile($responseClass, $path);
+        }
+
+        foreach ($this->resourceClasses as $resourceClass) {
+            $path = $this->fileHandler->resourcePath($resourceClass);
+            $this->dumpToFile($resourceClass, $path);
+        }
+
+        foreach ($this->dtoClasses as $dtoClass) {
+            $path = $this->fileHandler->dtoPath($dtoClass);
+            $this->dumpToFile($dtoClass, $path);
+        }
+
         if ($this->connectorClass) {
             $path = $this->fileHandler->connectorPath($this->connectorClass);
             $this->dumpToFile($this->connectorClass, $path);
@@ -38,21 +60,6 @@ class GeneratedCode
         if ($this->resourceBaseClass) {
             $path = $this->fileHandler->baseResourcePath($this->resourceBaseClass);
             $this->dumpToFile($this->resourceBaseClass, $path);
-        }
-
-        foreach ($this->resourceClasses as $resourceClass) {
-            $path = $this->fileHandler->resourcePath($resourceClass);
-            $this->dumpToFile($resourceClass, $path);
-        }
-
-        foreach ($this->requestClasses as $requestClass) {
-            $path = $this->fileHandler->requestPath($requestClass);
-            $this->dumpToFile($requestClass, $path);
-        foreach ($this->dtoClasses as $dtoClass) {
-            $path = $this->fileHandler->dtoPath($dtoClass);
-            $this->dumpToFile($dtoClass, $path);
-        }
-
         }
     }
 

@@ -109,6 +109,16 @@ class GenerateSdk extends Command
         foreach ($this->result->requestClasses as $requestClass) {
             $this->line(Utils::formatNamespaceAndClass($requestClass));
         }
+
+        $this->comment("\nResponses:");
+        foreach ($this->result->responseClasses as $responseClass) {
+            $this->line(Utils::formatNamespaceAndClass($responseClass));
+        }
+
+        $this->comment("\DTOs:");
+        foreach ($this->result->dtoClasses as $dtoClass) {
+            $this->line(Utils::formatNamespaceAndClass($dtoClass));
+        }
     }
 
     protected function dumpGeneratedFiles(): void
@@ -139,6 +149,18 @@ class GenerateSdk extends Command
         foreach ($result->requestClasses as $requestClass) {
             $path = $fileHandler->requestPath($requestClass);
             $this->dumpToFile($requestClass, $path);
+        }
+
+        $this->comment("\nResponses:");
+        foreach ($result->responseClasses as $responseClass) {
+            $path = $fileHandler->responsePath($responseClass);
+            $this->dumpToFile($responseClass, $path);
+        }
+
+        $this->comment("\nDTOs:");
+        foreach ($result->dtoClasses as $dtoClass) {
+            $path = $fileHandler->dtoPath($dtoClass);
+            $this->dumpToFile($dtoClass, $path);
         }
     }
 

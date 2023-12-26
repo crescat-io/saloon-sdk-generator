@@ -12,12 +12,12 @@ use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method as SaloonHttpMethod;
 use Saloon\Http\Request;
+use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
 class RequestGenerator extends Generator
@@ -38,12 +38,10 @@ class RequestGenerator extends Generator
         $resourceName = NameHelper::resourceClassName($endpoint->collection ?: $this->config->fallbackResourceName);
         $className = NameHelper::requestClassName($endpoint->name);
 
-        $classType = new ClassType($className);
-
-        $classFile = new PhpFile;
-        $requestNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->requestNamespaceSuffix);
-        $namespace = $classFile
-            ->addNamespace("{$this->config->namespace}{$requestNamespaceSuffix}\\{$resourceName}");
+        [$classFile, $namespace, $classType] = $this->makeClass(
+            $className,
+            [$this->config->requestNamespaceSuffix, $resourceName]
+        );
 
         $classType->setExtends(Request::class)
             ->setComment($endpoint->name)
@@ -85,6 +83,31 @@ class RequestGenerator extends Generator
                     })
 
             );
+
+        $createDtoMethod = $classType->addMethod('createDtoFromResponse')
+            ->setPublic()
+            ->setReturnType('mixed')
+            ->addBody(
+                collect($endpoint->responses)
+                    ->filter(fn ($response) => $response->isSuccessful())
+                    ->map(fn ($response) => $response->schema)
+                    ->filter(fn ($schema) => $schema !== null)
+                    ->map(fn ($schema) => sprintf('return new %s($data);', NameHelper::dtoClassName($schema->name)))
+                // new Literal('$data = $response->json();')
+                // return collect($parameters)
+                //     ->mapWithKeys(function (Parameter $parameter) {
+                //         return [
+                //             $parameter->name => new Literal(
+                //                 sprintf('$this->%s', NameHelper::safeVariableName($parameter->name))
+                //             ),
+                //         ];
+                //     })
+                //     ->toArray()
+            );
+        $createDtoMethod
+            ->addParameter('response')
+            ->setType(Response::class)
+            ->setComment('Create a DTO from the response body, if possible.');
 
         $classConstructor = $classType->addMethod('__construct');
 

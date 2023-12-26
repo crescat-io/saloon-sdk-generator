@@ -7,7 +7,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
 
 class DtoGenerator extends Generator
@@ -29,13 +28,7 @@ class DtoGenerator extends Generator
     public function generateDtoClass(Schema $schema): PhpFile
     {
         $className = NameHelper::dtoClassName($schema->name);
-        $classType = new ClassType($className);
-
-        $classFile = new PhpFile;
-        $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-        $namespace = $classFile->addNamespace("{$this->config->namespace}{$dtoNamespaceSuffix}");
-
-        $classType->setFinal()->setReadOnly();
+        [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->dtoNamespaceSuffix);
 
         $classConstructor = $classType->addMethod('__construct');
 
@@ -54,7 +47,7 @@ class DtoGenerator extends Generator
 
             $type = $property->type;
             if (! Type::isScalar($type)) {
-                $type = "{$this->config->namespace}{$dtoNamespaceSuffix}\\{$type}";
+                $type = "{$namespace->getName()}\\{$type}";
             }
             $param
                 ->setType($type)
@@ -65,8 +58,6 @@ class DtoGenerator extends Generator
                 $param->setDefaultValue(null);
             }
         }
-
-        $namespace->add($classType);
 
         return $classFile;
     }

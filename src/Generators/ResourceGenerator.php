@@ -8,7 +8,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\InvalidStateException;
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
@@ -46,20 +45,15 @@ class ResourceGenerator extends Generator
      */
     public function generateResourceClass(string $resourceName, array $endpoints): ?PhpFile
     {
-        $classType = new ClassType($resourceName);
+        [$classFile, $namespace, $classType] = $this->makeClass($resourceName, $this->config->resourceNamespaceSuffix);
 
         $classType->setExtends("{$this->config->namespace}\\Resource");
-
-        $classFile = new PhpFile;
-        $resourceNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->resourceNamespaceSuffix);
-        $namespace = $classFile
-            ->addNamespace("{$this->config->namespace}{$resourceNamespaceSuffix}")
-            ->addUse("{$this->config->namespace}\\Resource");
+        $namespace->addUse("{$this->config->namespace}\\Resource");
 
         $duplicateCounter = 1;
 
         foreach ($endpoints as $endpoint) {
-            $requestClassName = NameHelper::resourceClassName($endpoint->name);
+            $requestClassName = NameHelper::requestClassName($endpoint->name);
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->requestNamespaceSuffix);
@@ -118,8 +112,6 @@ class ResourceGenerator extends Generator
             );
 
         }
-
-        $namespace->add($classType);
 
         return $classFile;
     }

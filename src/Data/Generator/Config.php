@@ -23,6 +23,7 @@ class Config
      * @param  string|null  $namespace The main namespace for the generated SDK.
      * @param  string|null  $resourceNamespaceSuffix The suffix for the resource namespace.
      * @param  string|null  $requestNamespaceSuffix The suffix for the request namespace.
+     * @param  string|null  $responseNamespaceSuffix The suffix for the response namespace.
      * @param  string|null  $dtoNamespaceSuffix The suffix for the DTO namespace.
      * @param  string|null  $baseResourceNamespace The namespace for the base resource class.
      * @param  string|null  $fallbackResourceName The default name to use for resources if none could be inferred from the specification.
@@ -38,6 +39,7 @@ class Config
         public readonly ?string $namespace,
         public readonly ?string $resourceNamespaceSuffix = 'Resource',
         public readonly ?string $requestNamespaceSuffix = 'Requests',
+        public readonly ?string $responseNamespaceSuffix = 'Responses',
         public readonly ?string $dtoNamespaceSuffix = 'Dto',
         public readonly ?string $baseResourceNamespace = null,
         public readonly ?string $fallbackResourceName = 'Misc',
@@ -93,6 +95,7 @@ class Config
             namespace: $overrides['namespace'] ?? $config['namespace'],
             resourceNamespaceSuffix: $getOpt('resourceNamespaceSuffix', 'Resource'),
             requestNamespaceSuffix: $getOpt('requestNamespaceSuffix', 'Requests'),
+            responseNamespaceSuffix: $getOpt('responseNamespaceSuffix', 'Responses'),
             dtoNamespaceSuffix: $getOpt('dtoNamespaceSuffix', 'Dto'),
             baseResourceNamespace: $getOpt('baseResourceNamespace', null),
             fallbackResourceName: $getOpt('fallbackResourceName', 'Misc'),

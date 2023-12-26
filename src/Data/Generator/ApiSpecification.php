@@ -10,6 +10,7 @@ class ApiSpecification
      * @param  ?string  $baseUrl
      * @param  Endpoint[]  $endpoints
      * @param  Schema[]  $schemas
+     * @param  Schema[]  $responses
      */
     public function __construct(
         public ?string $name,
@@ -17,6 +18,7 @@ class ApiSpecification
         public ?string $baseUrl,
         public array $endpoints,
         public array $schemas = [],
+        public array $responses = [],
     ) {
     }
 }

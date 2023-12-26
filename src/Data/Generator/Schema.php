@@ -4,41 +4,37 @@ namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 use InvalidArgumentException;
 
-class Schema extends Parameter
+class Schema
 {
-    public array|bool|null $required;
-
     /**
      * @param  Schema[]  $properties
-     * @param  string[]|bool  $required
      */
     public function __construct(
         public string $type,
-        public bool $nullable,
         public string $name,
         public ?string $description,
+        public ?bool $nullable = false,
+        public bool $isResponse = false,
 
         public ?Schema $items = null,
         public ?array $properties = [],
-        array|bool|null $required = null,
+        public ?array $required = null,
     ) {
-        // Object schemas must have a list of required properties, and array schemas must have a true/false required value
-        if (is_bool($required) && $this->properties) {
+        // Object schemas must have a list of required properties
+        if (is_null($this->required) && $this->properties) {
             throw new InvalidArgumentException('The required parameter must be a string array if the properties parameter is defined.');
-        } elseif (is_array($required) && $this->items) {
-            throw new InvalidArgumentException('The required parameter must be a boolean if the items parameter is defined.');
+        } elseif (! is_null($this->required) && ! $this->properties) {
+            throw new InvalidArgumentException('The required parameter cannot be an array if the properties parameter is not defined.');
         }
-
-        $this->required = $required;
     }
 
-    public function getDocTypeString(): string
+    public function getDocTypeString(bool $required = false): string
     {
         $type = $this->type;
         if ($this->items) {
             $type = "{$this->items->getDocTypeString()}[]";
         }
-        if ($this->nullable) {
+        if ($this->nullable && ! $required) {
             $type = "null|{$type}";
         }
 

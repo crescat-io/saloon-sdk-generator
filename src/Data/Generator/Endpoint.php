@@ -15,7 +15,7 @@ class Endpoint
         public array $pathSegments,
 
         public ?string $collection,
-        public ?array $response,
+        public ?array $responses,
 
         public ?string $description = null,
 

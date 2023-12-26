@@ -4,12 +4,15 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use cebe\openapi\Reader;
 use cebe\openapi\ReferenceContext;
+use cebe\openapi\spec\MediaType;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
 use cebe\openapi\spec\Reference as OpenApiReference;
+use cebe\openapi\spec\Response as OpenApiResponse;
+use cebe\openapi\spec\Responses;
 use cebe\openapi\spec\Schema as OpenApiSchema;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
@@ -23,6 +26,12 @@ use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
 {
+    /** @var Schema[] */
+    protected array $schemas;
+
+    /** @var Endpoint[] */
+    protected array $endpoints;
+
     public function __construct(protected OpenApi $openApi)
     {
     }
@@ -38,15 +47,22 @@ class OpenApiParser implements Parser
 
     public function parse(): ApiSpecification
     {
-        $preprocessedSchemas = $this->preprocessSchemas($this->openApi->components->schemas) ?? [];
-        $schemas = $this->parseSchemas($preprocessedSchemas);
+        // Schema preprocessing is a prerequisite for parsing schemas AND responses (inside of endpoints)
+        $this->preprocessSchemas($this->openApi->components->schemas);
+        // Parse schemas before endpoints, because endpoint responses often reference schemas
+        $this->schemas = $this->parseSchemas($this->openApi->components->schemas ?? []);
+        $this->endpoints = $this->parseItems($this->openApi->paths);
+
+        $responses = array_filter($this->schemas, fn (Schema $schema) => $schema->isResponse);
+        $nonResponseSchemas = array_filter($this->schemas, fn (Schema $schema) => ! $schema->isResponse);
 
         return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
             baseUrl: Arr::first($this->openApi->servers)->url,
-            endpoints: $this->parseItems($this->openApi->paths),
-            schemas: $schemas,
+            endpoints: $this->endpoints,
+            schemas: $nonResponseSchemas,
+            responses: $responses,
         );
     }
 
@@ -58,7 +74,6 @@ class OpenApiParser implements Parser
         $requests = [];
 
         foreach ($items as $path => $item) {
-
             if ($item instanceof PathItem) {
                 foreach ($item->getOperations() as $method => $operation) {
                     // TODO: variables for the path
@@ -77,7 +92,7 @@ class OpenApiParser implements Parser
             method: Method::parse($method),
             pathSegments: Str::of($path)->replace('{', ':')->remove('}')->trim('/')->explode('/')->toArray(),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
-            response: null, // TODO: implement "definition" parsing
+            responses: $this->mapResponses($operation->responses),
             description: $operation->description,
             queryParameters: $this->mapParams($operation->parameters, 'query'),
             // TODO: Check if this differs between spec versions
@@ -134,23 +149,24 @@ class OpenApiParser implements Parser
         if (Type::isScalar($schema->type)) {
             return new Schema(
                 name: $schema->title,
-                nullable: $schema->nullable,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
+                nullable: $schema->nullable,
             );
         } elseif ($schema->type === Type::ARRAY) {
-            if (str_contains($schema->title, 'List')) {
-                $noList = str_replace('List', '', $schema->title);
+            $name = $schema->title;
+            if (str_contains($name, 'List')) {
+                $noList = str_replace('List', '', $name);
                 $pluralized = Str::plural($noList);
-                $schema->title = $pluralized;
+                $name = $pluralized;
             }
 
             return new Schema(
-                name: $schema->title,
-                nullable: $schema->nullable,
+                name: $name,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
-                items: $this->parseSchema($schema->items),
+                nullable: $schema->nullable,
+                items: $this->parseSchema($schema->items, $schema->items->title),
             );
         } else {
             $preprocessedProperties = $this->preprocessSchemas($schema->properties);
@@ -181,6 +197,36 @@ class OpenApiParser implements Parser
                 description: $parameter->description,
             ))
             ->all();
+    }
+
+    /**
+     * @return Schema[]
+     */
+    protected function mapResponses(Responses $responses): array
+    {
+        return collect($responses->getResponses())
+            ->mapWithKeys(function (OpenApiResponse|OpenApiReference|null $response, int $httpCode) {
+                if (! $response) {
+                    return [];
+                } elseif ($response instanceof OpenApiReference) {
+                    $response = $response->resolve();
+                }
+
+                $responseSchemas = collect($response->content)
+                    ->mapWithKeys(function (MediaType $content, string $contentType) {
+                        $schema = $content->schema;
+                        if ($schema instanceof OpenApiReference) {
+                            $schema = $content->schema->resolve();
+                        }
+                        $parsedSchema = $this->schemas[$schema->title];
+                        $parsedSchema->isResponse = true;
+
+                        return [$contentType => $parsedSchema];
+                    });
+
+                return [$httpCode => $responseSchemas];
+            })
+            ->toArray();
     }
 
     protected function mapSchemaTypeToPhpType($type): string

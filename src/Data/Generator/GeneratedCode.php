@@ -38,7 +38,7 @@ class GeneratedCode
         }
 
         foreach ($this->responseClasses as $responseClass) {
-            $path = $this->fileHandler->responsePath($requestClass);
+            $path = $this->fileHandler->responsePath($responseClass);
             $this->dumpToFile($responseClass, $path);
         }
 

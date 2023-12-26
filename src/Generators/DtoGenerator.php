@@ -17,7 +17,7 @@ class DtoGenerator extends Generator
         $classes = [];
 
         foreach ($specification->schemas as $schema) {
-            if ($schema->type === Type::ARRAY) {
+            if ($schema->type === Type::ARRAY || Type::isScalar($schema->type)) {
                 continue;
             }
             $classes[] = $this->generateDtoClass($schema);
@@ -34,6 +34,8 @@ class DtoGenerator extends Generator
         $classFile = new PhpFile;
         $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
         $namespace = $classFile->addNamespace("{$this->config->namespace}{$dtoNamespaceSuffix}");
+
+        $classType->setFinal()->setReadOnly();
 
         $classConstructor = $classType->addMethod('__construct');
 

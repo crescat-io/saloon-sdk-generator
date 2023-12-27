@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use cebe\openapi\Reader;
@@ -129,13 +131,12 @@ class OpenApiParser implements Parser
 
     /**
      * @param  OpenApiSchema[]|OpenApiReference[]  $schemas
-     * @param  Parameter[]  $parsedSchemas
      * @return Schema[]
      */
-    protected function parseSchemas(array $schemas): array
+    protected function parseSchemas(array $schemas, ?Schema &$parent = null): array
     {
         foreach ($schemas as $name => $schema) {
-            $parsed = $this->parseSchema($schema);
+            $parsed = $this->parseSchema($schema, $parent);
             if ($parsed) {
                 $parsedSchemas[$name] = $parsed;
             }
@@ -144,7 +145,7 @@ class OpenApiParser implements Parser
         return $parsedSchemas;
     }
 
-    protected function parseSchema(OpenApiSchema $schema): Schema
+    protected function parseSchema(OpenApiSchema $schema, ?Schema &$parent = null): Schema
     {
         if (Type::isScalar($schema->type)) {
             return new Schema(
@@ -161,24 +162,42 @@ class OpenApiParser implements Parser
                 $name = $pluralized;
             }
 
-            return new Schema(
+            $parsedSchema = new Schema(
                 name: $name,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
                 nullable: $schema->nullable,
-                items: $this->parseSchema($schema->items, $schema->items->title),
+                parent: $parent,
             );
+
+            // Handle scalar array schemas
+            if (Type::isScalar($schema->items->type)) {
+                $parsedSchema->items = new Schema(
+                    name: $name,
+                    type: $this->mapSchemaTypeToPhpType($schema->items->type),
+                    description: $schema->description,
+                    nullable: $schema->nullable,
+                    parent: $parent,
+                );
+            } else {
+                $parsedSchema->items = $this->parseSchema($schema->items, $parsedSchema);
+            }
+
+            return $parsedSchema;
         } else {
             $preprocessedProperties = $this->preprocessSchemas($schema->properties);
 
-            return new Schema(
+            $parsedSchema = new Schema(
                 name: $schema->title,
                 nullable: $schema->nullable,
-                type: $schema->title,
+                type: $schema->title ?? 'object',
                 description: $schema->description,
-                properties: $this->parseSchemas($preprocessedProperties),
-                required: $schema->required ?? [],
+                parent: $parent,
             );
+            $parsedSchema->properties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
+            $schema->required = $schema->required ?? [];
+
+            return $parsedSchema;
         }
     }
 
@@ -236,7 +255,7 @@ class OpenApiParser implements Parser
             Type::NUMBER => 'float|int', // TODO: is "number" always a float in openapi specs?
             Type::STRING => 'string',
             Type::BOOLEAN => 'bool',
-            Type::ARRAY => 'array',
+            Type::ARRAY, Type::OBJECT => 'array',
             Type::OBJECT => $type,  // For schema references
             default => 'mixed',
         };

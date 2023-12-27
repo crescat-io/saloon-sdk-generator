@@ -55,7 +55,7 @@ trait Deserializes
 
                 continue;
             }
-            $deserializedParams[] = static::deserializeValue($value, $attributeTypes[$key]);
+            $deserializedParams[$key] = static::deserializeValue($value, $attributeTypes[$key]);
         }
 
         if (count($unknownKeys) > 0) {
@@ -68,7 +68,7 @@ trait Deserializes
 
     protected static function deserializeValue(mixed $value, SimpleType|array|string $type): mixed
     {
-        if (($simpleType = SimpleType::tryFrom($type))) {
+        if (is_string($type) && ($simpleType = SimpleType::tryFrom($type))) {
             return match ($simpleType) {
                 SimpleType::INTEGER => (int) $value,
                 SimpleType::NUMBER => (float) $value,
@@ -91,7 +91,7 @@ trait Deserializes
             $typeLen = count($type);
             if ($typeLen === 1) {
                 foreach ($value as $item) {
-                    $deserialized[] = static::deserialize($item, $type[0]);
+                    $deserialized[] = static::deserializeValue($item, $type[0]);
                 }
             } elseif ($typeLen === 2) {
                 $deserialized = [];

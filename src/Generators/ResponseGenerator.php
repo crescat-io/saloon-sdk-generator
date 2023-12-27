@@ -3,15 +3,13 @@
 namespace Crescat\SaloonSdkGenerator\Generators;
 
 use cebe\openapi\spec\Type;
-use Crescat\SaloonSdkGenerator\Contracts\Deserializable;
+use Crescat\SaloonSdkGenerator\BaseResponse;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
-use Crescat\SaloonSdkGenerator\Traits\Deserializes;
+use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
-use Saloon\Contracts\DataObjects\WithResponse;
-use Saloon\Traits\Responses\HasResponse;
 
 class ResponseGenerator extends Generator
 {
@@ -31,25 +29,19 @@ class ResponseGenerator extends Generator
         $className = NameHelper::responseClassName($schema->name);
         [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->responseNamespaceSuffix);
 
-        $namespace
-            ->addUse(Deserializes::class)
-            ->addUse(WithResponse::class)
-            ->addUse(Deserializable::class)
-            ->addUse(HasResponse::class);
+        $namespace->addUse(BaseResponse::class);
 
         $classType
             ->setFinal()
-            ->addImplement(Deserializable::class)
-            ->addImplement(WithResponse::class)
-            ->addTrait(HasResponse::class);
-
-        // Can't chain addTrait calls
-        $classType->addTrait(Deserializes::class);
+            ->setExtends(BaseResponse::class);
 
         $classConstructor = $classType->addMethod('__construct');
 
-        foreach ($schema->properties as $property) {
-            $name = NameHelper::safeVariableName($property->name);
+        $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
+        $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
+        $complexArrayTypes = [];
+        foreach ($schema->properties as $parameterName => $property) {
+            $name = NameHelper::safeVariableName($parameterName);
             $param = $classConstructor
                 ->addComment(
                     trim(sprintf(
@@ -65,15 +57,35 @@ class ResponseGenerator extends Generator
             if (! Type::isScalar($type)) {
                 $type = "{$namespace->getName()}\\{$type}";
             }
+
+            $nullable = ! in_array($name, $schema->required ?? []) || $property->nullable;
             $param
                 ->setReadOnly()
                 ->setType($type)
-                ->setNullable($property->nullable)
+                ->setNullable($nullable)
                 ->setPublic();
 
-            if ($property->nullable) {
+            if ($nullable) {
                 $param->setDefaultValue(null);
             }
+
+            if ($property->type === Type::ARRAY && $property->items) {
+                $complexArrayTypes[$name] = $property->items->type;
+            }
+        }
+
+        if (count($complexArrayTypes) > 0) {
+            foreach ($complexArrayTypes as $name => $type) {
+                $dtoFQN = "{$dtoNamespace}\\{$type}";
+                $namespace->addUse($dtoFQN);
+
+                $literalType = new Literal(sprintf('%s::class', $type));
+                $complexArrayTypes[$name] = [$literalType];
+            }
+            $classType->addProperty('complexArrayTypes', $complexArrayTypes)
+                ->setStatic()
+                ->setType('array')
+                ->setProtected();
         }
 
         return $classFile;

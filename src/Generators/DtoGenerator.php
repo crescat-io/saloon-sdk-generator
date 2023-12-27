@@ -3,10 +3,12 @@
 namespace Crescat\SaloonSdkGenerator\Generators;
 
 use cebe\openapi\spec\Type;
+use Crescat\SaloonSdkGenerator\Contracts\Deserializable;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Traits\Deserializes;
 use Nette\PhpGenerator\PhpFile;
 
 class DtoGenerator extends Generator
@@ -30,6 +32,14 @@ class DtoGenerator extends Generator
         $className = NameHelper::dtoClassName($schema->name);
         [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->dtoNamespaceSuffix);
 
+        $namespace
+            ->addUse(Deserializes::class)
+            ->addUse(Deserializable::class);
+        $classType
+            ->setFinal()
+            ->addImplement(Deserializable::class)
+            ->addTrait(Deserializes::class);
+
         $classConstructor = $classType->addMethod('__construct');
 
         foreach ($schema->properties as $property) {
@@ -50,6 +60,7 @@ class DtoGenerator extends Generator
                 $type = "{$namespace->getName()}\\{$type}";
             }
             $param
+                ->setReadOnly()
                 ->setType($type)
                 ->setNullable($property->nullable)
                 ->setPublic();

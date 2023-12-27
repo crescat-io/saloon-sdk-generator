@@ -9,9 +9,10 @@ use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
-use DateTime;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Contracts\Body\HasBody;
@@ -39,8 +40,7 @@ class RequestGenerator extends Generator
         $className = NameHelper::requestClassName($endpoint->name);
 
         [$classFile, $namespace, $classType] = $this->makeClass(
-            $className,
-            [$this->config->requestNamespaceSuffix, $resourceName]
+            $className, [$this->config->requestNamespaceSuffix, $resourceName]
         );
 
         $classType->setExtends(Request::class)
@@ -81,34 +81,70 @@ class RequestGenerator extends Generator
                     ->pipe(function (Collection $segments) {
                         return new Literal(sprintf('return "/%s";', $segments->implode('/')));
                     })
-
             );
+
+        $responseSuffix = NameHelper::optionalNamespaceSuffix($this->config->responseNamespaceSuffix);
+        $responseNamespace = "{$this->config->namespace}{$responseSuffix}";
+
+        $codesByResponseType = collect($endpoint->responses)
+            // TODO: We assume JSON is the only response content type for each HTTP status code.
+            // We should support multiple response types in the future
+            ->mapWithKeys(fn (array $response, int $httpCode) => [
+                $httpCode => NameHelper::responseClassName($response[array_key_first($response)]->name),
+            ])
+            ->reduce(function (Collection $carry, string $className, int $httpCode) {
+                $carry->put(
+                    $className,
+                    [...$carry->get($className, []), $httpCode]
+                );
+
+                return $carry;
+            }, collect());
+
+        $fqnResponseTypes = $codesByResponseType
+            ->keys()
+            ->map(fn (string $className) => "{$responseNamespace}\\{$className}");
+
+        foreach ($fqnResponseTypes as $className) {
+            $namespace->addUse($className);
+        }
+        $namespace
+            ->addUse(Exception::class)
+            ->addUse(Response::class);
 
         $createDtoMethod = $classType->addMethod('createDtoFromResponse')
             ->setPublic()
-            ->setReturnType('mixed')
+            ->setReturnType($fqnResponseTypes->implode('|'))
+            ->addBody('$status = $response->status();')
+            ->addBody('$responseCls = match ($status) {')
             ->addBody(
-                collect($endpoint->responses)
-                    ->filter(fn ($response) => $response->isSuccessful())
-                    ->map(fn ($response) => $response->schema)
-                    ->filter(fn ($schema) => $schema !== null)
-                    ->map(fn ($schema) => sprintf('return new %s($data);', NameHelper::dtoClassName($schema->name)))
-                // new Literal('$data = $response->json();')
-                // return collect($parameters)
-                //     ->mapWithKeys(function (Parameter $parameter) {
-                //         return [
-                //             $parameter->name => new Literal(
-                //                 sprintf('$this->%s', NameHelper::safeVariableName($parameter->name))
-                //             ),
-                //         ];
-                //     })
-                //     ->toArray()
-            );
+                $codesByResponseType
+                    ->map(fn (array $codes, string $className) => sprintf(
+                        '    %s => %s::class,',
+                        implode(', ', $codes), $className
+                    ))
+                    ->values()
+                    ->implode("\n")
+            )
+            ->addBody('    default => throw new Exception("Unhandled response status: {$status}")')
+            ->addBody('};')
+            ->addBody('return $responseCls::deserialize($response->json(), $responseCls);');
         $createDtoMethod
             ->addParameter('response')
-            ->setType(Response::class)
-            ->setComment('Create a DTO from the response body, if possible.');
+            ->setType(Response::class);
 
+        $this->generateConstructor($endpoint, $classType);
+
+        $namespace
+            ->addUse(SaloonHttpMethod::class)
+            ->addUse(Request::class)
+            ->add($classType);
+
+        return $classFile;
+    }
+
+    protected function generateConstructor(Endpoint $endpoint, ClassType $classType): void
+    {
         $classConstructor = $classType->addMethod('__construct');
 
         // Priority 1. - Path Parameters
@@ -144,12 +180,8 @@ class RequestGenerator extends Generator
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);
         }
 
-        $namespace
-            ->addUse(SaloonHttpMethod::class)
-            ->addUse(DateTime::class)
-            ->addUse(Request::class)
-            ->add($classType);
-
-        return $classFile;
+        if (count($classConstructor->getParameters()) === 0) {
+            $classType->removeMethod('__construct');
+        }
     }
 }

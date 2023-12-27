@@ -3,10 +3,12 @@
 namespace Crescat\SaloonSdkGenerator\Generators;
 
 use cebe\openapi\spec\Type;
+use Crescat\SaloonSdkGenerator\Contracts\Deserializable;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Traits\Deserializes;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Contracts\DataObjects\WithResponse;
 use Saloon\Traits\Responses\HasResponse;
@@ -29,11 +31,20 @@ class ResponseGenerator extends Generator
         $className = NameHelper::responseClassName($schema->name);
         [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->responseNamespaceSuffix);
 
+        $namespace
+            ->addUse(Deserializes::class)
+            ->addUse(WithResponse::class)
+            ->addUse(Deserializable::class)
+            ->addUse(HasResponse::class);
+
         $classType
             ->setFinal()
-            ->setReadOnly()
+            ->addImplement(Deserializable::class)
             ->addImplement(WithResponse::class)
             ->addTrait(HasResponse::class);
+
+        // Can't chain addTrait calls
+        $classType->addTrait(Deserializes::class);
 
         $classConstructor = $classType->addMethod('__construct');
 
@@ -55,6 +66,7 @@ class ResponseGenerator extends Generator
                 $type = "{$namespace->getName()}\\{$type}";
             }
             $param
+                ->setReadOnly()
                 ->setType($type)
                 ->setNullable($property->nullable)
                 ->setPublic();

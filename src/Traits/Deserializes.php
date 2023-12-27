@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crescat\SaloonSdkGenerator\Traits;
 
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;

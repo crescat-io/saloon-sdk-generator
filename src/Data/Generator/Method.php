@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 use Saloon\Enums\Method as SaloonMethod;

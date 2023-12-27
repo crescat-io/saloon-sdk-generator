@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crescat\SaloonSdkGenerator;
 
 use Crescat\SaloonSdkGenerator\Contracts\Deserializable;

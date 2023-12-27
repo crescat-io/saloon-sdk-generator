@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crescat\SaloonSdkGenerator\Generators;
 
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Crescat\SaloonSdkGenerator\Commands\GenerateSdk;
 
 return [

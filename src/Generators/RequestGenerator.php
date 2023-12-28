@@ -7,6 +7,7 @@ namespace Crescat\SaloonSdkGenerator\Generators;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\EmptyResponse;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
@@ -15,6 +16,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Contracts\Body\HasBody;
@@ -77,14 +79,11 @@ class RequestGenerator extends Generator
             ->setReturnType('string')
             ->addBody(
                 collect($endpoint->pathSegments)
-                    ->map(function ($segment) {
-                        return Str::startsWith($segment, ':')
-                            ? new Literal(sprintf('{$this->%s}', NameHelper::safeVariableName($segment)))
-                            : $segment;
-                    })
-                    ->pipe(function (Collection $segments) {
-                        return new Literal(sprintf('return "/%s";', $segments->implode('/')));
-                    })
+                    ->map(fn ($segment) => Str::startsWith($segment, ':')
+                        ? new Literal(sprintf('{$this->%s}', NameHelper::safeVariableName($segment)))
+                        : $segment
+                    )
+                    ->pipe(fn (Collection $segments) => new Literal(sprintf('return "/%s";', $segments->implode('/'))))
             );
 
         $responseSuffix = NameHelper::optionalNamespaceSuffix($this->config->responseNamespaceSuffix);
@@ -93,9 +92,17 @@ class RequestGenerator extends Generator
         $codesByResponseType = collect($endpoint->responses)
             // TODO: We assume JSON is the only response content type for each HTTP status code.
             // We should support multiple response types in the future
-            ->mapWithKeys(fn (array $response, int $httpCode) => [
-                $httpCode => NameHelper::responseClassName($response[array_key_first($response)]->name),
-            ])
+            ->mapWithKeys(function (array $response, int $httpCode) use ($namespace, $responseNamespace) {
+                if (count($response) === 0) {
+                    $cls = EmptyResponse::class;
+                } else {
+                    $className = NameHelper::responseClassName($response[array_key_first($response)]->name);
+                    $cls = "{$responseNamespace}\\{$className}";
+                }
+                $namespace->addUse($cls);
+
+                return [$httpCode => $cls];
+            })
             ->reduce(function (Collection $carry, string $className, int $httpCode) {
                 $carry->put(
                     $className,
@@ -105,27 +112,20 @@ class RequestGenerator extends Generator
                 return $carry;
             }, collect());
 
-        $fqnResponseTypes = $codesByResponseType
-            ->keys()
-            ->map(fn (string $className) => "{$responseNamespace}\\{$className}");
-
-        foreach ($fqnResponseTypes as $className) {
-            $namespace->addUse($className);
-        }
         $namespace
             ->addUse(Exception::class)
             ->addUse(Response::class);
 
         $createDtoMethod = $classType->addMethod('createDtoFromResponse')
             ->setPublic()
-            ->setReturnType($fqnResponseTypes->implode('|'))
+            ->setReturnType($codesByResponseType->implode('|'))
             ->addBody('$status = $response->status();')
             ->addBody('$responseCls = match ($status) {')
             ->addBody(
                 $codesByResponseType
                     ->map(fn (array $codes, string $className) => sprintf(
                         '    %s => %s::class,',
-                        implode(', ', $codes), $className
+                        implode(', ', $codes), Helpers::extractShortName($className)
                     ))
                     ->values()
                     ->implode("\n")

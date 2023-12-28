@@ -109,7 +109,8 @@ class NameHelper
             ->replace('_', ' ')
             ->slug(' ')
             ->squish()
-            ->trim();
+            ->trim()
+            ->toString();
     }
 
     public static function preventNameCollisions(string $value, string $suffix = 'Class'): string

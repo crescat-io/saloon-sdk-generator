@@ -79,6 +79,6 @@ class GeneratedCode
 
         $ok = file_put_contents($filePath, (string) $file);
 
-        return $ok;
+        return (bool) $ok;
     }
 }

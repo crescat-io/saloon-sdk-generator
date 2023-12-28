@@ -70,6 +70,8 @@ class RequestGenerator extends Generator
                 )
             );
 
+        $this->generateConstructor($endpoint, $classType);
+
         $classType->addMethod('resolveEndpoint')
             ->setPublic()
             ->setReturnType('string')
@@ -134,8 +136,6 @@ class RequestGenerator extends Generator
         $createDtoMethod
             ->addParameter('response')
             ->setType(Response::class);
-
-        $this->generateConstructor($endpoint, $classType);
 
         $namespace
             ->addUse(SaloonHttpMethod::class)

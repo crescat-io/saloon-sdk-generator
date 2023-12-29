@@ -11,12 +11,7 @@ use ReflectionClass;
 
 trait Deserializes
 {
-    /**
-     * Override this to specify the item types (and key types, if necessary) of attributes.
-     * Valid values either look like ['attributeName' => [SomeType::class]]
-     * or ['attributeName' => [SimpleType::STRING|SimpleType::INTEGER, OtherType::class]].
-     */
-    protected static array $complexArrayTypes = [];
+    use HasComplexArrayTypes;
 
     public function __deserialize(array $data): static
     {
@@ -96,16 +91,14 @@ trait Deserializes
                     $deserialized[] = static::deserializeValue($item, $type[0]);
                 }
             } elseif ($typeLen === 2) {
-                $deserialized = [];
-
                 $keyType = $type[0];
                 if ($keyType !== SimpleType::STRING && $keyType !== SimpleType::INTEGER) {
-                    throw new InvalidAttributeTypeException("Array key must be a string or an integer, `$keyType` given");
+                    throw new InvalidAttributeTypeException("Array key type must be a string or an integer, `$keyType` given");
                 }
 
                 foreach ($value as $k => $v) {
                     $deserializedKey = static::deserializeValue($k, $keyType);
-                    $deserializedValue = static::deserialize($v, $type[1]);
+                    $deserializedValue = static::deserializeValue($v, $type[1]);
                     $deserialized[$deserializedKey] = $deserializedValue;
                 }
             } else {
@@ -118,14 +111,5 @@ trait Deserializes
         }
 
         throw new InvalidAttributeTypeException("Invalid type `$type`");
-    }
-
-    protected static function getArrayType(string $attributeName): array|string
-    {
-        if (! array_key_exists($attributeName, static::$complexArrayTypes)) {
-            return 'array';
-        }
-
-        return static::$complexArrayTypes[$attributeName];
     }
 }

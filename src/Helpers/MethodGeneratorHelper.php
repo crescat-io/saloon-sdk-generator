@@ -29,7 +29,7 @@ class MethodGeneratorHelper
             ->addComment(
                 trim(sprintf(
                     '@param %s $%s %s',
-                    $parameter->nullable ? "null|{$parameter->type}" : $parameter->type,
+                    $parameter->nullable ? "?{$parameter->type}" : $parameter->type,
                     $name,
                     $parameter->description
                 ))

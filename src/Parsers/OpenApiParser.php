@@ -215,6 +215,7 @@ class OpenApiParser implements Parser
                 name: $parameter->name,
                 description: $parameter->description,
             ))
+            ->sortBy(fn (Parameter $parameter) => (int) $parameter->nullable)
             ->all();
     }
 

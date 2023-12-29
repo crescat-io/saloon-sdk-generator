@@ -118,7 +118,7 @@ class RequestGenerator extends Generator
 
         $createDtoMethod = $classType->addMethod('createDtoFromResponse')
             ->setPublic()
-            ->setReturnType($codesByResponseType->implode('|'))
+            ->setReturnType($codesByResponseType->keys()->implode('|'))
             ->addBody('$status = $response->status();')
             ->addBody('$responseCls = match ($status) {')
             ->addBody(

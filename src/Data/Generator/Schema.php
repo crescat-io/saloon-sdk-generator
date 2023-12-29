@@ -6,16 +6,18 @@ namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 use InvalidArgumentException;
 
-class Schema
+class Schema extends Parameter
 {
+    public string $name;
+
     /**
      * @param  Schema[]  $properties
      */
     public function __construct(
         public string $type,
         public ?string $description,
-        public ?string $name = null,
-        public ?bool $nullable = false,
+        ?string $name = null,
+        public bool $nullable = false,
         public bool $isResponse = false,
 
         public readonly ?Schema $parent = null,
@@ -30,12 +32,14 @@ class Schema
             throw new InvalidArgumentException('The required parameter cannot be an array if the properties parameter is not defined.');
         }
 
-        if (is_null($this->name)) {
+        if (is_null($name)) {
             if ($this->parent->type === 'array') {
                 $this->name = $this->parent->name.'Item';
             } else {
                 throw new InvalidArgumentException('The name parameter must be defined if the parent schema is not of type `array`.');
             }
+        } else {
+            $this->name = $name;
         }
     }
 

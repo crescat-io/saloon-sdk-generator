@@ -7,7 +7,7 @@ namespace Crescat\SaloonSdkGenerator\Enums;
 enum SimpleType: string
 {
     case STRING = 'string';
-    case INTEGER = 'integer';
+    case INTEGER = 'int';
     case NUMBER = 'number';
     case BOOLEAN = 'bool';
     case ARRAY = 'array';

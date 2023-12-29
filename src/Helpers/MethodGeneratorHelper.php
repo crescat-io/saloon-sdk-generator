@@ -7,6 +7,7 @@ namespace Crescat\SaloonSdkGenerator\Helpers;
 namespace Crescat\SaloonSdkGenerator\Helpers;
 
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Dumper;
 use Nette\PhpGenerator\Literal;
@@ -72,11 +73,16 @@ class MethodGeneratorHelper
     {
         return collect($parameters)
             ->mapWithKeys(function (Parameter $parameter) {
-                return [
-                    $parameter->name => new Literal(
-                        sprintf('$this->%s', NameHelper::safeVariableName($parameter->name))
-                    ),
-                ];
+                $name = $parameter->name;
+                $safeName = NameHelper::safeVariableName($name);
+
+                if (SimpleType::tryFrom($parameter->type)) {
+                    $paramCode = new Literal(sprintf('$this->%s', $safeName));
+                } else {
+                    $paramCode = new Literal(sprintf('array_filter($this->%s->toArray())', $safeName));
+                }
+
+                return [$name => $paramCode];
             })
             ->toArray();
     }

@@ -7,6 +7,7 @@ namespace Crescat\SaloonSdkGenerator\Generators;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\EmptyResponse;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
@@ -137,6 +138,18 @@ class RequestGenerator extends Generator
             ->addParameter('response')
             ->setType(Response::class);
 
+        if ($endpoint->bodySchema) {
+            $classType
+                ->addMethod('defaultBody')
+                ->setReturnType('array')
+                ->addBody(
+                    sprintf('return $this->%s->toArray();', NameHelper::safeVariableName($endpoint->bodySchema->name))
+                );
+
+            $bodyFQN = $this->bodyFQN($endpoint->bodySchema);
+            $namespace->addUse($bodyFQN);
+        }
+
         $namespace
             ->addUse(SaloonHttpMethod::class)
             ->addUse(Request::class)
@@ -147,25 +160,48 @@ class RequestGenerator extends Generator
 
     protected function generateConstructor(Endpoint $endpoint, ClassType $classType): void
     {
-        $classConstructor = $classType->addMethod('__construct');
+        $constructor = $classType->addMethod('__construct');
 
         // Priority 1. - Path Parameters
         foreach ($endpoint->pathParameters as $pathParam) {
-            MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $pathParam);
+            MethodGeneratorHelper::addParameterAsPromotedProperty($constructor, $pathParam);
         }
 
         // Priority 2. - Body Parameters
-        if (! empty($endpoint->bodyParameters)) {
-            $bodyParams = collect($endpoint->bodyParameters)
-                ->reject(fn (Parameter $parameter) => in_array($parameter->name, $this->config->ignoredBodyParams))
-                ->values()
-                ->toArray();
+        if ($endpoint->bodySchema) {
+            $body = $endpoint->bodySchema;
 
-            foreach ($bodyParams as $bodyParam) {
-                MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $bodyParam);
+            $properties = [];
+            foreach ($body->properties ?? [] as $name => $property) {
+                if (in_array($property->name, $this->config->ignoredBodyParams)) {
+                    continue;
+                }
+                $properties[$name] = $property;
             }
+            $body->properties = $properties;
 
-            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultBody', $bodyParams, withArrayFilterWrapper: true);
+            $name = NameHelper::safeVariableName($body->name);
+
+            $property = $constructor
+                ->addComment(
+                    trim(sprintf(
+                        '@param %s $%s %s',
+                        $body->nullable ? "?{$body->type}" : $body->type,
+                        $name,
+                        $body->description
+                    ))
+                )
+                ->addPromotedParameter($name);
+
+            $bodyFQN = $this->bodyFQN($body);
+            $property
+                ->setType($bodyFQN)
+                ->setNullable($body->nullable)
+                ->setProtected();
+
+            if ($body->nullable) {
+                $property->setDefaultValue(null);
+            }
         }
 
         // Priority 3. - Query Parameters
@@ -176,14 +212,22 @@ class RequestGenerator extends Generator
                 ->toArray();
 
             foreach ($queryParams as $queryParam) {
-                MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $queryParam);
+                MethodGeneratorHelper::addParameterAsPromotedProperty($constructor, $queryParam);
             }
 
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);
         }
 
-        if (count($classConstructor->getParameters()) === 0) {
+        if (count($constructor->getParameters()) === 0) {
             $classType->removeMethod('__construct');
         }
+    }
+
+    protected function bodyFQN(Schema $body): string
+    {
+        $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
+        $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
+
+        return "{$dtoNamespace}\\{$body->name}";
     }
 }

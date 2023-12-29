@@ -13,8 +13,9 @@ use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
 use cebe\openapi\spec\Reference as OpenApiReference;
+use cebe\openapi\spec\RequestBody as OpenApiRequestBody;
 use cebe\openapi\spec\Response as OpenApiResponse;
-use cebe\openapi\spec\Responses;
+use cebe\openapi\spec\Responses as OpenApiResponses;
 use cebe\openapi\spec\Schema as OpenApiSchema;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
@@ -49,7 +50,8 @@ class OpenApiParser implements Parser
 
     public function parse(): ApiSpecification
     {
-        // Schema preprocessing is a prerequisite for parsing schemas AND responses (inside of endpoints)
+        // Schema preprocessing is a prerequisite for parsing schemas, request bodies, and responses. The preprocessed
+        // schemas are used inside of $this->parseEndpoint()
         $this->preprocessSchemas($this->openApi->components->schemas);
         // Parse schemas before endpoints, because endpoint responses often reference schemas
         $this->schemas = $this->parseSchemas($this->openApi->components->schemas ?? []);
@@ -99,7 +101,7 @@ class OpenApiParser implements Parser
             queryParameters: $this->mapParams($operation->parameters, 'query'),
             // TODO: Check if this differs between spec versions
             pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
-            bodyParameters: [], // TODO: implement "definition" parsing
+            bodySchema: $this->parseBody($operation->requestBody),
         );
     }
 
@@ -195,15 +197,46 @@ class OpenApiParser implements Parser
                 parent: $parent,
             );
             $parsedSchema->properties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
-            $schema->required = $schema->required ?? [];
+            $parsedSchema->required = $schema->required ?? [];
 
             return $parsedSchema;
         }
     }
 
     /**
+     * @return ?Schema
+     */
+    protected function parseBody(OpenApiRequestBody|OpenApiReference|null $body): ?Schema
+    {
+        if (! $body) {
+            return null;
+        }
+
+        if ($body instanceof OpenApiReference) {
+            $body = $body->resolve();
+        }
+
+        if (count($body->content) === 0) {
+            return null;
+        }
+
+        // TODO: Support multiple request content types. I think Saloon would need to be
+        // updated to support this, too
+        $contentType = array_key_first($body->content);
+        $mediaType = $body->content[$contentType];
+
+        if ($mediaType->schema instanceof OpenApiReference) {
+            $mediaType->schema = $mediaType->schema->resolve();
+        }
+
+        $parsedSchema = $this->schemas[$mediaType->schema->title];
+
+        return $parsedSchema;
+    }
+
+    /**
      * @param  OpenApiParameter[]  $parameters
-     * @return Parameter[] array
+     * @return Parameter[]
      */
     protected function mapParams(array $parameters, string $in): array
     {
@@ -222,7 +255,7 @@ class OpenApiParser implements Parser
     /**
      * @return Schema[]
      */
-    protected function mapResponses(Responses $responses): array
+    protected function mapResponses(OpenApiResponses $responses): array
     {
         return collect($responses->getResponses())
             ->mapWithKeys(function (OpenApiResponse|OpenApiReference|null $response, int $httpCode) {

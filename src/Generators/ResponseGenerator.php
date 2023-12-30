@@ -60,7 +60,7 @@ class ResponseGenerator extends Generator
                 $type = "{$namespace->getName()}\\{$type}";
             }
 
-            $nullable = ! in_array($name, $schema->required ?? []) || $property->nullable;
+            $nullable = ! in_array($parameterName, $schema->required ?? []) || $property->nullable;
             $param
                 ->setReadOnly()
                 ->setType($type)

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Generators;
 
-use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\BaseResponse;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\PhpGenerator\Literal;
@@ -56,22 +56,22 @@ class ResponseGenerator extends Generator
                 ->addPromotedParameter($name);
 
             $type = $property->type;
-            if (! Type::isScalar($type)) {
-                $type = "{$namespace->getName()}\\{$type}";
+            if (! SimpleType::tryFrom($type)) {
+                $type = "{$dtoNamespace}\\{$type}";
+                $namespace->addUse($type);
             }
 
-            $nullable = ! in_array($parameterName, $schema->required ?? []) || $property->nullable;
             $param
                 ->setReadOnly()
                 ->setType($type)
-                ->setNullable($nullable)
+                ->setNullable($property->isNullable())
                 ->setPublic();
 
-            if ($nullable) {
+            if ($property->isNullable()) {
                 $param->setDefaultValue(null);
             }
 
-            if ($property->type === Type::ARRAY && $property->items) {
+            if ($property->type === SimpleType::ARRAY && $property->items) {
                 $complexArrayTypes[$name] = $property->items->type;
             }
         }

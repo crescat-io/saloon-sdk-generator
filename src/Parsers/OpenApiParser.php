@@ -155,6 +155,7 @@ class OpenApiParser implements Parser
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
                 nullable: $schema->nullable,
+                parent: $parent,
             );
         } elseif ($schema->type === Type::ARRAY) {
             $name = $schema->title;
@@ -196,8 +197,11 @@ class OpenApiParser implements Parser
                 description: $schema->description,
                 parent: $parent,
             );
-            $parsedSchema->properties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
             $parsedSchema->required = $schema->required ?? [];
+            $parsedProperties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
+            $parsedSchema->properties = collect($parsedProperties)
+                ->sortBy(fn (Schema $schema) => (int) $schema->isNullable())
+                ->toArray();
 
             return $parsedSchema;
         }
@@ -248,7 +252,7 @@ class OpenApiParser implements Parser
                 name: $parameter->name,
                 description: $parameter->description,
             ))
-            ->sortBy(fn (Parameter $parameter) => (int) $parameter->nullable)
+            ->sortBy(fn (Parameter $parameter) => (int) $parameter->isNullable())
             ->all();
     }
 

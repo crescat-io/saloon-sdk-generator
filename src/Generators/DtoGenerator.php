@@ -63,14 +63,13 @@ class DtoGenerator extends Generator
                 $type = "{$namespace->getName()}\\{$type}";
             }
 
-            $nullable = ! in_array($parameterName, $schema->required ?? []) || $property->nullable;
             $param
                 ->setReadOnly()
                 ->setType($type)
-                ->setNullable($nullable)
+                ->setNullable($property->isNullable())
                 ->setPublic();
 
-            if ($nullable) {
+            if ($property->isNullable()) {
                 $param->setDefaultValue(null);
             }
 

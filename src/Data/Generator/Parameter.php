@@ -13,4 +13,9 @@ class Parameter
         public ?string $description = null
     ) {
     }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
+    }
 }

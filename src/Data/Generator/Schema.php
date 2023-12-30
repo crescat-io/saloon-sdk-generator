@@ -55,4 +55,13 @@ class Schema extends Parameter
 
         return $type;
     }
+
+    public function isNullable(): bool
+    {
+        if (is_array($this->parent?->required)) {
+            return ! in_array($this->name, $this->parent->required);
+        }
+
+        return $this->nullable;
+    }
 }

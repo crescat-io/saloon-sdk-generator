@@ -16,27 +16,20 @@ class Schema extends Parameter
     public function __construct(
         public string $type,
         public ?string $description,
-        ?string $name = null,
         public bool $nullable = false,
         public bool $isResponse = false,
+        ?string $name = null,
 
         public readonly ?Schema $parent = null,
         public ?Schema $items = null,
         public ?array $properties = [],
-        public ?array $required = null,
+        public ?array $required = [],
     ) {
-        // Object schemas must have a list of required properties
-        if (is_null($this->required) && $this->properties) {
-            throw new InvalidArgumentException('The required parameter must be a string array if the properties parameter is defined.');
-        } elseif (! is_null($this->required) && ! $this->properties) {
-            throw new InvalidArgumentException('The required parameter cannot be an array if the properties parameter is not defined.');
-        }
-
         if (is_null($name)) {
             if ($this->parent->type === 'array') {
                 $this->name = $this->parent->name.'Item';
             } else {
-                throw new InvalidArgumentException('The name parameter must be defined if the parent schema is not of type `array`.');
+                throw new InvalidArgumentException('$name must be defined if the parent schema is not of type `array`.');
             }
         } else {
             $this->name = $name;

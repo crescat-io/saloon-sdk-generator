@@ -14,6 +14,13 @@ class Parameter
     ) {
     }
 
+    public function getDocTypeString(): string
+    {
+        $nullString = str_contains($this->type, '|') ? 'null|' : '?';
+
+        return $this->isNullable() ? "{$nullString}{$this->type}" : $this->type;
+    }
+
     public function isNullable(): bool
     {
         return $this->nullable;

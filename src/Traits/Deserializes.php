@@ -84,27 +84,16 @@ trait Deserializes
 
             return $type::deserialize($value);
         } elseif (is_array($type)) {
-            $deserialized = [];
             $typeLen = count($type);
-            if ($typeLen === 1) {
-                foreach ($value as $item) {
-                    $deserialized[] = static::deserializeValue($item, $type[0]);
-                }
-            } elseif ($typeLen === 2) {
-                $keyType = $type[0];
-                if ($keyType !== SimpleType::STRING && $keyType !== SimpleType::INTEGER) {
-                    throw new InvalidAttributeTypeException("Array key type must be a string or an integer, `$keyType` given");
-                }
-
-                foreach ($value as $k => $v) {
-                    $deserializedKey = static::deserializeValue($k, $keyType);
-                    $deserializedValue = static::deserializeValue($v, $type[1]);
-                    $deserialized[$deserializedKey] = $deserializedValue;
-                }
-            } else {
+            if ($typeLen !== 1) {
                 throw new InvalidAttributeTypeException(
-                    "Complex array type must have one value (the type of the array items) or two values (the key and the type of the array items), $typeLen given"
+                    "Complex array type must have a single value (the type of the array items), $typeLen given"
                 );
+            }
+
+            $deserialized = [];
+            foreach ($value as $item) {
+                $deserialized[] = static::deserializeValue($item, $type[0]);
             }
 
             return $deserialized;

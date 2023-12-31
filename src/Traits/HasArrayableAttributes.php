@@ -57,26 +57,17 @@ trait HasArrayableAttributes
 
             return $value->toArray();
         } elseif (is_array($type)) {
-            $arrayified = [];
             $typeLen = count($type);
 
-            if ($typeLen === 1) {
-                foreach ($value as $item) {
-                    $arrayified[] = $this->valueToArray($item, $type[0]);
-                }
-            } elseif ($typeLen === 2) {
-                $keyType = $type[0];
-                if ($keyType !== SimpleType::STRING && $keyType !== SimpleType::INTEGER) {
-                    throw new InvalidAttributeTypeException("Array key type must be a string or an integer, `$keyType` given");
-                }
-
-                foreach ($value as $k => $v) {
-                    $arrayified[$k] = $this->valueToArray($v, $type[1]);
-                }
-            } else {
+            if ($typeLen !== 1) {
                 throw new InvalidAttributeTypeException(
-                    "Complex array type must have one value (the type of the array items) or two values (the key and the type of the array items), $typeLen given"
+                    "Complex array type must have a single value (the type of the array items), $typeLen given"
                 );
+            }
+
+            $arrayified = [];
+            foreach ($value as $item) {
+                $arrayified[] = $this->valueToArray($item, $type[0]);
             }
 
             return $arrayified;

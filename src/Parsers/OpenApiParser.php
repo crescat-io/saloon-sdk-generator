@@ -24,6 +24,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -137,6 +138,7 @@ class OpenApiParser implements Parser
      */
     protected function parseSchemas(array $schemas, ?Schema &$parent = null): array
     {
+        $parsedSchemas = [];
         foreach ($schemas as $name => $schema) {
             $parsed = $this->parseSchema($schema, $parent);
             if ($parsed) {
@@ -188,17 +190,45 @@ class OpenApiParser implements Parser
 
             return $parsedSchema;
         } else {
-            $preprocessedProperties = $this->preprocessSchemas($schema->properties);
+            $properties = $schema->properties;
+
+            $preprocessedProperties = $this->preprocessSchemas($properties);
 
             $parsedSchema = new Schema(
                 name: $schema->title,
                 nullable: $schema->nullable,
                 type: $schema->title ?? 'object',
                 description: $schema->description,
+                required: $schema->required,
                 parent: $parent,
             );
-            $parsedSchema->required = $schema->required ?? [];
             $parsedProperties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
+
+            $additionalProperties = $schema->additionalProperties;
+            if ($additionalProperties) {
+                $type = SimpleType::MIXED->value;
+                if (! is_bool($additionalProperties)) {
+                    if ($additionalProperties instanceof OpenApiReference) {
+                        $additionalProperties = $additionalProperties->resolve();
+                    }
+                    if (SimpleType::tryFrom($additionalProperties->type) || $additionalProperties->type === Type::OBJECT) {
+                        $type = $this->mapSchemaTypeToPhpType($additionalProperties->type);
+                    } else {
+                        $additionalPropertiesItemType = $this->parseSchema($additionalProperties, $parsedSchema);
+                        $type = $additionalPropertiesItemType->type;
+                    }
+                }
+
+                $parsedAdditionalPropsSchema = new Schema(
+                    name: 'additionalProperties',
+                    type: $type,
+                    description: null,
+                    parent: $parsedSchema,
+                );
+
+                $parsedSchema->additionalProperties = $parsedAdditionalPropsSchema;
+            }
+
             $parsedSchema->properties = collect($parsedProperties)
                 ->sortBy(fn (Schema $schema) => (int) $schema->isNullable())
                 ->toArray();

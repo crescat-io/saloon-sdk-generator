@@ -113,7 +113,6 @@ class ResourceGenerator extends Generator
             $method->setBody(
                 new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassNameAlias ?? $requestClassName, implode(', ', $args)))
             );
-
         }
 
         return $classFile;

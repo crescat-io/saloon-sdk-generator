@@ -13,5 +13,6 @@ enum SimpleType: string
     case ARRAY = 'array';
     case DATE = 'date';
     case DATETIME = 'datetime';
+    case MIXED = 'mixed';
     case NULL = 'null';
 }

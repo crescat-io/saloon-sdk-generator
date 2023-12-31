@@ -72,7 +72,7 @@ trait Deserializes
                 SimpleType::BOOLEAN => (bool) $value,
                 SimpleType::STRING => (string) $value,
                 SimpleType::DATE, SimpleType::DATETIME => new DateTime($value),
-                SimpleType::ARRAY => $value,
+                SimpleType::ARRAY, SimpleType::MIXED => $value,
                 SimpleType::NULL => null,
             };
         } elseif (is_string($type)) {

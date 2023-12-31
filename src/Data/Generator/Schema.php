@@ -18,6 +18,7 @@ class Schema extends Parameter
         public ?string $description,
         public bool $nullable = false,
         public bool $isResponse = false,
+        public Schema|bool $additionalProperties = true,
         ?string $name = null,
 
         public readonly ?Schema $parent = null,

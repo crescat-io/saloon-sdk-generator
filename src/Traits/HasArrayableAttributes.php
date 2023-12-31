@@ -36,7 +36,12 @@ trait HasArrayableAttributes
 
         $asArray = [];
         foreach ($attributeTypes as $name => $type) {
-            $asArray[$name] = $this->valueToArray($this->{$name}, $type);
+            $attributeAsArray = $this->valueToArray($this->{$name}, $type);
+            if ($name === 'additionalProperties') {
+                $asArray = array_merge($asArray, $attributeAsArray);
+            } else {
+                $asArray[$name] = $attributeAsArray;
+            }
         }
 
         return $asArray;

@@ -8,7 +8,9 @@ use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\BaseDto;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
+use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
@@ -47,34 +49,34 @@ class DtoGenerator extends Generator
         $complexArrayTypes = [];
         foreach ($schema->properties as $parameterName => $property) {
             $name = NameHelper::safeVariableName($parameterName);
-            $param = $classConstructor
-                ->addComment(
-                    trim(sprintf(
-                        '@param %s $%s %s',
-                        $property->getDocTypeString(),
-                        $name,
-                        $property->description
-                    ))
-                )
-                ->addPromotedParameter($name);
-
-            $type = $property->type;
-            if (! Type::isScalar($type)) {
-                $type = "{$namespace->getName()}\\{$type}";
-            }
-
-            $param
-                ->setReadOnly()
-                ->setType($type)
-                ->setNullable($property->isNullable())
-                ->setPublic();
-
-            if ($property->isNullable()) {
-                $param->setDefaultValue(null);
-            }
+            MethodGeneratorHelper::addParameterToConstructor(
+                $classConstructor,
+                $property,
+                visibility: 'public',
+                readonly: true,
+                namespace: $dtoNamespace
+            );
 
             if ($property->type === Type::ARRAY && $property->items) {
                 $complexArrayTypes[$name] = $property->items->type;
+            }
+        }
+
+        if ($schema->additionalProperties) {
+            $classConstructor->setVariadic(true);
+            MethodGeneratorHelper::addParameterToConstructor(
+                $classConstructor,
+                $schema->additionalProperties,
+                promote: false,
+                namespace: $dtoNamespace
+            );
+
+            $classConstructor->addBody('parent::__construct(...$additionalProperties);');
+
+            // Since additional properties are implicitly an array type, the additional properties type should
+            // always get added to the complex array types array if it's not a built-in type.
+            if (! SimpleType::tryFrom($schema->additionalProperties->type)) {
+                $complexArrayTypes['additionalProperties'] = $schema->additionalProperties->type;
             }
         }
 

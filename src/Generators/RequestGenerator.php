@@ -164,7 +164,7 @@ class RequestGenerator extends Generator
 
         // Priority 1. - Path Parameters
         foreach ($endpoint->pathParameters as $pathParam) {
-            MethodGeneratorHelper::addParameterAsPromotedProperty($constructor, $pathParam);
+            MethodGeneratorHelper::addParameterToConstructor($constructor, $pathParam);
         }
 
         // Priority 2. - Body Parameters
@@ -212,7 +212,7 @@ class RequestGenerator extends Generator
                 ->toArray();
 
             foreach ($queryParams as $queryParam) {
-                MethodGeneratorHelper::addParameterAsPromotedProperty($constructor, $queryParam);
+                MethodGeneratorHelper::addParameterToConstructor($constructor, $queryParam);
             }
 
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);

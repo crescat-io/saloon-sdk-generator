@@ -256,7 +256,7 @@ class ConnectorGenerator extends Generator
                         $namespace->addUse(QueryAuthenticator::class);
                         break;
                     case ApiKeyLocation::header:
-                        $authenticators[] = new Literal(sprintf('return new HeaderAuthenticator($this->%s);', $name));
+                        $authenticators[] = new Literal(sprintf('return new HeaderAuthenticator($this->%s, "%s");', $name, $securityScheme->name));
                         $namespace->addUse(HeaderAuthenticator::class);
                         break;
                     default:
@@ -268,7 +268,7 @@ class ConnectorGenerator extends Generator
             if ($securityScheme->type === SecuritySchemeType::http) {
                 switch ($securityScheme->scheme) {
                     case 'bearer':
-                        $authenticators[] = new Literal('return new TokenAuthenticator($this->bearerToken);');
+                        $authenticators[] = new Literal('return new TokenAuthenticator($this->bearerToken, "Bearer");');
                         $namespace->addUse(TokenAuthenticator::class);
                         break;
                     case 'basic':

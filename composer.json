@@ -56,13 +56,6 @@
         "generate:crescat": "./codegen generate:sdk --force --namespace=Crescat\\\\Sdk --type=openapi --name=Crescat tests/Samples/crescat.yaml --output tests/Output/Crescat",
         "generate:bigcommerce": "./codegen generate:sdk --force --namespace=BigCommerce\\\\Sdk --type=openapi --name=BigCommerce tests/samples/bigcommerce_abandoned_carts.v3.yml --output tests/Output/BigCommerce",
         "generate:vegvesen": "./codegen generate:sdk --force --namespace=Vegvesen\\\\Sdk --type=openapi --name=Vegvesen tests/samples/vegvesen.json --output tests/Output/Vegvesen",
-        "generate:zip:fiken": "./codegen generate:sdk --force --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Output --zip",
-        "generate:zip:gocardless": "./codegen generate:sdk --force --type=openapi --name=GoCardlessBankAccountData tests/Samples/gocardless.json --output tests/Output --zip",
-        "generate:zip:openai": "./codegen generate:sdk --force --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Output --zip",
-        "generate:zip:paddle": "./codegen generate:sdk --force --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Output --zip",
-        "generate:zip:stripe": "./codegen generate:sdk --force --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Output --zip",
-        "generate:zip:tableau": "./codegen generate:sdk --force --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Output --zip",
-        "generate:zip:tripletex": "./codegen generate:sdk --force --type=openapi --name=Tripletex tests/Samples/tripletex.json --output tests/Output --zip",
         "generate:all": [
             "@generate:fiken",
             "@generate:gocardless",

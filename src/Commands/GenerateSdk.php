@@ -111,7 +111,6 @@ class GenerateSdk extends Command
 
     protected function dumpGeneratedFiles(GeneratedCode $result): void
     {
-
         $this->title('Generated Files');
 
         $this->comment("\nConnector:");
@@ -137,7 +136,6 @@ class GenerateSdk extends Command
 
     protected function dumpToFile(PhpFile $file): void
     {
-
         // TODO: Cleanup this, brittle and will break if you change the namespace
         $wip = sprintf(
             '%s/%s/%s.php',
@@ -194,6 +192,7 @@ class GenerateSdk extends Command
             [$result->connectorClass],
             $result->resourceClasses,
             $result->requestClasses,
+            $result->dtoClasses,
         );
 
         foreach ($filesToZip as $file) {

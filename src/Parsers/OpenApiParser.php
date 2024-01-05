@@ -137,8 +137,8 @@ class OpenApiParser implements Parser
                 name: $securityScheme->name,
                 in: ApiKeyLocation::tryFrom($securityScheme->in),
                 scheme: $securityScheme->scheme,
-                description: $securityScheme->description,
                 bearerFormat: $securityScheme->bearerFormat,
+                description: $securityScheme->description,
                 flows: $securityScheme->flows,
                 openIdConnectUrl: $securityScheme->openIdConnectUrl
             );

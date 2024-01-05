@@ -1,11 +1,13 @@
 <?php
 
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiKeyLocation;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
 use Crescat\SaloonSdkGenerator\Data\Generator\Components;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Crescat\SaloonSdkGenerator\Generators\ConnectorGenerator;
 use Nette\PhpGenerator\ClassType;
@@ -32,9 +34,9 @@ beforeEach(function () {
         components: new Components(
             securitySchemes: [
                 new SecurityScheme(
-                    type: 'apiKey',
+                    type: SecuritySchemeType::apiKey,
                     name: 'X-Auth-Token',
-                    in: 'header',
+                    in: ApiKeyLocation::header,
                 ),
             ]
         ),
@@ -49,10 +51,10 @@ test('Constructor', function () {
 
     expect($class)->toBeInstanceOf(ClassType::class);
 
-    $constructor = $class->getMethods()['__construct'];
+    $constructor = $class->getMethods()['defaultAuth'];
     expect($constructor)->toBeInstanceOf(Method::class)
-        ->and($constructor->getParameters())->toHaveCount(2)
-        ->and($constructor->getBody())->toBe("\$this->withTokenAuth(\$authToken);\n");
+        ->and($constructor->getParameters())->toHaveCount(0)
+        ->and($constructor->getBody())->toBe('return new HeaderAuthenticator($this->authToken, "X-Auth-Token");');
 
     $regionParam = $constructor->getParameter('region');
     expect($regionParam)->not->toBeNull()

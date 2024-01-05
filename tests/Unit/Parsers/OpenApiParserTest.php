@@ -1,5 +1,7 @@
 <?php
 
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiKeyLocation;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
 use Crescat\SaloonSdkGenerator\Parsers\OpenApiParser;
 
 test('Parsed base url', function () {
@@ -33,7 +35,7 @@ test('Parsed security requirements using bearer token', function () {
     expect($spec->components)->not()->toBeNull()
         ->and($spec->components->securitySchemes)->toHaveCount(1)
         ->and($spec->components->securitySchemes[0]->name)->toBe(null)
-        ->and($spec->components->securitySchemes[0]->type)->toBe('http')
+        ->and($spec->components->securitySchemes[0]->type)->toBe(SecuritySchemeType::http)
         ->and($spec->components->securitySchemes[0]->bearerFormat)->toBe('token')
         ->and($spec->securityRequirements[0]->name)->toBe('http');
 });
@@ -47,6 +49,6 @@ test('Parsed components: security schemes', function () {
     expect($spec->components)->not()->toBeNull()
         ->and($spec->components->securitySchemes)->toHaveCount(1)
         ->and($spec->components->securitySchemes[0]->name)->toBe('X-Auth-Token')
-        ->and($spec->components->securitySchemes[0]->type)->toBe('apiKey')
-        ->and($spec->components->securitySchemes[0]->in)->toBe('header');
+        ->and($spec->components->securitySchemes[0]->type)->toBe(SecuritySchemeType::apiKey)
+        ->and($spec->components->securitySchemes[0]->in)->toBe(ApiKeyLocation::header);
 });

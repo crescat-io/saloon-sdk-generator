@@ -82,7 +82,6 @@ class GenerateSdk extends Command
         $this->option('zip')
             ? $this->generateZipArchive($result)
             : $this->dumpGeneratedFiles($result);
-
     }
 
     protected function printGeneratedFiles(GeneratedCode $result): void
@@ -94,11 +93,6 @@ class GenerateSdk extends Command
             $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
         }
 
-        $this->comment("\nBase Resource:");
-        if ($result->resourceBaseClass) {
-            $this->line(Utils::formatNamespaceAndClass($result->resourceBaseClass));
-        }
-
         $this->comment("\nResources:");
         foreach ($result->resourceClasses as $resourceClass) {
             $this->line(Utils::formatNamespaceAndClass($resourceClass));
@@ -108,21 +102,20 @@ class GenerateSdk extends Command
         foreach ($result->requestClasses as $requestClass) {
             $this->line(Utils::formatNamespaceAndClass($requestClass));
         }
+
+        $this->comment("\nDTOs:");
+        foreach ($result->dtoClasses as $dtoClass) {
+            $this->line(Utils::formatNamespaceAndClass($dtoClass));
+        }
     }
 
     protected function dumpGeneratedFiles(GeneratedCode $result): void
     {
-
         $this->title('Generated Files');
 
         $this->comment("\nConnector:");
         if ($result->connectorClass) {
             $this->dumpToFile($result->connectorClass);
-        }
-
-        $this->comment("\nBase Resource:");
-        if ($result->resourceBaseClass) {
-            $this->dumpToFile($result->resourceBaseClass);
         }
 
         $this->comment("\nResources:");
@@ -134,11 +127,15 @@ class GenerateSdk extends Command
         foreach ($result->requestClasses as $requestClass) {
             $this->dumpToFile($requestClass);
         }
+
+        $this->comment("\nDTOs:");
+        foreach ($result->dtoClasses as $dtoClass) {
+            $this->dumpToFile($dtoClass);
+        }
     }
 
     protected function dumpToFile(PhpFile $file): void
     {
-
         // TODO: Cleanup this, brittle and will break if you change the namespace
         $wip = sprintf(
             '%s/%s/%s.php',
@@ -192,9 +189,10 @@ class GenerateSdk extends Command
         }
 
         $filesToZip = array_merge(
-            [$result->connectorClass, $result->resourceBaseClass],
+            [$result->connectorClass],
             $result->resourceClasses,
-            $result->requestClasses
+            $result->requestClasses,
+            $result->dtoClasses,
         );
 
         foreach ($filesToZip as $file) {

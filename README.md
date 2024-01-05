@@ -31,6 +31,8 @@ composer global require crescat-io/saloon-sdk-generator
 
 ## Usage
 
+### Generate SDK from OpenAPI or Postman Collection
+
 To generate the PHP SDK from an API specification file, run the following command:
 
 ```shell
@@ -66,6 +68,25 @@ sdkgenerator generate:sdk ./tests/Samples/paddle.json
   --output ./paddle-sdk/src 
   --namespace=Your\\Sdk\\Namespace # <-- Note the "\\"
 ```
+
+## Converting Swagger v1 or v2 definitions to the OpenAPI 3.0 format
+
+For convenience, we've included a command that allows you to convert Swagger v1 or v2 definitions to the OpenAPI 3.0
+The command will send your api definition file to the [Swagger Converter API](https://converter.swagger.io/) and save the output in the specified path.
+
+if no output file is specified, the output location will be the original filepath with the `.converted.json` extension.
+
+To use it, run the following command:
+
+```shell
+sdkgenerator convert old.json [output.json]
+
+## e.g.
+sdkgenerator convert tests/Samples/tripletex.json tests/Samples/tripletex.converted.json
+```
+
+Only OpenAPI is supported for now.
+
 
 ## Using the Code Generator and Parser Programmatically
 

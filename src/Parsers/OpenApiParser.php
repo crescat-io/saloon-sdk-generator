@@ -4,18 +4,25 @@ namespace Crescat\SaloonSdkGenerator\Parsers;
 
 use cebe\openapi\Reader;
 use cebe\openapi\ReferenceContext;
+use cebe\openapi\spec\Components;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
+use cebe\openapi\spec\SecurityRequirement;
+use cebe\openapi\spec\Server;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiKeyLocation;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
+use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
-use Illuminate\Support\Arr;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
+use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
@@ -28,26 +35,52 @@ class OpenApiParser implements Parser
     {
         return new self(
             Str::endsWith($content, '.json')
-                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
-                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
+                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_INLINE)
+                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_INLINE)
         );
     }
 
     public function parse(): ApiSpecification
     {
+
         return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
-            baseUrl: Arr::first($this->openApi->servers)->url,
+            baseUrl: $this->parseBaseUrl($this->openApi->servers),
+            securityRequirements: $this->parseSecurityRequirements($this->openApi->security),
+            components: $this->parseComponents($this->openApi->components),
             endpoints: $this->parseItems($this->openApi->paths)
         );
     }
 
     /**
+     * @param  Server[]  $servers
+     */
+    protected function parseBaseUrl(?array $servers): BaseUrl
+    {
+        /** @var Server $server */
+        $server = array_shift($servers);
+        if (is_null($server->variables)) {
+            return new BaseUrl('');
+        }
+
+        $parameters = [];
+        foreach ($server->variables as $name => $variable) {
+            $parameters[] = new ServerParameter($name, $variable->default, $variable->description);
+        }
+
+        return new BaseUrl($server->url, $parameters);
+    }
+
+    /**
      * @return array|Endpoint[]
      */
-    protected function parseItems(Paths $items): array
+    protected function parseItems(?Paths $items): array
     {
+        if (! $items) {
+            return [];
+        }
+
         $requests = [];
 
         foreach ($items as $path => $item) {
@@ -61,6 +94,60 @@ class OpenApiParser implements Parser
         }
 
         return $requests;
+    }
+
+    /**
+     * @param  SecurityRequirement[]  $security
+     * @return \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement[]
+     */
+    protected function parseSecurityRequirements(array $security): array
+    {
+        $securityRequirements = [];
+
+        foreach ($security as $key => $securityOption) {
+            $data = $securityOption->getSerializableData();
+            if (gettype($data) !== 'object') {
+                continue;
+            }
+
+            $securityProperties = get_object_vars($data);
+
+            foreach ($securityProperties as $name => $scopes) {
+                $securityRequirements[] = new \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement(
+                    $name,
+                    $scopes
+                );
+            }
+        }
+
+        return $securityRequirements;
+    }
+
+    protected function parseComponents(?Components $components): \Crescat\SaloonSdkGenerator\Data\Generator\Components
+    {
+        if (! $components) {
+            return new \Crescat\SaloonSdkGenerator\Data\Generator\Components();
+        }
+
+        $securitySchemes = [];
+        foreach ($components->securitySchemes as $securityScheme) {
+
+            $securitySchemes[] = new SecurityScheme(
+                type: SecuritySchemeType::tryFrom($securityScheme->type),
+                name: $securityScheme->name,
+                in: ApiKeyLocation::tryFrom($securityScheme->in ?? ''),
+                scheme: $securityScheme->scheme,
+                bearerFormat: $securityScheme->bearerFormat,
+                description: $securityScheme->description,
+                flows: $securityScheme->flows,
+                openIdConnectUrl: $securityScheme->openIdConnectUrl
+            );
+        }
+
+        return new \Crescat\SaloonSdkGenerator\Data\Generator\Components(
+            schemas: $components->schemas,
+            securitySchemes: $securitySchemes
+        );
     }
 
     protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
@@ -86,6 +173,7 @@ class OpenApiParser implements Parser
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
+            ->whereInstanceOf(OpenApiParameter::class)
             ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),

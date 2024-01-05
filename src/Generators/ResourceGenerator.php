@@ -12,10 +12,13 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
+use Saloon\Http\BaseResource;
 use Saloon\Http\Response;
 
 class ResourceGenerator extends Generator
 {
+    protected array $duplicateRequests = [];
+
     public function generate(ApiSpecification $specification): PhpFile|array
     {
         return $this->generateResourceClasses($specification);
@@ -48,12 +51,12 @@ class ResourceGenerator extends Generator
     {
         $classType = new ClassType($resourceName);
 
-        $classType->setExtends("{$this->config->namespace}\\Resource");
+        $classType->setExtends(BaseResource::class);
 
         $classFile = new PhpFile;
         $namespace = $classFile
             ->addNamespace("{$this->config->namespace}\\{$this->config->resourceNamespaceSuffix}")
-            ->addUse("{$this->config->namespace}\\Resource");
+            ->addUse(BaseResource::class);
 
         $duplicateCounter = 1;
 
@@ -78,7 +81,8 @@ class ResourceGenerator extends Generator
                     sprintf('%s%s', $methodName, 'Duplicate'.$duplicateCounter)
                 );
                 $duplicateCounter++;
-                dump("DUPLICATE: {$requestClassName} -> {$deduplicatedMethodName}");
+
+                $this->recordDuplicatedRequestName($requestClassName, $deduplicatedMethodName);
 
                 $method = $classType
                     ->addMethod($deduplicatedMethodName)
@@ -135,5 +139,10 @@ class ResourceGenerator extends Generator
             ->setNullable($parameter->nullable);
 
         return $method;
+    }
+
+    protected function recordDuplicatedRequestName(string $requestClassName, string $deduplicatedMethodName): void
+    {
+        $this->duplicateRequests[$requestClassName][] = $deduplicatedMethodName;
     }
 }

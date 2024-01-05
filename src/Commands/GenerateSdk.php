@@ -82,7 +82,6 @@ class GenerateSdk extends Command
         $this->option('zip')
             ? $this->generateZipArchive($result)
             : $this->dumpGeneratedFiles($result);
-
     }
 
     protected function printGeneratedFiles(GeneratedCode $result): void
@@ -92,11 +91,6 @@ class GenerateSdk extends Command
         $this->comment("\nConnector:");
         if ($result->connectorClass) {
             $this->line(Utils::formatNamespaceAndClass($result->connectorClass));
-        }
-
-        $this->comment("\nBase Resource:");
-        if ($result->resourceBaseClass) {
-            $this->line(Utils::formatNamespaceAndClass($result->resourceBaseClass));
         }
 
         $this->comment("\nResources:");
@@ -123,11 +117,6 @@ class GenerateSdk extends Command
         $this->comment("\nConnector:");
         if ($result->connectorClass) {
             $this->dumpToFile($result->connectorClass);
-        }
-
-        $this->comment("\nBase Resource:");
-        if ($result->resourceBaseClass) {
-            $this->dumpToFile($result->resourceBaseClass);
         }
 
         $this->comment("\nResources:");
@@ -202,9 +191,9 @@ class GenerateSdk extends Command
         }
 
         $filesToZip = array_merge(
-            [$result->connectorClass, $result->resourceBaseClass],
+            [$result->connectorClass],
             $result->resourceClasses,
-            $result->requestClasses
+            $result->requestClasses,
         );
 
         foreach ($filesToZip as $file) {

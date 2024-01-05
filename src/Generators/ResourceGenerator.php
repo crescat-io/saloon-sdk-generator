@@ -12,6 +12,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
+use Saloon\Http\BaseResource;
 use Saloon\Http\Response;
 
 class ResourceGenerator extends Generator
@@ -50,12 +51,12 @@ class ResourceGenerator extends Generator
     {
         $classType = new ClassType($resourceName);
 
-        $classType->setExtends("{$this->config->namespace}\\Resource");
+        $classType->setExtends(BaseResource::class);
 
         $classFile = new PhpFile;
         $namespace = $classFile
             ->addNamespace("{$this->config->namespace}\\{$this->config->resourceNamespaceSuffix}")
-            ->addUse("{$this->config->namespace}\\Resource");
+            ->addUse(BaseResource::class);
 
         $duplicateCounter = 1;
 

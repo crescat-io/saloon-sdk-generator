@@ -1,0 +1,4133 @@
+swagger: '2.0'
+info:
+    title: Discounts API
+    contact:
+        name: API Integration Support
+        email: integration@dintero.com
+    version: 1.0.0
+    license:
+        name: UNLICENSED
+        url: https://dintero.com
+basePath: /v1
+consumes:
+    - application/json
+produces:
+    - application/json
+security:
+    -   JWT: [ ]
+paths:
+    /accounts/{aid}/automations/rules:
+        post:
+            operationId: aid_automations_rules_post
+            summary: Create new automation
+            description: |
+                Create a discount automation to apply on events received.
+
+
+                A automation can be used to automate the task of
+                giving discount to customers. The customer found in
+                the event will receive the discount.
+
+                ###
+                Welcome discount: give discount to new user
+
+                    {
+                      "requirement": {
+                        "events": ["customer_add"],
+                        "automation_from": "2018-05-07T08:54:31Z",
+                        "automation_to": "2018-06-07T08:54:31Z"
+                      },
+                      "actions": [
+                        {
+                          "type": "discount",
+                          "id": "cae3e485-0e15-4afa-bc66-472f843efb84"
+                        }
+                      ]
+                    }
+
+                ###
+                Purchase discount: give discount on first purchase at store
+
+                    {
+                      "name": "purchase at store sc029",
+                      "requirement": {
+                        "events": ["receipt_add"],
+                        "automation_from": "2018-05-07T08:54:31Z",
+                        "automation_to": "2018-06-07T08:54:31Z",
+                        "filters": {
+                          "$.store.id": ["sc029"]
+                        }
+                      },
+                      "actions": [
+                        {
+                          "type": "discount",
+                          "id": "cae3e485-0e15-4afa-bc66-472f843efb84"
+                        }
+                      ],
+                      "limitation": {
+                        "automation_repeat": 1
+                      }
+                    }
+
+                scopes:
+                - admin:automations
+                - write:automations
+            tags:
+                - rules automations
+            x-scopes:
+                - admin:automations
+                - write:automations
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: data
+                    description: Automation to create
+                    in: body
+                    required: true
+                    schema:
+                        $ref: '#/definitions/Automation'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Automation created
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Entity'
+                            -   $ref: '#/definitions/Automation'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_automations_rules_get
+            summary: Automation collection
+            description: |
+                Get available automations for the account
+
+                scopes:
+                - admin:automations
+                - read:automations
+            tags:
+                - rules automations
+            x-scopes:
+                - admin:automations
+                - read:automations
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/limit'
+                -   $ref: '#/parameters/startingAfter'
+                -   name: state
+                    in: query
+                    description: |
+                        Indicate the state of the automation to return
+                    type: string
+                    default: all
+                    required: false
+                    enum:
+                        - all
+                        - available
+                        - deleted
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Automation collection
+                    schema:
+                        type: array
+                        items:
+                            type: object
+                            allOf:
+                                -   $ref: '#/definitions/Entity'
+                                -   $ref: '#/definitions/Automation'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/automations/rules/{arid}:
+        delete:
+            operationId: aid_automations_rules_rid_delete
+            summary: Delete automation
+            description: |
+                Delete an automation rule.
+
+                scopes:
+                - admin:automations
+                - write:automations
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: arid
+                    description: An UUID that uniquely identifies the automation
+                    in: path
+                    required: true
+                    type: string
+                    format: uuid
+            tags:
+                - rules automations
+            x-scopes:
+                - admin:automations
+                - write:automations
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Automation deleted
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Entity'
+                            -   $ref: '#/definitions/Automation'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_automations_rules_rid_get
+            summary: Automation details
+            description: |
+                Get details about an automations
+
+                scopes:
+                - admin:automations
+                - read:automations
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: arid
+                    description: An UUID that uniquely identifies the automation
+                    in: path
+                    required: true
+                    type: string
+                    format: uuid
+            tags:
+                - rules automations
+            x-scopes:
+                - admin:automations
+                - read:automations
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Automation collection
+                    schema:
+                        type: object
+                        allOf:
+                            -   $ref: '#/definitions/Entity'
+                            -   $ref: '#/definitions/Automation'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/available_for_receipt:
+        post:
+            operationId: aid_discounts_available_for_receipt_post
+            summary: Post receipt for discount
+            description: |
+                Find discounts available for the receipt
+
+                ### Active discounts
+
+                - `customer_id` will be used to find active discounts for the purchase.
+                - `customer.token` will be used to resolve `customer_id` if no `customer_id` is provided.
+                - No discounts will be given if the token does not resolve to any customer_id.
+                - A receipt with no `customer_id` and no `customer.token` will only be applicable for
+                  active discounts given to **`/`**
+                  ([see](#operation/aid_discounts_did_customers_post))
+
+                ### Requirement of the receipt
+
+                  - all items must have `eligible_for_discount` set to enable for discount
+                  - all items must have a positive `gross_amount` to qualify for discount
+                  - a `net` base discount reward requires the receipt to include existing
+                    discounts as discount_lines (on item) in order to calculate net
+
+                A receipt that qualified for discount will have the `is_change`
+                property set to true. Any items that has received a discount will be
+                flagged by `is_change` and have one or more new entries to its
+                discount_lines.
+
+                The receipt `discounts` list will be populated with all discounts the
+                receipt is qualified to receive
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/available_for_receipt
+            tags:
+                - use discounts
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/available_for_receipt
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: data
+                    description: receipt
+                    in: body
+                    required: true
+                    schema:
+                        $ref: '#/definitions/Receipt'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Receipt with discount
+                    schema:
+                        $ref: '#/definitions/Receipt'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/available_for_receipt/claims:
+        get:
+            operationId: aid_discounts_available_for_receipt_get_claims
+            summary: Claim collections
+            description: |
+                Get all claims, limited by parameters. The result will
+                match all parameters with `AND`
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+                - read:discounts:/available_for_receipt
+            tags:
+                - use discounts
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+                - read:discounts:/available_for_receipt
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/limit'
+                -   $ref: '#/parameters/startingAfter'
+                -   name: ref
+                    description: filter claims by ref
+                    in: query
+                    required: false
+                    type: string
+                -   name: customer_id
+                    description: filter claims by customer_id
+                    in: query
+                    required: false
+                    type: string
+                -   $ref: '#/parameters/total'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Claim collection
+                    headers:
+                        page-count:
+                            type: integer
+                            description: |
+                                count object in response
+                        total-count:
+                            type: integer
+                            description: |
+                                total count, only set if query parameter
+                                `total` is set
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/Claim'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+        post:
+            operationId: aid_discounts_available_for_receipt_post_claim
+            summary: Claim discounts
+            description: |
+                Claim discount rewards, checks will be done to ensure that all
+                discount limitation are uphold
+
+                Note, only the following discount limitation will affect
+                the success of a claim
+
+                  - discount_reward_usage
+                  - discount_repeat_usage
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/available_for_receipt
+            tags:
+                - use discounts
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/available_for_receipt
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: data
+                    description: discounts to claim
+                    in: body
+                    required: true
+                    schema:
+                        $ref: '#/definitions/Claim'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: claim accepted
+                    schema:
+                        $ref: '#/definitions/Claim'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/available_for_receipt/claims/{claim_id}:
+        delete:
+            operationId: aid_discounts_available_for_receipt_delete_claim
+            summary: Delete claim
+            description: |
+                Release claim on discounts, revert previously claimed discount
+                and make them available for future purchase
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/available_for_receipt
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: claim_id
+                    description: |
+                        A string that uniquely identifies claim
+                    in: path
+                    required: true
+                    type: string
+            tags:
+                - use discounts
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/available_for_receipt
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: claim deleted
+                    schema:
+                        $ref: '#/definitions/Claim'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_discounts_available_for_receipt_get_claim
+            summary: Get claim
+            description: |
+                Get details about a claim
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+                - read:discounts:/available_for_receipt
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: claim_id
+                    description: |
+                        A string that uniquely identifies claim
+                    in: path
+                    required: true
+                    type: string
+            tags:
+                - use discounts
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+                - read:discounts:/available_for_receipt
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: claim details
+                    schema:
+                        $ref: '#/definitions/Claim'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/campaigns:
+        post:
+            operationId: aid_discounts_campaigns_post
+            summary: Create new campaign
+            description: |
+                Create a new campaign to group discount rules
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - campaigns
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: data
+                    description: Campaign to create
+                    in: body
+                    required: true
+                    schema:
+                        $ref: '#/definitions/Campaign'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Campaign created
+                    schema:
+                        $ref: '#/definitions/Campaign'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_discounts_campaigns_get
+            summary: Campaigns collection
+            description: |
+                List campaigns
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+            tags:
+                - campaigns
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/limit'
+                -   $ref: '#/parameters/startingAfter'
+                -   name: state
+                    in: query
+                    description: |
+                        Indicate the state of the campaign to return
+                    type: string
+                    default: all
+                    required: false
+                    enum:
+                        - all
+                        - public
+                        - private
+                        - deleted
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Campaign collection
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/Campaign'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/campaigns/{campaign_id}:
+        get:
+            operationId: aid_discounts_campaigns_campaign_id_get
+            summary: Campaign details
+            description: |
+                Get more details about a campaign
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: campaign_id
+                    in: path
+                    required: true
+                    type: string
+                    maxLength: 255
+            tags:
+                - campaigns
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Campaign
+                    schema:
+                        $ref: '#/definitions/Campaign'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        put:
+            operationId: aid_discounts_campaigns_campaign_id_put
+            summary: Update Campaign
+            description: |
+                Update campaign details. Undeletes a deleted campaign.
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - campaigns
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: campaign_id
+                    in: path
+                    required: true
+                    type: string
+                    maxLength: 255
+                -   name: data
+                    description: Campaign properties to update
+                    in: body
+                    required: true
+                    schema:
+                        type: object
+                        properties:
+                            name:
+                                type: string
+                            description:
+                                type: string
+                            private:
+                                description: |
+                                    The campaign is private and will be excluded from public rules
+                                    when filtered by campaign_id
+
+                                    [GET /discounts/public/rules](#operation/aid_discounts_public_get)
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Campaign Updated
+                    schema:
+                        $ref: '#/definitions/Campaign'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        delete:
+            operationId: aid_discounts_campaigns_campaign_id_delete
+            summary: Delete campagn
+            description: |
+                Delete a campagn.
+
+                Deleting a campagn does not affect its discount rules. i.e. active
+                campagn rules will continue to be active after deleting the campagn
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: campaign_id
+                    in: path
+                    required: true
+                    type: string
+                    maxLength: 255
+            tags:
+                - campaigns
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Campaign deleted
+                    schema:
+                        $ref: '#/definitions/Campaign'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/customers/{customer_id}/refs/{ref_id}:
+        post:
+            operationId: aid_discounts_customer_cid_post_ref_id
+            summary: Update customer discount ref
+            description: |
+                Add stamps and usage to a discount ref.
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/customerId'
+                -   name: ref_id
+                    description: |
+                        A string that uniquely identifies a customer discount reference
+                    in: path
+                    required: true
+                    type: string
+                -   name: update
+                    in: body
+                    description: update usage, stamps and amount
+                    required: true
+                    schema:
+                        type: object
+                        properties:
+                            usage_ref:
+                                $ref: '#/definitions/UsageRefWrite'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount ref updated
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Discount'
+                            -   $ref: '#/definitions/Statistics'
+                            -   properties:
+                                    ref_id:
+                                        type: string
+                                        description: |
+                                            customer reference to the discount, a customer may have multiple
+                                            references to a discount (discount given to customer multiple times)
+                '400':
+                    description: Update invalid
+                    schema:
+                        $ref: '#/definitions/Error'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    description: Discount ref not found
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_discounts_customer_cid_get_ref_id
+            summary: Get customer discount ref
+            description: |
+                Get a customer discount ref.
+                scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/customerId'
+                -   name: ref_id
+                    description: |
+                        A string that uniquely identifies a customer discount reference
+                    in: path
+                    required: true
+                    type: string
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount ref
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Discount'
+                            -   $ref: '#/definitions/CustomerDiscountStatistics'
+                            -   properties:
+                                    ref_id:
+                                        type: string
+                                        description: |
+                                            customer reference to the discount, a customer may have multiple
+                                            references to a discount (discount given to customer multiple times)
+                '400':
+                    description: Discount ref already deleted
+                    schema:
+                        $ref: '#/definitions/Error'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    description: Discount ref not found
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    $ref: '#/responses/ServerError'
+        delete:
+            operationId: aid_discounts_customer_cid_delete_ref_id
+            summary: Delete customer discount ref
+            description: |
+                Delete a customer discount ref. The discount will no longer
+                be available on purchase ([Post receipt for discount](#operation/aid_discounts_available_for_receipt_post))
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/customerId'
+                -   name: ref_id
+                    description: |
+                        A string that uniquely identifies a customer discount reference
+                    in: path
+                    required: true
+                    type: string
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount ref deleted
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Discount'
+                            -   $ref: '#/definitions/Statistics'
+                            -   properties:
+                                    ref_id:
+                                        type: string
+                                        description: |
+                                            customer reference to the discount, a customer may have multiple
+                                            references to a discount (discount given to customer multiple times)
+                                    debit_balance:
+                                        type: integer
+                                        readOnly: true
+                                        description: |
+                                            **deprecated** The debit balance, only set if the discount reward
+                                            type is `discount_debit`. The balance is the amount
+                                            vailable for discount on a future purchase. Inital value
+                                            is the discount reward value.
+                '400':
+                    description: Discount ref already deleted
+                    schema:
+                        $ref: '#/definitions/Error'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    description: Discount ref not found
+                    schema:
+                        $ref: '#/definitions/Error'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/customers/{customer_id}/rules:
+        get:
+            operationId: aid_discounts_customer_cid_get
+            summary: Customer discounts collection
+            description: |
+                Get all discounts available for a customer, result will exclude
+                expired and inactive discounts
+
+
+                Expired discounts are:
+
+                  - discount used up (customer has allready used it) and there
+                    was a limitation on the discount that prevents more use.
+                  - discount requirement purchase periode is in the past
+                  - discount that has been deleted
+
+                Inactive discounts are:
+
+                  - discount with `active` property set to false.
+
+                Use value of `ref_id` as parameter value of `starting_after`
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+                - user:discounts
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+                - user:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/customerId'
+                -   $ref: '#/parameters/limit'
+                -   $ref: '#/parameters/startingAfter'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Customer discount collection
+                    schema:
+                        type: array
+                        items:
+                            type: object
+                            allOf:
+                                -   $ref: '#/definitions/Discount'
+                                -   $ref: '#/definitions/CustomerDiscountStatistics'
+                                -   properties:
+                                        ref_id:
+                                            type: string
+                                            description: |
+                                                customer reference to the discount, a customer may have multiple
+                                                references to a discount (discount given to customer multiple times)
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/events:
+        post:
+            operationId: aid_discounts_events_post
+            summary: Post event
+            description: |
+                Send an Event to the service.
+
+                - rules automations will receive the event and give
+                  its discount to the customer found in the event
+
+
+                - Token received will be stored to support resolving
+                  customer from token when handling discounts available
+                  for receipt
+
+                  scopes:
+                  - admin:discounts
+                  - write:discounts
+                  - write:discounts:/events
+            tags:
+                - use discounts
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+                - write:discounts:/events
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: event
+                    description: The event type that was sent
+                    in: header
+                    required: true
+                    type: string
+                    enum:
+                        - token_add
+                        - token_remove
+                        - receipt_add
+                -   name: event-delivery
+                    description: |
+                        UUID to identify the payload and event
+                        being sent.
+                    in: header
+                    required: true
+                    type: string
+                    format: uuid
+                -   name: data
+                    description: |
+                        The event payload, e.g. a Customer, Receipt or Token
+                    in: body
+                    required: true
+                    schema:
+                        $ref: '#/definitions/Event'
+            security:
+                -   JWT: [ ]
+            responses:
+                '204':
+                    description: Event processed
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/public/rules:
+        get:
+            operationId: aid_discounts_public_get
+            summary: Public Discount collection
+            description: |
+                Get all discounts available for any customer given
+                current date, result will exclude expired and inactive
+                discounts
+
+                Use value of `ref_id` as parameter value of `starting_after`
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+                - public:discounts
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+                - public:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/limit'
+                -   $ref: '#/parameters/startingAfter'
+                -   name: no_customer_id
+                    in: query
+                    type: boolean
+                    default: false
+                    description: |
+                        List rules available for purchase where no customer id is
+                        provided.
+                -   name: campaign_id
+                    in: query
+                    collectionFormat: multi
+                    type: array
+                    items:
+                        type: string
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Public Discount collection
+                    schema:
+                        type: array
+                        items:
+                            allOf:
+                                -   $ref: '#/definitions/Discount'
+                                -   properties:
+                                        ref_id:
+                                            type: string
+                                            description: |
+                                                public reference to the discount, a public
+                                                discount may be given to all customer several times
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/rules:
+        post:
+            operationId: aid_discounts_post
+            summary: Create new discount
+            description: |
+                Create a new discount for an account.
+
+                A new discount will be **unavailable** for purchases
+                until the discount is given to one or more customer.
+
+                Discount can be given to a customer by either adding
+                a automation to the discount that will grant the
+                discount to the customer from events received or by
+                adding customers to the discount.
+
+                See [Discount Examples](#section/Discount-Examples)
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: data
+                    description: Discount to create
+                    in: body
+                    required: true
+                    schema:
+                        $ref: '#/definitions/Discount'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount created
+                    schema:
+                        $ref: '#/definitions/Discount'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_discounts_get
+            summary: Discount collection
+            description: |
+                List discounts available for the account
+                scopes:
+                - admin:discounts
+                - read:discounts
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/limit'
+                -   $ref: '#/parameters/startingAfter'
+                -   name: since_datetime
+                    description: |
+                        Only discounts added/updated/delete at or after this time is returned.
+                        NOTE: this parameter can't be combined with `starting_after` parameter.
+                        Retrieve next page by updating since_datetime to the latest
+                        updated_at value found in the result.
+                    in: query
+                    type: string
+                    format: date-time
+                -   name: purchase_from
+                    description: |
+                        Only discounts with requirement purchase_from at or after this time is returned.
+                    in: query
+                    type: string
+                    format: date-time
+                -   name: purchase_to
+                    description: |
+                        Only discounts with requirement purchase_to at or before this time is returned.
+                    in: query
+                    type: string
+                    format: date-time
+                -   name: state
+                    in: query
+                    description: |
+                        Indicate the state of the discounts to return
+                    type: string
+                    default: all
+                    required: false
+                    enum:
+                        - all
+                        - available
+                        - deleted
+                        - inactive
+                -   name: campaign_id
+                    in: query
+                    collectionFormat: multi
+                    type: array
+                    items:
+                        type: string
+                -   name: include
+                    description: |
+                        Additional fields to include for each discount
+                    in: query
+                    collectionFormat: multi
+                    type: array
+                    items:
+                        type: string
+                        enum:
+                            - statistics
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount collection
+                    schema:
+                        type: array
+                        items:
+                            allOf:
+                                -   $ref: '#/definitions/Discount'
+                                -   $ref: '#/definitions/Statistics'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/rules/{did}:
+        get:
+            operationId: aid_discounts_did_get
+            summary: Discount details
+            description: |
+                Get more details about a discount, includes statistics
+                about the discount
+                scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Discount'
+                            -   $ref: '#/definitions/Statistics'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        put:
+            operationId: aid_discounts_did_put
+            summary: Update Discount
+            description: |
+                Update discount details.
+
+
+                **Caution**: Update of non-meta properties, properties that
+                changes requirement or limitation can create conflict with
+                the usage history of the discount.
+
+                Example is to change requirement.item.items, such change would
+                mean that purchases before the change would not be correcly
+                rewarded given the new version of the discount.
+
+                We recomment to limit the update of a discount to meta only
+                properties if the discount has previously been used in a
+                purchase.
+
+                Update on requirement `purchase_to` is only supported when
+                the new value that is after current value.
+
+                Update of requirement `purchase_from` and `reward` is not supported.
+
+                Update `discount.active` to toggle if an discount is active
+                and available for purchase.
+
+                Update `discount.private` to toggle if an discount is included
+                in public discount collection if given to all customers
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+                -   name: data
+                    description: Discount properties to update
+                    in: body
+                    required: true
+                    schema:
+                        type: object
+                        properties:
+                            campaign_id:
+                                type:
+                                    - string
+                                    - 'null'
+                                description: |
+                                    The campaign the rule belongs to, use `null` to remove
+                                    the rule from the campaign.
+                                x-nullable: true
+                            active:
+                                description: |
+                                    the discount is active and can be available
+                                    for purchase
+                                type: boolean
+                                default: true
+                            private:
+                                description: |
+                                    the discount is private and will not be included in
+                                    public discount collection
+                                type: boolean
+                                example: false
+                            links:
+                                $ref: '#/definitions/Links'
+                            limitation:
+                                $ref: '#/definitions/Limitation'
+                            requirement:
+                                allOf:
+                                    -   $ref: '#/definitions/BaseRequirement'
+                                    -   properties:
+                                            purchase_to:
+                                                type: string
+                                                format: date-time
+                                                description: |
+                                                    New value must be after current
+                            description:
+                                type: string
+                                example: Gjør et Stablestol kupp!
+                            metadata:
+                                type: object
+                                maxProperties: 10
+                                description: |
+                                    Additional metadata about the discount
+                                example:
+                                    campaign_id: V101
+                                    is_featured: true
+                            name:
+                                type: string
+                                example: Spar 100,-
+                            receipt_text:
+                                type: string
+                                description: |
+                                    Text that should be used when displaying
+                                    the discount, e.g. on receipt
+                                example: Mai Salg
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount Updated
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Discount'
+                            -   $ref: '#/definitions/Statistics'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        delete:
+            operationId: aid_discounts_did_delete
+            summary: Delete discount
+            description: |
+                Delete a discount
+
+                - Customer that has previously received the discount will not
+                  be able to use it on purchases.
+                - rules automations belonging to the discount will be deleted
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount deleted
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Statistics'
+                            -   $ref: '#/definitions/Discount'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/rules/{did}/customers:
+        post:
+            operationId: aid_discounts_did_customers_post
+            summary: Add customers
+            description: |
+                Give the Discount to one or more customers
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+                -   name: data
+                    description: |
+                        Customers to give the discount to
+                    in: body
+                    required: true
+                    schema:
+                        type: object
+                        required:
+                            - customers
+                        properties:
+                            offering_constraint_id:
+                                type: string
+                                description: |
+                                    Use the `offering_constraint_id` to limit customers
+                                    to only receive the discount once for a given `offering_constraint_id` value.
+                                    i.e. a customer that is given the same discounts in multiple requests
+                                    with the same offering_constraint_id will only have one discount available.
+                                example: stamp-2020
+                            customers:
+                                type: array
+                                description: |
+                                    Array of customer IDs (must not have trailing or leading spaces)
+
+                                    Following values are reserved:
+
+                                    - **`*`** give the discount to purchase with *any `customer_id`*.
+                                    - **`/`** give the discount to purchase with *no `customer_id`*.
+                                items:
+                                    type: string
+                                    example: 12397af6e5e
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount added to customers
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Statistics'
+                            -   $ref: '#/definitions/Discount'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        get:
+            operationId: aid_discounts_did_customers_get
+            summary: Get discount customers (refs)
+            description: |
+                Get list of customers refs for a discount. A ref is an instant
+                of discount given to a customer or `all customers`. See
+                [Add customers](#operation/aid_discounts_did_customers_post)
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+                -   name: limit
+                    in: query
+                    description: |
+                        A limit on the number of refs to be returned. Limit can range
+                        between 1 and 1000, the default is 10 items.
+                    type: integer
+                    minimum: 1
+                    maximum: 1000
+                    default: 10
+                -   $ref: '#/parameters/startingAfter'
+                -   name: state
+                    description: |
+                        limit by state of customer ref, note, a customer ref will continue to be active after the discount has been deleted.
+                        Use state `inactive` to list all discount where active is set to false.
+                    in: query
+                    type: string
+                    default: all
+                    required: false
+                    enum:
+                        - all
+                        - available
+                        - deleted
+                        - inactive
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount customers (refs)
+                    schema:
+                        type: array
+                        items:
+                            type: object
+                            description: |
+                                Array of customer refs
+                            allOf:
+                                -   $ref: '#/definitions/Entity'
+                                -   properties:
+                                        customer_id:
+                                            type: string
+                                            description: |
+                                                customer id for the ref. The customer_id will be
+                                                null if the ref originated from giving the discount to
+                                                all customers (wilcard '**`*`**')
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+        delete:
+            operationId: aid_discounts_did_customers_delete
+            summary: Remove customers
+            description: |
+                Remove Discount from one or more customers
+
+                scopes:
+                - admin:discounts
+                - write:discounts
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - write:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+                -   name: data
+                    description: |
+                        Customers to give the discount to
+                        ###
+                        Use value '**`*`**' to remove the discounts from all customers
+                        ###
+                    in: body
+                    required: true
+                    schema:
+                        type: object
+                        required:
+                            - customers
+                        properties:
+                            customers:
+                                type: array
+                                items:
+                                    type: string
+                                    description: |
+                                        Array of customer IDs, use `"*"` to remove discounts from
+                                        all users. (must not have trailing or leading spaces)
+                                    example: 102997af6e5e
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount deleted from customers
+                    schema:
+                        allOf:
+                            -   $ref: '#/definitions/Statistics'
+                            -   $ref: '#/definitions/Discount'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/rules/{did}/usages:
+        get:
+            operationId: aid_discounts_did_usages_get
+            summary: Get discount ref usages
+            description: |
+                Get list of discount refs usages.
+                scopes:
+                - admin:discounts
+                - read:discounts
+            tags:
+                - rules customers
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   $ref: '#/parameters/discountId'
+                -   name: limit
+                    in: query
+                    description: |
+                        A limit on the number of refs to be returned. Limit can range
+                        between 1 and 1000, the default is 10 items.
+                    type: integer
+                    minimum: 1
+                    maximum: 1000
+                    default: 10
+                -   $ref: '#/parameters/startingAfter'
+            security:
+                -   JWT: [ ]
+            responses:
+                '200':
+                    description: Discount usages
+                    schema:
+                        type: array
+                        items:
+                            $ref: '#/definitions/DiscountUsage'
+                '400':
+                    $ref: '#/responses/BadRequest'
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '404':
+                    $ref: '#/responses/NotFound'
+                '500':
+                    $ref: '#/responses/ServerError'
+    /accounts/{aid}/discounts/search/rules:
+        post:
+            operationId: aid_discounts_rules_search_post
+            summary: Search for discount rules
+            description: |
+
+                Search for active discounts given current date matching queries
+
+                scopes:
+                - admin:discounts
+                - read:discounts
+            tags:
+                - rules
+            x-scopes:
+                - admin:discounts
+                - read:discounts
+                - public:discounts
+            parameters:
+                -   $ref: '#/parameters/accountId'
+                -   name: limit
+                    in: query
+                    description: |
+                        A limit on the number of objects to be returned
+                    type: integer
+                    minimum: 1
+                    maximum: 1000
+                    default: 10
+                -   $ref: '#/parameters/startingAfter'
+                -   in: body
+                    name: search
+                    schema:
+                        type: object
+                        required:
+                            - query
+                            - group_by
+                        properties:
+                            query:
+                                type: array
+                                maxItems: 1
+                                description: |
+                                    Filter to use when searching for matching rules
+                                items:
+                                    type: object
+                                    required:
+                                        - customer_id
+                                        - $.requirement.item.items[*]
+                                    properties:
+                                        customer_id:
+                                            type: array
+                                            maxItems: 1
+                                            description: Match rules that have match on customer_id
+                                            items:
+                                                type: string
+                                        $.requirement.item.items[*]:
+                                            description: Match rules that have match on any items
+                                            type: array
+                                            minItems: 1
+                                            items:
+                                                $ref: '#/definitions/Item'
+                            group_by:
+                                type: array
+                                items:
+                                    type: string
+                                    enum:
+                                        - customer_id#$.requirement.item.items[*].id
+                                        - customer_id#$.requirement.item.items[*].group_id
+                            includes:
+                                type: array
+                                description: |
+                                    Select the properties from matching discount rules to include
+                                    in the result data
+                                items:
+                                    type: string
+                                    example:
+                                        - $.id
+                                        - $.name
+                                        - $.receipt_text
+                                        - $.reward
+                                    enum:
+                                        - $.campaign_id
+                                        - $.created_at
+                                        - $.created_by
+                                        - $.description
+                                        - $.id
+                                        - $.limitation
+                                        - $.links
+                                        - $.metadata
+                                        - $.name
+                                        - $.private
+                                        - $.receipt_text
+                                        - $.requirement
+                                        - $.reward
+                                        - $.type
+                                        - $.updated_at
+                                        - $.updated_by
+                                        - $.visible_from
+            responses:
+                '200':
+                    description: Search result
+                    schema:
+                        type: object
+                        required:
+                            - results
+                        properties:
+                            starting_after:
+                                type: string
+                                description: cursor to next page
+                            data:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        group_by:
+                                            type: string
+                                            enum:
+                                                - $.requirement.item.items[*].id
+                                                - $.requirement.item.items[*].group_id
+                                        group_value:
+                                            type: string
+                                            example: b714118
+                                        customer_id:
+                                            type: string
+                                        id:
+                                            type: string
+                                            example: B1
+                                        group_id:
+                                            type: string
+                                            example: b714118
+                                        rule:
+                                            type: object
+                                            description: The data picked from discount rule using the includes
+                                            example:
+                                                id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                                                name: Spar 10%
+                                                receipt_text: Mai Salg
+                                                reward:
+                                                    type: discount_percent
+                                                    value: 10
+                '401':
+                    $ref: '#/responses/AccessForbidden'
+                '403':
+                    $ref: '#/responses/Forbidden'
+                '500':
+                    $ref: '#/responses/ServerError'
+definitions:
+    AutomationActionDiscount:
+        x-discriminator-value: discount
+        allOf:
+            -   required:
+                    - id
+                properties:
+                    id:
+                        type: string
+                        description: |
+                            Id of existing discount to give to customer the
+                            automation originated from
+                        readOnly: false
+            -   $ref: '#/definitions/AutomationAction'
+    AutomationActionHTTP:
+        type: object
+        x-discriminator-value: http
+        allOf:
+            -   $ref: '#/definitions/AutomationAction'
+            -   required:
+                    - url
+                    - method
+                properties:
+                    url:
+                        type: string
+                        example: https://api.dintero.com/v1/accounts/{aid}/discounts/rules/{did}/customers
+                    method:
+                        type: string
+                        example: POST
+                    content_type:
+                        type: string
+                        example: application/json
+                    body:
+                        type: string
+                        example: '{ "customers": [ "$.customer_id" ] }'
+    Entity:
+        type: object
+        properties:
+            id:
+                type: string
+                format: uuid
+                description: |
+                    An UUID that uniquely identifies the resource
+                readOnly: true
+            created_at:
+                type: string
+                format: date-time
+                description: |
+                    The date-time when the resource was created
+                readOnly: true
+            created_by:
+                type: string
+                example: 1c92f7e1-2897-4d46-bdcc-c127a914fb4e
+                description: |
+                    The ID of the user/client created the resource
+                readOnly: true
+            updated_at:
+                type: string
+                format: date-time
+                description: |
+                    The date-time when the resource was last updated
+                readOnly: true
+            deleted_by:
+                type: string
+                example: 1c92f7e1-2897-4d46-bdcc-c127a914fb4e
+                description: |
+                    The ID of the user/client created the resource
+                readOnly: true
+            deleted_at:
+                type: string
+                format: date-time
+                readOnly: true
+    AutomationAction:
+        type: object
+        discriminator: type
+        required:
+            - type
+        properties:
+            type:
+                type: string
+    Automation:
+        type: object
+        required:
+            - requirement
+            - actions
+        properties:
+            name:
+                type: string
+                description: Optinal name for the automation rule
+                example: Company Automation
+            description:
+                type: string
+                description: Optional description for the automation rule
+                example: Automation for non blocked companies with postal_code 0342 or 6901
+            requirement:
+                type: object
+                required:
+                    - automation_from
+                    - automation_to
+                    - events
+                properties:
+                    automation_from:
+                        description: |
+                            limit the time when automation is activated, the value must be
+                            before the discount `requirement.purchase_to` time if the action
+                            type is `discount`
+                        type: string
+                        format: date-time
+                    automation_to:
+                        description: |
+                            limit the time when the automation is active, the value must be
+                            before the discount `requirement.purchase_to` time if the action
+                            type is `discount`
+                        type: string
+                        format: date-time
+                    events:
+                        type: array
+                        description: |
+                            Events that the automation will be applied to (triggers)
+                        minItems: 1
+                        items:
+                            type: string
+                            enum:
+                                - customer_add
+                                - customer_update
+                                - customer_remove
+                                - token_add
+                                - token_remove
+                                - receipt_add
+                    filter:
+                        type: object
+                        description: |
+                            limit the automation by properties read from the events accepted
+                            by the automation
+                            The key for each filter must be a valid JSONPath, that will be used
+                            to resolve the event value to match with the path value. The result of the JSONPath
+                            must be a single value or list of values to compare.
+
+                            #### Excact matching
+
+                              - `"$.store.id": ["S00123"]`
+
+                            #### Anything-but matching
+
+                              - `$.status: [{"anything-but":"blocked"}]`
+
+                            #### Numeric Range matching
+
+                            In addition to the `=` operator, a numeric filter can include `<`, `<=`, `>`, and `>=`
+
+                              - `$.gross_amount: [{"numeric":[">", 50000]}]`
+                              - `$.gross_amount: [{"numeric":[">", 0, "<=", 1500]}]`
+
+                            #### AND/OR Logic
+                            Apply AND/OR logic to your filter policies as follows.
+
+                            ##### AND logic
+                            Apply AND logic by using multiple names (keys). For example, the filters:
+
+                                  {
+                                    "$.store.id": ["S00129"],
+                                    "$.gross_amount": [{"numeric":[">", 50000]}]
+                                  }
+
+                            Matches events with a store.id of S00129 and a gross_amount value that's over 50000.
+
+                            ##### OR logic
+
+                            Apply OR logic by assigning multiple values to an attribute name. For example, the filter:
+
+                                "$.addresses[*].postal_code": ["0342", "6901", "5020"]
+
+                            Matches events with an address.postal_code value of 0342 or 6901 or 5020.
+                        example:
+                            $.type:
+                                - company
+                            $.status:
+                                -   anything-but: blocked
+                            $.addresses[*].postal_code:
+                                - '0342'
+                                - '6901'
+            limitation:
+                type: object
+                required:
+                    - automation_repeat
+                properties:
+                    automation_repeat:
+                        description: |
+                            limit the number of times the automation will trigger and
+                            give the customer the discount. A value of `-1` will disable the
+                            limitation and the automation will give discount to the customer
+                            every time
+                        type: number
+                        default: 1
+                        minimum: -1
+            actions:
+                type: array
+                description: |
+                    Actions to perform if the automation is triggered
+                    (given events, limitation and filter)
+                minItems: 1
+                maxItems: 1
+                items:
+                    $ref: '#/definitions/AutomationAction'
+    Error:
+        type: object
+        required:
+            - error
+        properties:
+            error:
+                type: object
+                required:
+                    - message
+                properties:
+                    code:
+                        type: string
+                        description: The code used to identify the error/warning
+                    errors:
+                        type: array
+                        description: The nested error(s) encountered during validation
+                        items:
+                            type: object
+                    message:
+                        type: string
+                        description: The human readable description of the error/warning
+    Item:
+        type: object
+        properties:
+            id:
+                type: string
+                example: b714118
+            group_id:
+                type: string
+                example: B1
+    Limitation:
+        type: object
+        properties:
+            discount_activation:
+                type: array
+                description: |
+                    Dynamically control if the discount should be active.
+                items:
+                    minItems: 1
+                    maxItems: 1
+                    type: object
+                    required:
+                        - type
+                        - value
+                    properties:
+                        type:
+                            type: string
+                            description: |
+                                - `deactivate_if_discount_active`: The discount is deactivated if
+                                  the value match the `id` of another active discount
+                                  available for the purchase
+                            enum:
+                                - deactivate_if_discount_active
+                        value:
+                            type: string
+                            description: |
+                                Value given the type
+            discount_hours:
+                type: object
+                description: |
+                    Limit the discount to hours of the day
+                required:
+                    - hours
+                properties:
+                    timezone:
+                        description: |
+                            The timezone identifier for the hour start/end, see
+                            https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+                            for examples. DST is handled when using a Timezone with DST.
+                        default: Europe/Oslo
+                        type: string
+                    hours:
+                        description: |
+                            an array of periods, day and time when discount will be
+                            available. Multiple periods for one day is accepted.
+                            Any hour of purchase is accepted if the array is empty.
+                        type: array
+                        items:
+                            type: object
+                            required:
+                                - day
+                                - start
+                                - end
+                            properties:
+                                day:
+                                    type: string
+                                    enum:
+                                        - mon
+                                        - tue
+                                        - wed
+                                        - thu
+                                        - fri
+                                        - sat
+                                        - sun
+                                start:
+                                    type: string
+                                    format: ^([01]?[0-9]|2[0-3]):[0-5][0-9]$
+                                    example: '10:00'
+                                end:
+                                    type: string
+                                    format: ^([01]?[0-9]|2[0-3]):[0-5][0-9]$
+                                    example: '20:00'
+            discount_reward_usage:
+                type: integer
+                description: |
+                    Limit the number of rewards to be given in a purchase
+                    where multiple receipt items match the requirement
+                example: 1
+                default: -1
+            discount_combination:
+                type: integer
+                description: |
+                    Limit how many other discounts can be combined in a purchase
+                    where multiple discounts are applicable.
+                default: -1
+                enum:
+                    - -1
+                    - 0
+            discount_eligible:
+                type: string
+                description: |
+                    Limit what items in the purchase is eligible for this discount
+                enum:
+                    - item_eligible_for_discount
+                    - item_eligible_for_discount_no_discount
+                    - receipt_no_discount
+                default: item_eligible_for_discount
+            discount_repeat_usage:
+                type: integer
+                description: |
+                    Limit how many purchases the discount can be used
+                default: -1
+            stamp_expire_days:
+                type: integer
+                description: |
+                    Number of days between first and last (exceeding count) stamp
+                    where reward will be given
+                example: 100
+                default: -1
+            blacklist:
+                type: array
+                description: |
+                    items not eligible for discount.
+                items:
+                    $ref: '#/definitions/Item'
+                minItems: 1
+    CustomerRequirement:
+        type: object
+        properties:
+            addresses:
+                type: array
+                description: Require customer to have one or more addresses matching the properties. All properties defined must match a single address.
+                items:
+                    type: object
+                    minItems: 1
+                    maxItems: 5
+                    properties:
+                        country:
+                            type: array
+                            example:
+                                - 'NO'
+                            items:
+                                type: string
+                                minItems: 1
+                                maxItems: 5
+                        postal_code:
+                            type: array
+                            example:
+                                - '0349'
+                            items:
+                                type: string
+                                minItems: 1
+                                maxItems: 5
+                        postal_place:
+                            type: array
+                            example:
+                                - Oslo
+                            items:
+                                type: string
+                                minItems: 1
+                                maxItems: 5
+                        custom_type:
+                            type: array
+                            example:
+                                - offsite
+                            items:
+                                type: string
+                                minItems: 1
+                                maxItems: 5
+                        type:
+                            type: array
+                            example:
+                                - custom
+                            items:
+                                type: string
+                                minItems: 1
+                                maxItems: 5
+            company:
+                type: object
+                description: |
+                    Require customer to be a company matching all properties defined.
+                properties:
+                    bussiness_name:
+                        type: array
+                        example:
+                            - TKP tech AS
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    department:
+                        type: array
+                        example:
+                            - production
+                            - research
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    industry:
+                        type: array
+                        example:
+                            - J62.0.1
+                            - J62.0.2
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    number_of_employees:
+                        type: array
+                        example:
+                            - '20'
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    organization_number:
+                        type: array
+                        example:
+                            - 123456789MVA
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    website:
+                        type: array
+                        example:
+                            - https://dintero.com
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+            date_of_birth:
+                type: array
+                example:
+                    - '1990-09-20'
+                    - '1990-05-10'
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            enrolled_by:
+                type: object
+                properties:
+                    type:
+                        type: array
+                        example:
+                            - url
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    value:
+                        type: array
+                        example:
+                            - https://mypage.example.dintero.com
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+            favorite_store:
+                type: array
+                example:
+                    - sc029
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            first_name:
+                type: array
+                example:
+                    - John
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            gender:
+                type: array
+                example:
+                    - male
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            last_name:
+                type: array
+                example:
+                    - Doe
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            marketing_consent:
+                type: object
+                properties:
+                    email:
+                        type: object
+                        properties:
+                            consent:
+                                type: array
+                                example:
+                                    - 'true'
+                                items:
+                                    type: string
+                                    minItems: 1
+                                    maxItems: 5
+                    sms:
+                        type: object
+                        properties:
+                            consent:
+                                type: array
+                                example:
+                                    - 'true'
+                                items:
+                                    type: string
+                                    minItems: 1
+                                    maxItems: 5
+            status:
+                type: array
+                example:
+                    - vip
+                description: |
+                    limit discount to only receipt where customer status
+                    is included in the receipt and match one of the status
+                    values required by the discount
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            term:
+                type: object
+                properties:
+                    id:
+                        type: array
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+            type:
+                type: array
+                items:
+                    type: string
+                    minItems: 1
+                    maxItems: 5
+            attributes:
+                type: object
+                description: |
+                    Limit discount to only receipt where customer attributes are included
+                    and match one of the values required by the discount
+                additionalProperties:
+                    type: array
+                    items:
+                        type: string
+                    minItems: 1
+                    maxItems: 5
+    ItemMixProperty:
+        type: object
+        description: |
+            Use mix in case where all items are required in one purchase.
+
+            A reward will be eligible to all items in the mix that
+            has `mix.reward_eligible=true`
+        required:
+            - quantity
+            - reward_eligible
+        properties:
+            items:
+                description: |
+                    Acceptable items for the mix "item" (`any`). No wildcard `*` is
+                    accepted.
+                type: array
+                example:
+                    -   id: b714118
+                    -   group_id: g4
+                items:
+                    type: object
+                    minItems: 1
+                    properties:
+                        id:
+                            type: string
+                            example: b714118
+                            format: ^(\*.+|(?!\*).*)$
+                        group_id:
+                            type: string
+                            format: ^(\*.+|(?!\*).*)$
+                            example: g4
+            quantity:
+                type: number
+                description: |
+                    minimum quantity of given item (match by id or group) by the mix
+                minimum: 0
+            reward_eligible:
+                type: boolean
+                description: |
+                    The item will be eligible for discount when calculating the reward
+                    Example: The value of `discount_item_new_price` reward will be the
+                    total price of all items in a mix that has the applicable set to `true`
+    StoreRequirement:
+        type: object
+        properties:
+            id:
+                type: array
+                items:
+                    type: string
+                    example: sc029
+            name:
+                type: array
+                description: |
+                    name of the store, aka trade name of the store
+                items:
+                    type: string
+                    example: SC Oslo
+            business_name:
+                type: array
+                description: |
+                    Official name of the person or entity that owns the store.
+                items:
+                    type: string
+                    example: SC Oslo AS
+            address:
+                type: object
+                description: Require customer to have one or more addresses matching the properties. All properties defined must match a single address.
+                properties:
+                    country:
+                        type: array
+                        example:
+                            - 'NO'
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    postal_code:
+                        type: array
+                        example:
+                            - '0349'
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+                    postal_place:
+                        type: array
+                        example:
+                            - Oslo
+                        items:
+                            type: string
+                            minItems: 1
+                            maxItems: 5
+            chain:
+                type: array
+                items:
+                    type: string
+                    example: SuperChain
+            email:
+                type: array
+                items:
+                    type: string
+                    example: contact@superchain.com
+            gln:
+                type: array
+                items:
+                    type: string
+                    example: '5790001398644'
+            organization_number:
+                type: array
+                items:
+                    type: string
+                    example: 123456789MVA
+            phone_number:
+                type: array
+                items:
+                    type: string
+                    example: '+4738260107'
+            mcc:
+                type: array
+                description: |
+                    A four-digit Merchant Category Code (MCC) for the store
+                    [ISO 18245:2003](https://www.iso.org/standard/33365.html)
+                items:
+                    type: string
+                    format: iso-18245
+                    example: 5814
+            mcc_ranges:
+                type: array
+                description: |
+                    Ranges of MCC codes to accept the discount for.
+                    Multiple ranges are possible.
+                    Prefer `mcc` if not a range.
+                items:
+                    type: object
+                    required:
+                        - start
+                        - end
+                    properties:
+                        start:
+                            type: string
+                            format: iso-18245
+                            example: 5814
+                            minimum: 4
+                            maximum: 4
+                            pattern: ^\d{4}$
+                        end:
+                            type: string
+                            format: iso-18245
+                            example: 5815
+                            minimum: 4
+                            maximum: 4
+                            pattern: ^\d{4}$
+            bax:
+                type: array
+                description: |
+                    Merchant number associated with the stores
+                    payment terminal
+                items:
+                    type: string
+                    example: '102603'
+            terminal_id:
+                type: array
+                description: |
+                    Id to a specific point-of-sale (POS) terminal
+                    or workstation
+                items:
+                    type: string
+                    example: T0292
+    BaseRequirement:
+        type: object
+        description: |
+            Discount base requirement
+        properties:
+            customer:
+                $ref: '#/definitions/CustomerRequirement'
+            item:
+                type: object
+                properties:
+                    quantity:
+                        type: number
+                        description: |
+                            minimum number of items
+                        default: 0
+                        minimum: 0
+                    mixes:
+                        type: array
+                        minItems: 1
+                        description: |
+                            Required mix items for the discount.
+
+                            A purchase must include `all` the items to fulfill the `item.mixes`
+                            requirement.
+                        items:
+                            $ref: '#/definitions/ItemMixProperty'
+                    items:
+                        type: array
+                        description: |
+                            Required items for the discount
+
+                            A purchase can include `any` of the items to fulfill the `item.items`
+                            requirement.
+
+                            The values contols if the reward is given on the receipt (all items) or
+                            if they are limited to matching items
+
+                            **Receipt**
+                            - A rule with no items or items with only wildcard items
+
+                            **Item**
+                            - A rule with one or more items (except wildcard)
+                            - A rule with a single item `{"id": "ANY_ITEM"}` in items
+                        items:
+                            $ref: '#/definitions/Item'
+                        minItems: 1
+            store_ids:
+                type: array
+                description: |
+                    `DEPRECATED`: [@since 2021-09-01](#section/Changelog/2021-09-01)
+                items:
+                    type: string
+                    example: sc029
+            gross_amount:
+                type: integer
+                description: |
+                    Minimum gross amount on purchase.
+                    Monetary amount in smallest unit for the currency
+                default: 0
+            currencies:
+                description: |
+                    List of valid currencies, or `[{"anything-but": ["NOK"]}]` to exclude currencies.
+                    Currency format is the three-character [ISO-4217 currency](https://en.wikipedia.org/wiki/ISO_4217).
+                type: array
+                items:
+                    x-anyOf:
+                        -   type: object
+                            properties:
+                                anything-but:
+                                    type: array
+                                    items:
+                                        type: string
+                                        example: NOK
+                        -   type: string
+                            example: NOK
+            stamp:
+                type: integer
+                description: |
+                    Stamp count required for the reward
+                example: 5
+            discount_code:
+                type: string
+                description: |
+                    A code required for the reward. The purchase must include the
+                    promotion code in the `receipt.discount_code` property or as
+                    an `receipt.item` where the `item.id` is the promotion code.
+                example: TACO
+            store:
+                $ref: '#/definitions/StoreRequirement'
+    Requirement:
+        type: object
+        allOf:
+            -   $ref: '#/definitions/BaseRequirement'
+            -   required:
+                    - purchase_from
+                    - purchase_to
+                properties:
+                    purchase_from:
+                        type: string
+                        format: date-time
+                    purchase_to:
+                        type: string
+                        format: date-time
+    Reward:
+        type: object
+        required:
+            - type
+            - value
+        properties:
+            type:
+                type: string
+                description: |
+
+                    Reward Type:
+                      * `discount_amount` - value as discount
+                      * `discount_percent` - value percentage of gross amount
+                          as discount
+                      * `discount_item_new_price` - discount as old price subtracted with value
+                      * `discount_item_quantity` - number of items to get as discount (free)
+                      * `discount_item_percent` - percent discount of the cheapest item (stamp)
+                          as discount
+                      * `discount_debit` - value as discount, remaining amount after a
+                        purchase will be available in future purchases (if not limited by usage)
+                      * `discount_mix_new_price` - discount as old mix total value (reward_eligible=true)
+                        subtracted with value
+                enum:
+                    - discount_amount
+                    - discount_percent
+                    - discount_item_new_price
+                    - discount_item_quantity
+                    - discount_item_percent
+                    - discount_mix_new_price
+                    - discount_debit
+            value:
+                type:
+                    - integer
+                    - number
+                example: 10000
+                description: |
+                    The reward value, unit of the value is resolved
+                    from the reward type
+
+                    Examples:
+                      - Percent: 10.5
+                      - Amount: 10000 (amount in smallest unit for the currency)
+                      - Quantity: 1
+                minimum: 1
+            values:
+                description: |
+                    Reward values that is used to "override" the reward value for matching items.
+                    Add support for having a single rule for multiple items that gives different
+                    reward value for each items
+
+                    > Only available for rules where `requirements.item.items` is non-empty.
+                type: array
+                minItems: 1
+                items:
+                    type: object
+                    required:
+                        - items
+                        - value
+                    properties:
+                        items:
+                            type: array
+                            minItems: 1
+                            description: |
+                                `id` or `group_id` is required, if both are included both id and
+                                group id must match
+                            items:
+                                type: object
+                                properties:
+                                    id:
+                                        type: string
+                                        example: b714118
+                                    group_id:
+                                        type: string
+                                        example: B1
+                        value:
+                            type: number
+            base:
+                type: string
+                description: |
+                    Let the discount reward be calculated from net or gross price.
+                    Not applicable for `discount_item_new_price`
+
+                    *Example*:
+                      item A à 100,- NOK with existing rebate of 20,-
+
+                      - 10% net reward is 10% of 80,- : 8,-
+                      - 10% gross reward is 10% of 100,- : 10,-
+
+                      * *net*: `gross - "any existing discounts"`
+                      * *gross*: `"total expense amount, including taxes"`
+                default: gross
+                enum:
+                    - net
+                    - gross
+            effect:
+                type: string
+                description: |
+                    How the reward will be added to the receipt.
+                    - `discount`: the reward will be applied as a discount directly on the receipt
+                    - `bonus`: the reward will be accumulated as bonus on the customers discount balance
+                default: discount
+                enum:
+                    - discount
+                    - bonus
+    Links:
+        description: Links to resources related to the discount
+        type: array
+        example:
+            -   href: https://example.dintero.com/c/photos/2018/6_20_thumbnail_discount_image.png
+                rel: thumbnail_discount_image
+            -   href: https://example.dintero.com/c/photos/2018/6_20_medium_discount_image.png
+                rel: medium_discount_image
+            -   href: https://example.dintero.com/shop?utm_source=dintero&utm_medium=email&utm_campaign=spring-summer
+                rel: webshoop
+            -   href: https://example.dintero.com/newsletter/2018.pdf
+                rel: newletter
+                type: application/pdf
+        items:
+            type: object
+            maxItems: 10
+            required:
+                - href
+            properties:
+                href:
+                    description: The URL of the link.
+                    type: string
+                    format: uri
+                rel:
+                    description: |
+                        Specifies the relationship between the discount and the link
+
+                        Following `rel` values are reserved for specific usage
+
+                          - thumbnail_discount_image: link to discount image
+                          - medium_discount_image: link to discount image
+                          - large_discount_image: link to discount image
+                          - webshop: link to site where the discount may be used
+                    type: string
+                type:
+                    type: string
+                    description: Specifies the media type of the link
+    Discount:
+        required:
+            - requirement
+            - reward
+        properties:
+            id:
+                type: string
+                format: uuid
+                description: |
+                    An UUID that uniquely identifies the resource
+                readOnly: true
+            created_at:
+                type: string
+                format: date-time
+                description: |
+                    The date-time when the resource was created
+                readOnly: true
+            created_by:
+                type: string
+                example: 1c92f7e1-2897-4d46-bdcc-c127a914fb4e
+                description: |
+                    The ID of the user/client created the resource
+                readOnly: true
+            updated_at:
+                type: string
+                format: date-time
+                description: |
+                    The date-time when the resource was last updated
+                readOnly: true
+            deleted_by:
+                type: string
+                example: 1c92f7e1-2897-4d46-bdcc-c127a914fb4e
+                description: |
+                    The ID of the user/client created the resource
+                readOnly: true
+            deleted_at:
+                type: string
+                format: date-time
+                readOnly: true
+            campaign_id:
+                type: string
+                description: |
+                    The campaign the rule belongs to
+            active:
+                description: |
+                    the discount is active and can be available
+                    for purchase (if given to any or all customers)
+                type: boolean
+                default: true
+            private:
+                description: |
+                    the discount will be excluded from  public discount collection
+                    (GET /discounts/public/rules).
+                type: boolean
+                default: false
+            updated_by:
+                type: string
+                example: 3d1e4824-5474-48e7-a369-4f603fa4c5b8
+                description: |
+                    The ID of the user/client that last updated the resource
+                readOnly: true
+            type:
+                type: string
+                description: The discount base type * `receipt` discount is given on receipt * `item` discount is given to items
+                enum:
+                    - item
+                    - receipt
+                readOnly: true
+            name:
+                type: string
+                example: Spar 100,-
+            receipt_text:
+                type: string
+                description: |
+                    Text that should be used when displaying
+                    the discount, e.g. on receipt
+                example: Mai Salg
+            visible_from:
+                type: string
+                format: date-time
+                description: |
+                    Make the discount visible to the customer from
+                    given date. Default behavior is to only return
+                    discount to the customer where the current time
+                    is between purchase_from and purchase_to
+            description:
+                type: string
+                example: Gjør et Stablestol kupp!
+            limitation:
+                $ref: '#/definitions/Limitation'
+            requirement:
+                $ref: '#/definitions/Requirement'
+            reward:
+                $ref: '#/definitions/Reward'
+            metadata:
+                type: object
+                maxProperties: 10
+                description: |
+                    Additional metadata about the discount
+
+                    Metadata prefixed with `dintero:exclude:public:` will
+                    be excluded when listing the rules from the public endpoint
+
+                    - [GET /v1/accounts/{aid}/discounts/public/rules](#operation/aid_discounts_public_get)
+
+                    and included in all other endpoints that returns discount rules
+                example:
+                    campaign_id: V101
+                    is_featured: true
+                    dintero:private_text:kind: Gold
+            links:
+                $ref: '#/definitions/Links'
+    DiscountRefs:
+        allOf:
+            -   $ref: '#/definitions/Discount'
+            -   properties:
+                    refs:
+                        type: array
+                        description: |
+                            References to instances of the discount, a customer can
+                            have multiple instances of the same discount, this propery
+                            list the instances used
+                        items:
+                            type: object
+                            properties:
+                                id:
+                                    type: string
+                                    description: |
+                                        reference id to the customer instance of the
+                                        discount
+                                    example: e3da6be5-d8e0-466c-af66-b7f69472ebb5
+                                stamp:
+                                    type: integer
+                                    description: |
+                                        number of stamp collected by the discount when
+                                        used on the receipt.
+                                amount:
+                                    type: integer
+                                    description: |
+                                        reward amount for the the ref used,
+                                        monetary amount in smallest unit for the currency
+                                    example: 10000
+                                bonus:
+                                    type: integer
+                                    description: |
+                                        reward bonus for the ref used
+                                    example: 9050
+                                statistics:
+                                    type: object
+                                    description: |
+                                        statistics for given discount instance (ref)
+                                    properties:
+                                        amount:
+                                            type: integer
+                                            description: |
+                                                total amount discount given, inclusive discount
+                                                amounts from previous purchases where the
+                                                the discount was used
+                                            example: 15050
+                                        bonus:
+                                            type: integer
+                                            description: |
+                                                total bonus given, inclusive bonus from previous
+                                                purchases where the the discount was used
+                                            example: 11050
+                                        debit_balance:
+                                            type: integer
+                                            description: |
+                                                the discount debit balance, only applicable if
+                                                discount reward type is `discount_debit`
+                                            example: 12350
+                                        stamp:
+                                            type: integer
+                                            description: |
+                                                total stamp collected by the discount, inclusive
+                                                previous purchases
+                                            example: 11
+                                        usage:
+                                            type: integer
+                                            description: |
+                                                total times the discount reward was used,
+                                                inclusive discount usage from previous purchases
+                                            example: 2
+                                items:
+                                    type: array
+                                    description: |
+                                        Items receiving the discount, list what items
+                                        received an discount_lines entry for this discount
+                                    example:
+                                        -   line_id: 1
+                                            amount: 3000
+                                        -   line_id: 5
+                                            amount: 7000
+                                    items:
+                                        type: object
+                                        properties:
+                                            line_id:
+                                                type: integer
+                                                description: |
+                                                    item line_id
+                                            bonus:
+                                                type: integer
+                                                description: bonus for given line_id
+                                            amount:
+                                                type: integer
+                                                description: |
+                                                    discount amount for given line_id
+                                                    monetary amount in smallest unit for the currency
+                                usage:
+                                    type: integer
+                                    description: number of times the ref was used
+                                    example: 1
+    Address:
+        type: object
+        required:
+            - address_line
+            - postal_place
+            - country
+        properties:
+            address_line:
+                type: string
+                example: Sommerkroveien 34
+            address_line_2:
+                type: string
+                example: PB 123
+            postal_code:
+                type: string
+                example: '0349'
+            postal_place:
+                type: string
+                example: Oslo
+            country:
+                type: string
+                format: iso-3166-1
+                description: |
+                    ISO 3166-1 country code
+                example: 'NO'
+    Store:
+        type: object
+        required:
+            - id
+        properties:
+            id:
+                type: string
+                example: sc029
+            name:
+                type: string
+                description: |
+                    name of the store, aka trade name of the store
+                example: SC Oslo
+            business_name:
+                type: string
+                description: |
+                    Official name of the person or entity that owns the store.
+                example: SC Oslo AS
+            address:
+                $ref: '#/definitions/Address'
+            chain:
+                type: string
+                example: SuperChain
+            email:
+                type: string
+                example: contact@superchain.com
+            gln:
+                type: string
+                example: '5790001398644'
+            organization_number:
+                type: string
+                example: 123456789MVA
+            phone_number:
+                type: string
+                example: '+4738260107'
+            mcc:
+                type: string
+                format: iso-18245
+                description: |
+                    A four-digit Merchant Category Code (MCC) for the store
+                    [ISO 18245:2003](https://www.iso.org/standard/33365.html)
+                example: '5814'
+                minimum: 4
+                maximum: 4
+            bax:
+                type: string
+                example: '102603'
+                description: |
+                    Merchant number associated with the stores
+                    payment terminal
+            terminal_id:
+                type: string
+                description: |
+                    Id to a specific point-of-sale (POS) terminal
+                    or workstation
+                example: T0292
+    InfoCodeItem:
+        type: object
+        properties:
+            line_id:
+                type: integer
+                example: 1
+            amount:
+                type: integer
+                description: |
+                    Monetary amount in smallest unit for the currency
+            amount_dwh:
+                type: string
+                example: '1.14'
+                description: Monetary value with decimal
+            infocode_id:
+                type: string
+            sub_infocode_id:
+                type: string
+            information:
+                type: string
+            input_type:
+                type: integer
+            withdrawal_from_stock:
+                type: boolean
+                example: false
+    TaxItem:
+        type: object
+        properties:
+            amount:
+                type: integer
+                example: 5584
+                description: |
+                    Monetary amount in smallest unit for the currency
+            amount_dwh:
+                type: string
+                example: '5584.0440'
+                description: Monetary value with decimal
+            exempt:
+                type: boolean
+                example: false
+            included_in_price:
+                type: boolean
+                example: true
+            percentage:
+                type: number
+                example: 25
+            tax_basis:
+                type: integer
+                example: 27920
+                description: Total monetary value without tax
+            tax_basis_dwh:
+                type: string
+                example: '27920.22'
+                description: Total monetary value without tax in decimal
+            tax_code:
+                type: string
+                example: '3'
+            tax_group:
+                type: string
+                example: Vmva-høy
+    Dimension:
+        type: object
+        description: |
+            Identify item attributes, such as size and color
+        properties:
+            color:
+                type: string
+            size:
+                type: string
+            style:
+                type: string
+            config:
+                type: string
+            variant:
+                type: string
+    DiscountType:
+        type: string
+        enum:
+            - customer
+            - periodic
+            - manual
+            - loyalty
+            - total
+            - employee
+            - external
+    DiscountItem:
+        type: object
+        properties:
+            amount:
+                type: integer
+                example: 4400
+                description: |
+                    Monetary amount in smallest unit for the currency
+            percentage:
+                type: number
+                description: |
+                    Optional, set if the amount given was from a percentage discount
+                example: 44
+            discount_type:
+                $ref: '#/definitions/DiscountType'
+            discount_id:
+                type: string
+                example: 766da0ef-9283-42bd-b012-0582344ec53c
+            description:
+                type: string
+            line_id:
+                type: integer
+                example: 1
+    BonusItem:
+        type: object
+        properties:
+            bonus:
+                type: integer
+                example: 3130
+                description: Bonus in smallest unit for the currency
+            percentage:
+                type: number
+                description: |
+                    Optional, set if the bonus given was from a percentage discount
+                example: 10
+            discount_type:
+                $ref: '#/definitions/DiscountType'
+            discount_id:
+                type: string
+                example: 766da0ef-9283-42bd-b012-0582344ec53c
+            description:
+                type: string
+            line_id:
+                type: integer
+                example: 1
+    ExtraInfo:
+        type: object
+        properties:
+            key:
+                type: string
+            value:
+                type: string
+            value_type:
+                type: string
+                enum:
+                    - string
+                    - integer
+                    - number
+                    - boolean
+                    - datetime
+    ReceiptItem:
+        type: object
+        properties:
+            id:
+                type: string
+                example: '175938'
+            groups:
+                type: array
+                example:
+                    -   id: B234
+                        name: Stol
+                    -   id: B1
+                        name: Møbel
+                items:
+                    type: object
+                    required:
+                        - id
+                    properties:
+                        id:
+                            type: string
+                            description: group id
+                        name:
+                            type: string
+                            description: group name
+            quantity:
+                type: number
+                example: 2
+                default: 1
+            unit:
+                type: string
+                example: stk
+                description: unit type
+            description:
+                type: string
+                example: Stablestol for utendørsbruk
+            description_alias:
+                type: string
+                example: Stablestol
+            net_amount:
+                type: integer
+                example: 27840
+                description: |
+                    Monetary amount in smallest unit for the currency
+                    after discounts for items in this line
+            net_amount_dwh:
+                type: string
+                example: '27840.10'
+                description: |
+                    Monetary amount in smallest unit for the currency
+                    after discounts for items in this line in decimal
+            gross_amount:
+                type: integer
+                example: 39800
+                description: |
+                    Monetary amount in smallest unit for the currency
+                    before discounts for items in this line
+            gross_amount_dwh:
+                type: string
+                example: '34800.12'
+                description: |
+                    Monetary amount in smallest unit for the currency
+                    before discounts for items in this line in decimal
+            unit_gross_price:
+                type: integer
+                example: 10900
+            tax_percent:
+                type: number
+                example: 25
+            line_id:
+                type: integer
+                example: 1
+            barcode:
+                type: string
+                example: '3123212343212'
+            cost_price:
+                type: integer
+                example: 2033
+                description: The purchase price the company pay for item
+            voided:
+                type: boolean
+                example: false
+            scale_item:
+                type: boolean
+                example: false
+                description: |
+                    The price is calculated from scale (weight/volume).
+            eligible_for_discount:
+                type: boolean
+                example: true
+            included_in_total_discount:
+                type: boolean
+                example: true
+            price_has_been_keyedIn:
+                type: boolean
+                example: false
+            discount_has_been_keyedIn:
+                type: boolean
+                example: false
+            is_return_item:
+                type: boolean
+                example: false
+            is_linked_item:
+                type: boolean
+                example: false
+            is_virtual_product:
+                type: boolean
+                example: false
+            is_changed:
+                description: Discount applied to gross amount
+                type: boolean
+                example: true
+            salesperson_id:
+                type: string
+                description: |
+                    Id of the sales person if other
+                    then the operator
+                example: '000111'
+            salesperson_name:
+                type: string
+                description: |
+                    Name of the sales person
+                example: Jesper
+            serial_id:
+                type: string
+                example: '32424234231312312'
+            comment:
+                type: string
+                example: Kan være hva som helst
+            infocode_lines:
+                type: array
+                items:
+                    $ref: '#/definitions/InfoCodeItem'
+            tax_lines:
+                type: array
+                items:
+                    $ref: '#/definitions/TaxItem'
+            dimension:
+                $ref: '#/definitions/Dimension'
+            discount_lines:
+                type: array
+                items:
+                    $ref: '#/definitions/DiscountItem'
+            bonus_lines:
+                type: array
+                items:
+                    $ref: '#/definitions/BonusItem'
+            extra_info:
+                type: array
+                items:
+                    $ref: '#/definitions/ExtraInfo'
+    CardInfo:
+        type: object
+        properties:
+            balance_amount:
+                type: integer
+                description: |
+                    Monetary amount in smallest unit for the currency
+            card_amount:
+                type: integer
+                description: |
+                    Monetary amount in smallest unit for the currency
+            issuer_id:
+                type: integer
+            issuer_name:
+                type: string
+                example: Barcley
+            session_id:
+                type: string
+                example: '022'
+            terminal_id:
+                type: string
+                example: '71015233'
+            card_number:
+                type: string
+                example: '************00198-1'
+            card_type:
+                type: string
+                example: VISA
+            receipt:
+                type: string
+                example: |
+                    BAX: 111010-71015233\n\r\11/11/2015 14:41\n\r\345849\n\r\ VISA CLASSIC\n\r\************5671\n\r\AID:A0000000031010\n\r\ REF:011 006687000000\n\r\RESP:00 GODKJENT\n\r\RETUR AV VARER\n\r \NOK=           50.00\n\r\SIGNATUR................\n\r \KORTHOLDERS KOPI
+    PaymentItem:
+        type: object
+        properties:
+            line_id:
+                type: integer
+                example: 1
+            amount:
+                type: integer
+                description: |
+                    Monetary amount in smallest unit for the currency
+            type_id:
+                type: string
+            token_id:
+                type: string
+                description: Id of the token
+                example: 983558fe-05bd-495f-92b5-9075d085db32
+            token_type:
+                type: string
+                description: The token issuer
+                example: VIPPS
+            description:
+                type: string
+            voided:
+                type: boolean
+            card_info:
+                $ref: '#/definitions/CardInfo'
+            reference_id:
+                type: string
+                example: B00668107235
+            infocode_lines:
+                type: array
+                items:
+                    $ref: '#/definitions/InfoCodeItem'
+    Receipt:
+        allOf:
+            -   $ref: '#/definitions/Entity'
+            -   required:
+                    - store
+                    - receipt_id
+                    - purchase_at
+                properties:
+                    discounts:
+                        description: |
+                            List all discounts referenced in discount_lines
+                        type: array
+                        items:
+                            $ref: '#/definitions/DiscountRefs'
+                    store:
+                        $ref: '#/definitions/Store'
+                    items:
+                        type: array
+                        items:
+                            $ref: '#/definitions/ReceiptItem'
+                    receipt_id:
+                        type: string
+                        example: '714118'
+                    delivery:
+                        type: object
+                        description: |
+                            Details for the delivery
+                        properties:
+                            first_name:
+                                type: string
+                                example: John
+                            last_name:
+                                type: string
+                                example: Doe
+                            email:
+                                type: string
+                                example: customer@example.com
+                            phone_number:
+                                type: string
+                                description: |
+                                    A phone number in E.164 number formatting.
+                                format: ^\+?[1-9]\d{1,14}$
+                                example: '+4799999999'
+                            address:
+                                $ref: '#/definitions/Address'
+                    customer_id:
+                        type: string
+                        description: |
+                            The customer id identifying the customer.
+                            (must not have trailing or leading spaces)
+                        example: C13db4f63
+                        maxLength: 255
+                    customer:
+                        type: object
+                        description: |
+                            The customer, owner of the receipt
+                        properties:
+                            gender:
+                                type: string
+                                example: male
+                            first_name:
+                                type: string
+                                example: John
+                            last_name:
+                                type: string
+                                example: Doe
+                            email:
+                                type: string
+                                example: customer@example.com
+                            metadata:
+                                type: object
+                                description: |
+                                    A set of key/value pairs that you can attach to a
+                                    customer object. It can be useful for storing additional
+                                    information about the customer in a structured format.
+                                example:
+                                    dob_year: 1985
+                            phone_number:
+                                type: string
+                                description: |
+                                    A phone number in E.164 number formatting.
+                                format: ^\+?[1-9]\d{1,14}$
+                                example: '+4799999999'
+                            addresses:
+                                type: array
+                                items:
+                                    allOf:
+                                        -   $ref: '#/definitions/Address'
+                                        -   properties:
+                                                type:
+                                                    type: string
+                                                custom_type:
+                                                    type: string
+                            pays_tax:
+                                type: boolean
+                                description: |
+                                    Is customer required to pay tax
+                                example: false
+                            date_of_birth:
+                                type: string
+                                format: date
+                                x-nullable: true
+                                example: '1990-09-20'
+                            enrolled_by:
+                                type: object
+                                required:
+                                    - value
+                                description: discribe where customers was recruit from
+                                properties:
+                                    type:
+                                        type: string
+                                        enum:
+                                            - url
+                                            - store
+                                            - custom
+                                        example: url
+                                    value:
+                                        type: string
+                                        x-nullable: true
+                                        example: https://facebook.com
+                            favorite_store:
+                                type: string
+                                x-nullable: true
+                                description: customer favorite store
+                            company:
+                                type: object
+                                required:
+                                    - bussiness_name
+                                description: |
+                                    Company details, supported when type is Company
+                                properties:
+                                    organization_number:
+                                        type: string
+                                        description: Companys identification number
+                                        example: 123456789MVA
+                                    bussiness_name:
+                                        type: string
+                                        example: TKP tech AS
+                                    department:
+                                        type: string
+                                        description: companys department
+                                        example: sales department
+                                    industry:
+                                        type: string
+                                        example: computer industry
+                                    website:
+                                        type: string
+                                    number_of_employees:
+                                        type: string
+                            marketing_consent:
+                                type: object
+                                description: Customers consent for marketing in different channels
+                                properties:
+                                    sms:
+                                        type: object
+                                        properties:
+                                            consent:
+                                                type: boolean
+                                                example: true
+                                            updated_at:
+                                                readOnly: true
+                                                type: string
+                                                format: date-time
+                                                example: '2018-01-12T13:42:00Z'
+                                                description: |
+                                                    The date-time when the resource was last updated:
+                                    email:
+                                        type: object
+                                        properties:
+                                            consent:
+                                                type: boolean
+                                                example: true
+                                            updated_at:
+                                                readOnly: true
+                                                type: string
+                                                format: date-time
+                                                example: '2018-01-12T13:42:00Z'
+                                                description: |
+                                                    The date-time when the resource was last updated:
+                            status:
+                                type: string
+                                description: |
+                                    Status of the customer
+                            term:
+                                description: The term and condition accepted by the customer
+                                properties:
+                                    id:
+                                        type: string
+                            type:
+                                type: string
+                                enum:
+                                    - customer
+                                    - company
+                                description: |
+                                    Describe type of an customer.
+                                    Company only allowed to be set when the type is "Company"
+                            token:
+                                type: object
+                                description: |
+                                    Token used to identify the customer
+                                properties:
+                                    token_id:
+                                        type: string
+                                        description: |
+                                            Id of token identifying the customer
+                                        example: 983558fe-05bd-495f-92b5-9075d085db32
+                                    value:
+                                        type: string
+                                        description: |
+                                            Token value that combined with type
+                                            was used to identify the customer
+                                        example: 5345346544ffea22
+                                    type:
+                                        type: string
+                                        description: The token issuer
+                                        example: VIPPS
+                    gross_amount:
+                        type: integer
+                        description: |
+                            Monetary amount in smallest unit for the currency
+                            before discounts
+                        example: 59800
+                    gross_amount_dwh:
+                        type: string
+                        description: |
+                            Monetary amount in smallest unit for the currency
+                            before discounts with decimal
+                        example: '59800.01'
+                    net_amount:
+                        type: integer
+                        example: 47840
+                        description: |
+                            Monetary amount in smallest unit for the currency
+                            after discounts
+                    net_amount_dwh:
+                        type: string
+                        description: Monetary value in smallest unit for the currency after discounts with decimal
+                        example: '47840.01'
+                    round_off_to_coin:
+                        type: integer
+                        example: 100
+                    currency:
+                        type: string
+                        example: NOK
+                        description: |
+                            The three-character ISO-4217 currency.
+                            https://en.wikipedia.org/wiki/ISO_4217
+                    purchase_at:
+                        description: |
+                            The date and time for the receipt purchase
+                        type: string
+                        format: date-time
+                    order_number:
+                        type: string
+                        example: order12345
+                    transaction_date:
+                        type: string
+                        format: date-time
+                    amount_due:
+                        type: integer
+                        description: |
+                            How much more need to be paid before the
+                            transaction is completed.
+                            Monetary amount in smallest unit for the currency
+                        example: 2050
+                    amount_due_dwh:
+                        type: string
+                        example: '2050.10'
+                        description: Monetary value with decimal
+                    no_of_items:
+                        type: number
+                        description: |
+                            How many items did the customer buy
+                        example: 4
+                    is_changed:
+                        description: Discount applied to gross amount
+                        type: boolean
+                    transaction_id:
+                        type: string
+                        example: SC999-9991-1828
+                    total_discount:
+                        type: integer
+                        example: 0
+                    total_manual_discount_amount:
+                        type: integer
+                        example: 0
+                        description: |
+                            Monetary amount in smallest unit for the currency
+                    total_manual_percentage_discount:
+                        type: integer
+                        example: 0
+                    operator_id:
+                        type: string
+                        description: POS user
+                        example: '000210'
+                    operator_name:
+                        type: string
+                        description: Name of the POS user
+                        example: Ole Anders
+                    salesperson_id:
+                        type: string
+                        description: ID of the POS user
+                        example: '000111'
+                    salesperson_name:
+                        type: string
+                        example: Jesper
+                    entry_status:
+                        type: string
+                        description: Status for the transaction
+                        enum:
+                            - None
+                            - Voided
+                            - Posted
+                            - Concluded
+                            - Cancelled
+                            - OnHold
+                            - Training
+                    comment:
+                        type: string
+                        example: Kunden ønsker mer for info
+                    tax_lines:
+                        description: |
+                            Breakdown of the tax to different
+                            tax groups
+                        type: array
+                        items:
+                            $ref: '#/definitions/TaxItem'
+                    payments:
+                        type: array
+                        items:
+                            $ref: '#/definitions/PaymentItem'
+                    infocode_items:
+                        type: array
+                        items:
+                            $ref: '#/definitions/InfoCodeItem'
+                    receipt_text:
+                        type: string
+                    discount_code:
+                        type: array
+                        items:
+                            type: string
+                    extra_info:
+                        type: array
+                        items:
+                            $ref: '#/definitions/ExtraInfo'
+    Claim:
+        type: object
+        allOf:
+            -   $ref: '#/definitions/Entity'
+            -   required:
+                    - customer_id
+                    - discounts
+                    - purchase_at
+                properties:
+                    ref:
+                        type: string
+                        description: |
+                            an external reference for the claim. Must be unique
+                            for the claim, reuse of ref will result in conflict
+                        example: transactionid1
+                    type:
+                        type: string
+                        description: |
+                            an external type for the claim
+                        example: pos
+                    purchase_at:
+                        type: string
+                        format: date-time
+                        description: |
+                            The date and time for the purchase the
+                            claim is done for.
+                    customer_id:
+                        type: string
+                        maxLength: 255
+                        description: |
+                            The customer id you have defined for the customer.
+                            (must not have trailing or leading spaces)
+                    discounts:
+                        type: array
+                        description: |
+                            Discounts to claim
+                        minItems: 1
+                        items:
+                            type: object
+                            required:
+                                - id
+                                - refs
+                            properties:
+                                id:
+                                    description: |
+                                        Discount ID
+                                    type: string
+                                refs:
+                                    type: array
+                                    description: |
+                                        Customer reference to the discount
+                                    minItems: 1
+                                    items:
+                                        type: object
+                                        required:
+                                            - id
+                                            - usage
+                                            - amount
+                                        properties:
+                                            id:
+                                                type: string
+                                                description: |
+                                                    reference id to the customer instance of
+                                                    the discount
+                                            amount:
+                                                type: integer
+                                                description: |
+                                                    the amount for the ref to be claimed
+                                                minimum: 0
+                                                exclusiveMinimum: true
+                                            usage:
+                                                type: integer
+                                                description: number of times the ref should be claimed
+                                                example: 1
+                                                minimum: 0
+                                                exclusiveMinimum: true
+    Campaign:
+        description: Discount Campaign
+        allOf:
+            -   $ref: '#/definitions/Entity'
+            -   required:
+                    - name
+                properties:
+                    campaign_id:
+                        type: string
+                        maxLength: 255
+                    name:
+                        type: string
+                    description:
+                        type: string
+                    private:
+                        description: |
+                            The campaign is private and will be excluded from public rules
+                            when filtered by campaign_id
+
+                            [GET /discounts/public/rules](#operation/aid_discounts_public_get)
+                        type: boolean
+                        default: false
+                    metadata:
+                        type: object
+                        maxProperties: 10
+                        description: |
+                            Additional metadata about the campaign
+                        example:
+                            sponsor: Solo
+                            is_featured: true
+    Statistics:
+        type: object
+        properties:
+            statistics:
+                type: object
+                properties:
+                    stamp:
+                        type: integer
+                        description: |
+                            total stamp collected
+                    used:
+                        type: integer
+                        description: |
+                            **deprecated** number of times the discount has been used
+                        example: 28
+                    usage:
+                        type: integer
+                        description: number of times the discount has been used
+                        example: 28
+                    amount:
+                        type: integer
+                        description: total reward given
+                        example: 280000
+                    debit_balance:
+                        type: integer
+                        description: |
+                            the discount debit balance, only applicable if
+                            discount reward type is `discount_debit`
+                        example: 12350
+    CustomerDiscountStatistics:
+        allOf:
+            -   $ref: '#/definitions/Statistics'
+            -   properties:
+                    statistics:
+                        type: object
+                        properties:
+                            current_stamp:
+                                type: integer
+                                description: stamps collected since last usage, excluding expired stamps
+    UsageRefWrite:
+        type: object
+        required:
+            - ref
+            - ref_type
+        properties:
+            ref:
+                type: string
+                example: fe35e8ed-3fd3-4b04-acdd-6f1d7d7ca7c9
+            ref_type:
+                type: string
+                example: receipt_add
+            usage:
+                type: integer
+                example: 1
+            stamp:
+                type: integer
+                example: 4
+            amount:
+                type: integer
+                example: 12000
+    Event:
+        type: object
+        properties:
+            receipt:
+                required:
+                    - id
+                    - customer_id
+                allOf:
+                    -   properties:
+                            id:
+                                type: string
+                                description: |
+                                    An ID that uniquely identifies the receipt
+                                readOnly: false
+                    -   $ref: '#/definitions/Receipt'
+            token:
+                type: object
+                required:
+                    - token_id
+                    - customer_id
+                    - value
+                    - type
+                properties:
+                    token_id:
+                        type: string
+                        maxLength: 255
+                        minLength: 1
+                        description: |
+                            The token id you have defined for the token.
+                            (must not have trailing or leading spaces)
+                    type:
+                        type: string
+                        description: identifies how or who is resposible for the token value
+                        example: sha1:email
+                        minLength: 1
+                    value:
+                        type: string
+                        example: a1b79ef1a62d94ffa86b3f3d846df0ee3993af92
+                        minLength: 1
+                    customer_id:
+                        type: string
+                        maxLength: 255
+                        minLength: 1
+                        description: |
+                            The customer id you have defined as owner of the token
+                            (must not have trailing or leading spaces)
+    UsageRef:
+        allOf:
+            -   $ref: '#/definitions/UsageRefWrite'
+            -   properties:
+                    created_at:
+                        type: string
+                        format: date-time
+                    created_by:
+                        type: string
+    DiscountUsage:
+        allOf:
+            -   properties:
+                    id:
+                        type: string
+                    ref_id:
+                        type: string
+                    discount_id:
+                        type: string
+                    customer_id:
+                        type: string
+                    create_at:
+                        type: string
+                        format: date-time
+                    updated_at:
+                        type: string
+                        format: date-time
+                    created_by:
+                        type: string
+                    usage_refs:
+                        type: array
+                        items:
+                            $ref: '#/definitions/UsageRef'
+            -   $ref: '#/definitions/CustomerDiscountStatistics'
+parameters:
+    accountId:
+        name: aid
+        description: |
+            An id that uniquely identifies the account.
+        in: path
+        required: true
+        type: string
+        format: ^[PT]{1}\d{8}$
+        minLength: 9
+        maxLength: 9
+    limit:
+        name: limit
+        in: query
+        description: |
+            A limit on the number of objects to be returned. Limit can range
+            between 1 and 100 items, and the default is 10 items.
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+    startingAfter:
+        name: starting_after
+        in: query
+        description: |
+            cursor for use in pagination. starting_after is an object ID
+            that defines your place in the list. For instance, if you make
+            a list request and receive 100 objects, end the result contains
+              `paging_token=pt1`, your subsequent call can include
+            `starting_after=pt1` in order to fetch the next page of the list.
+        type: string
+        required: false
+    total:
+        name: total
+        in: query
+        description: |
+            include `total-count` header in the response
+        type: boolean
+        required: false
+        default: false
+    customerId:
+        name: customer_id
+        description: |
+            The customer id you have defined for the customer.
+            (must not have trailing or leading spaces)
+        in: path
+        required: true
+        type: string
+        maxLength: 255
+    discountId:
+        name: did
+        description: An UUID that uniquely identifies the discount
+        in: path
+        required: true
+        type: string
+        format: uuid
+responses:
+    BadRequest:
+        description: Bad / Invalid request
+        schema:
+            $ref: '#/definitions/Error'
+    AccessForbidden:
+        description: Access forbidden, invalid JWT token was used
+        schema:
+            $ref: '#/definitions/Error'
+    Forbidden:
+        description: Forbidden
+        schema:
+            $ref: '#/definitions/Error'
+    ServerError:
+        description: Unexpected Error
+        schema:
+            $ref: '#/definitions/Error'
+    NotFound:
+        description: Resource was not found
+        schema:
+            $ref: '#/definitions/Error'
+securityDefinitions:
+    JWT:
+        type: apiKey
+        name: Authorization
+        description: |
+            Bearer authentication (also called token authentication) should be
+            used when accessing the API.
+
+            Use [Get Token](https://docs.dintero.com/api.html#operation/aid_auths_oauth_token_post)
+            to get an access token for client credentials
+
+            Authorization by using the **Bearer** schema
+            The content of the header should look like the following:
+
+                Authorization: Bearer {access_token}
+
+            where the **access_token** is JSON Web Tokens (JWT).
+        in: header
+        x-example: Bearer <access_token>
+x-servers:
+    -   url: https://api.dintero.com/v1
+x-tagGroups:
+    -   name: discounts
+        tags:
+            - rules
+            - rules customers
+            - use discounts
+            - campaigns
+    -   name: automations
+        tags:
+            - rules automations

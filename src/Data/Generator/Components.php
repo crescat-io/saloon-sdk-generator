@@ -2,9 +2,13 @@
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
+use cebe\openapi\spec\Reference;
+use cebe\openapi\spec\Schema;
+
 class Components
 {
     /**
+     * @param  Schema[]|Reference[]|array|null  $schemas
      * @param  SecurityScheme[]  $securitySchemes
      */
     public function __construct(

@@ -2,32 +2,29 @@
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
+use cebe\openapi\spec\OAuthFlows;
+
 class SecurityScheme
 {
-    const TYPE_API_KEY = 'apiKey';
-
-    const TYPE_HTTP = 'http';
-
-    const TYPE_MUTUAL_TLS = 'mutualTLS';
-
-    const TYPE_OAUTH2 = 'oauth2';
-
-    const TYPE_OPEN_ID_CONNECT = 'openIdConnect';
-
-    const IN_QUERY = 'query';
-
-    const IN_HEADER = 'header';
-
-    const IN_COOKIE = 'cookie';
-
     public function __construct(
-        public readonly string $type,
+        public readonly SecuritySchemeType $type,
+
+        // Only applies for apiKey
         public readonly ?string $name = null,
-        public readonly ?string $in = null,
+        public readonly ?ApiKeyLocation $in = null,
+
+        // only applies for http
         public readonly ?string $scheme = null,
-        public readonly ?string $description = null,
         public readonly ?string $bearerFormat = null,
-        public readonly ?object $flows = null,
+
+        // Applies to all
+        public readonly ?string $description = null,
+
+        // Only applies for oauth2
+        // See: https://swagger.io/specification/?sbsearch=tls#oauth-flows-object
+        public readonly ?OAuthFlows $flows = null,
+
+        // Only applies for openIdConnect
         public readonly ?string $openIdConnectUrl = null
     ) {
     }

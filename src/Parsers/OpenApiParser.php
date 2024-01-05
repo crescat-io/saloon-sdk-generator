@@ -14,12 +14,14 @@ use cebe\openapi\spec\SecurityRequirement;
 use cebe\openapi\spec\Server;
 use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Contracts\Parser;
+use Crescat\SaloonSdkGenerator\Data\Generator\ApiKeyLocation;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
+use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Illuminate\Support\Str;
 
@@ -123,25 +125,22 @@ class OpenApiParser implements Parser
 
     protected function parseComponents(?Components $components): \Crescat\SaloonSdkGenerator\Data\Generator\Components
     {
-
         if (! $components) {
-            return new \Crescat\SaloonSdkGenerator\Data\Generator\Components(
-                securitySchemes: []
-            );
+            return new \Crescat\SaloonSdkGenerator\Data\Generator\Components();
         }
 
         $securitySchemes = [];
-        foreach ($components?->securitySchemes as $securityScheme) {
+        foreach ($components->securitySchemes as $securityScheme) {
 
             $securitySchemes[] = new SecurityScheme(
-                $securityScheme->type,
-                $securityScheme->name,
-                $securityScheme->in,
-                $securityScheme->scheme,
-                $securityScheme->description,
-                $securityScheme->bearerFormat,
-                $securityScheme->flows,
-                $securityScheme->openIdConnectUrl
+                type: SecuritySchemeType::tryFrom($securityScheme->type),
+                name: $securityScheme->name,
+                in: ApiKeyLocation::tryFrom($securityScheme->in),
+                scheme: $securityScheme->scheme,
+                description: $securityScheme->description,
+                bearerFormat: $securityScheme->bearerFormat,
+                flows: $securityScheme->flows,
+                openIdConnectUrl: $securityScheme->openIdConnectUrl
             );
         }
 

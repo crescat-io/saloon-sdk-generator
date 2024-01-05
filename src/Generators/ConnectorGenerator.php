@@ -6,7 +6,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiKeyLocation;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
-use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
@@ -16,7 +15,18 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 use Nette\PhpGenerator\PhpNamespace;
+use Saloon\Contracts\Authenticator;
+use Saloon\Helpers\OAuth2\OAuthConfig;
+use Saloon\Http\Auth\BasicAuthenticator;
+use Saloon\Http\Auth\CertificateAuthenticator;
+use Saloon\Http\Auth\DigestAuthenticator;
+use Saloon\Http\Auth\HeaderAuthenticator;
+use Saloon\Http\Auth\MultiAuthenticator;
+use Saloon\Http\Auth\QueryAuthenticator;
+use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
+use Saloon\Traits\OAuth2\AuthorizationCodeGrant;
+use Saloon\Traits\OAuth2\ClientCredentialsGrant;
 
 class ConnectorGenerator extends Generator
 {
@@ -48,8 +58,8 @@ class ConnectorGenerator extends Generator
             ->addNamespace("{$this->config->namespace}")
             ->addUse(Connector::class);
 
-        $this->addMethodsForResources($namespace, $classType, $specification);
         $this->addAuthenticators($namespace, $classType, $specification);
+        $this->addMethodsForResources($namespace, $classType, $specification);
 
         $namespace->add($classType);
 
@@ -57,10 +67,9 @@ class ConnectorGenerator extends Generator
     }
 
     protected function addConstructor(
-        ClassType        $classType,
+        ClassType $classType,
         ApiSpecification $specification
-    ): ClassType
-    {
+    ): ClassType {
         $classConstructor = $classType->addMethod('__construct');
 
         // Add Base Url Property
@@ -81,9 +90,11 @@ class ConnectorGenerator extends Generator
         // Add api tokens and other auth parameters as properties on the constructor.
         foreach ($specification->components->securitySchemes ?? [] as $securityScheme) {
             if ($securityScheme->type === SecuritySchemeType::apiKey) {
+                // TODO: Refactor
+                $name = NameHelper::safeVariableName(preg_replace('/^X-/', '', $securityScheme->name));
                 MethodGeneratorHelper::addParameterAsPromotedProperty(
                     $classConstructor,
-                    $this->getApiKeyParameter($securityScheme)
+                    new Parameter(type: 'string', nullable: false, name: $name, description: $securityScheme->description)
                 );
             }
 
@@ -92,26 +103,20 @@ class ConnectorGenerator extends Generator
                 if ($securityScheme->scheme === 'bearer') {
                     MethodGeneratorHelper::addParameterAsPromotedProperty(
                         $classConstructor,
-                        new Parameter(
-                            type: 'string',
-                            nullable: false,
-                            name: 'bearerToken',
-                            description: $securityScheme->description
-                        )
+                        new Parameter(type: 'string', nullable: false, name: 'bearerToken', description: $securityScheme->description)
                     );
 
                     continue;
                 }
 
-                if ($securityScheme->scheme === 'basic') {
+                if ($securityScheme->scheme === 'basic' || $securityScheme->scheme === 'digest') {
                     MethodGeneratorHelper::addParameterAsPromotedProperty(
                         $classConstructor,
                         new Parameter(type: 'string', nullable: false, name: 'username', description: $securityScheme->description)
                     );
                     MethodGeneratorHelper::addParameterAsPromotedProperty(
                         $classConstructor,
-                        new Parameter(type: 'string', nullable: false, name: 'password', description: $securityScheme->description
-                        )
+                        new Parameter(type: 'string', nullable: false, name: 'password', description: $securityScheme->description)
                     );
 
                     continue;
@@ -198,6 +203,18 @@ class ConnectorGenerator extends Generator
                 // TODO: Support password grant and other types later.
             }
 
+            if ($securityScheme->type === SecuritySchemeType::mutualTLS) {
+                MethodGeneratorHelper::addParameterAsPromotedProperty(
+                    $classConstructor,
+                    new Parameter(type: 'string', nullable: false, name: 'certPath'),
+                );
+
+                MethodGeneratorHelper::addParameterAsPromotedProperty(
+                    $classConstructor,
+                    new Parameter(type: 'string', nullable: true, name: 'certPassword'),
+                    sensitive: true
+                );
+            }
         }
 
         return $classType;
@@ -219,78 +236,139 @@ class ConnectorGenerator extends Generator
     }
 
     protected function addAuthenticators(
-        PhpNamespace     $namespace,
-        ClassType        $classType,
+        PhpNamespace $namespace,
+        ClassType $classType,
         ApiSpecification $specification
 
-    ): ClassType
-    {
+    ): ClassType {
 
         $authenticators = [];
 
         foreach ($specification->components->securitySchemes ?? [] as $securityScheme) {
             if ($securityScheme->type === SecuritySchemeType::apiKey) {
                 $name = NameHelper::safeVariableName(preg_replace('/^X-/', '', $securityScheme->name));
-                $authenticators[] = match ($securityScheme->in) {
-                    ApiKeyLocation::query => new Literal(sprintf('return new QueryAuthenticator($this->%s, );', $name)),
-                    ApiKeyLocation::header => new Literal(sprintf('return new HeaderAuthenticator($this->%s);', $name)),
-                    // TODO: Support cookie auth later
-                    default => null
-                };
+                // TODO: Support cookie auth later
+                switch ($securityScheme->in) {
+                    case ApiKeyLocation::query:
+                        $authenticators[] = new Literal(sprintf('return new QueryAuthenticator($this->%s, );', $name));
+                        $namespace->addUse(QueryAuthenticator::class);
+                        break;
+                    case ApiKeyLocation::header:
+                        $authenticators[] = new Literal(sprintf('return new HeaderAuthenticator($this->%s);', $name));
+                        $namespace->addUse(HeaderAuthenticator::class);
+                        break;
+                    default:
+                        $authenticators[] = null;
+                        break;
+                }
             }
 
             if ($securityScheme->type === SecuritySchemeType::http) {
-
-
-                if ($securityScheme->scheme === 'bearer') {
-                    $authenticators[] = new Literal('return new TokenAuthenticator($this->bearerToken);');
+                switch ($securityScheme->scheme) {
+                    case 'bearer':
+                        $authenticators[] = new Literal('return new TokenAuthenticator($this->bearerToken);');
+                        $namespace->addUse(TokenAuthenticator::class);
+                        break;
+                    case 'basic':
+                        $authenticators[] = new Literal('return new BasicAuthenticator($this->username, $this->password)');
+                        $namespace->addUse(BasicAuthenticator::class);
+                        break;
+                    case 'digest':
+                        // TODO: does this require you to provide a "digest" as well?
+                        $authenticators[] = new Literal('return new DigestAuthenticator($this->username, $this->password, "digest")');
+                        $namespace->addUse(DigestAuthenticator::class);
+                        break;
+                    default:
+                        $authenticators[] = new Literal('return new TokenAuthenticator($this->token);');
+                        $namespace->addUse(TokenAuthenticator::class);
+                        break;
                 }
+            }
 
-
-                if ($securityScheme->scheme === 'basic') {
-                    $authenticators[] = new Literal('return new BasicAuthenticator($this->username, $this->password)');
-                }
-
-                // Fallback for other types of "token" authentication
-                $authenticators[] = new Literal('return new TokenAuthenticator($this->token);');
+            if ($securityScheme->type === SecuritySchemeType::mutualTLS) {
+                $authenticators[] = new Literal('return new CertificateAuthenticator($this->certPath, $this->certPassword);');
+                $namespace->addUse(CertificateAuthenticator::class);
             }
 
             if ($securityScheme->type === SecuritySchemeType::oauth2) {
+
+                $namespace->addUse(OAuthConfig::class);
+
                 if ($securityScheme->flows->authorizationCode !== null) {
+                    $namespace->addUse(AuthorizationCodeGrant::class);
+                    $classType->addTrait(AuthorizationCodeGrant::class);
+
+                    $classType->addMethod('defaultOauthConfig')
+                        ->setReturnType(OAuthConfig::class)
+                        ->setBody(
+                            new Literal(
+                                implode("\n", [
+                                    'return OAuthConfig::make()',
+                                    '->setClientId($this->clientId)',
+                                    '->setClientSecret($this->clientSecret)',
+                                    '->setDefaultScopes($this->scopes)',
+                                    '->setAuthorizeEndpoint($this->authorizationUrl)',
+                                    '->setTokenEndpoint($this->tokenUrl);',
+                                ])
+                            )
+                        );
 
                 }
 
                 if ($securityScheme->flows->clientCredentials !== null) {
+                    $namespace->addUse(ClientCredentialsGrant::class);
 
+                    $classType->addTrait(ClientCredentialsGrant::class);
+                    $classType->addMethod('defaultOauthConfig')
+                        ->setReturnType(OAuthConfig::class)
+                        ->setBody(
+                            new Literal(
+                                implode("\n", [
+                                    'return OAuthConfig::make()',
+                                    '->setClientId($this->clientId)',
+                                    '->setClientSecret($this->clientSecret)',
+                                    '->setDefaultScopes($this->scopes)',
+                                    '->setTokenEndpoint($this->tokenUrl);',
+                                ])
+
+                            )
+                        );
                 }
 
                 // TODO: Support password grant and other types later.
             }
+        }
 
+        $authenticators = array_filter($authenticators);
+
+        // If there is only one authenticator, we can use it as the defaultAuth method.
+        if (count($authenticators) === 1) {
+            $classType->addMethod('defaultAuth')->setReturnType(Authenticator::class)->setBody($authenticators[0]);
+            $namespace->addUse(Authenticator::class);
+        }
+
+        // If there are multiple authenticators, we need to use the MultiAuthenticator.
+        if (count($authenticators) > 1) {
+            $classType->addMethod('getAuthenticator')
+                ->setReturnType(MultiAuthenticator::class)
+                ->setBody(
+                    new Literal(
+                        sprintf(
+                            'return new MultiAuthenticator([%s]);',
+                            implode(', ', $authenticators)
+                        )
+                    )
+                );
         }
 
         return $classType;
     }
 
-    protected function getApiKeyParameter(SecurityScheme $securityScheme): Parameter
-    {
-        dump($securityScheme->name);
-
-        // Remove X- header prefix
-        return new Parameter(
-            type: 'string',
-            nullable: false,
-            name: NameHelper::safeVariableName(preg_replace('/^X-/', '', $securityScheme->name)),
-            description: $securityScheme->description
-        );
-    }
-
     protected function addMethodsForResources(
-        PhpNamespace     $namespace,
-        ClassType        $classType,
+        PhpNamespace $namespace,
+        ClassType $classType,
         ApiSpecification $specification
-    ): ClassType
-    {
+    ): ClassType {
         $collections = collect($specification->endpoints)
             ->map(function (Endpoint $endpoint) {
                 return NameHelper::connectorClassName($endpoint->collection ?: $this->config->fallbackResourceName);

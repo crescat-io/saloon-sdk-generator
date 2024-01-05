@@ -27,6 +27,7 @@ use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Traits\OAuth2\AuthorizationCodeGrant;
 use Saloon\Traits\OAuth2\ClientCredentialsGrant;
+use SensitiveParameter;
 
 class ConnectorGenerator extends Generator
 {
@@ -130,6 +131,7 @@ class ConnectorGenerator extends Generator
 
             if ($securityScheme->type === SecuritySchemeType::oauth2) {
                 if ($securityScheme->flows->authorizationCode !== null) {
+
                     MethodGeneratorHelper::addParameterAsPromotedProperty(
                         $classConstructor,
                         new Parameter(type: 'string', nullable: false, name: 'clientId'),
@@ -292,10 +294,13 @@ class ConnectorGenerator extends Generator
 
             if ($securityScheme->type === SecuritySchemeType::oauth2) {
 
-                $namespace->addUse(OAuthConfig::class);
+                $namespace
+                    ->addUse(OAuthConfig::class)
+                    ->addUse(SensitiveParameter::class);
 
                 if ($securityScheme->flows->authorizationCode !== null) {
                     $namespace->addUse(AuthorizationCodeGrant::class);
+
                     $classType->addTrait(AuthorizationCodeGrant::class);
 
                     $classType->addMethod('defaultOauthConfig')

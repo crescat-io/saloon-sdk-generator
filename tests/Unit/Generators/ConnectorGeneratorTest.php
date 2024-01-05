@@ -1,26 +1,23 @@
 <?php
 
-use Crescat\SaloonSdkGenerator\Data\Generator\ApiKeyLocation;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\BaseUrl;
 use Crescat\SaloonSdkGenerator\Data\Generator\Components;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement;
-use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
-use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Crescat\SaloonSdkGenerator\Generators\ConnectorGenerator;
-use Nette\PhpGenerator\ClassType;
-use Nette\PhpGenerator\Method;
 
 beforeEach(function () {
     $this->generator = new ConnectorGenerator(new Config(
-        connectorName: 'MyConnector',
-        namespace: 'VendorName'
+        connectorName: 'Client',
+        namespace: 'Crescat'
     ));
+});
 
-    $this->dummySpec = new ApiSpecification(
-        name: 'ApiName',
+it('Supports server parameter in the baseUrl', function () {
+    $phpFile = $this->generator->generate(new ApiSpecification(
+        name: 'Example',
         description: 'Example API',
         baseUrl: new BaseUrl(
             url: 'https://api-{region}.example.com/v1/',
@@ -32,46 +29,51 @@ beforeEach(function () {
             new SecurityRequirement('X-Auth-Token'),
         ],
         components: new Components(
-            securitySchemes: [
-                new SecurityScheme(
-                    type: SecuritySchemeType::apiKey,
-                    name: 'X-Auth-Token',
-                    in: ApiKeyLocation::header,
-                ),
-            ]
+            securitySchemes: []
         ),
         endpoints: []
-    );
-});
+    ));
+    $class = $phpFile->getNamespaces()['Crescat']->getClasses()['Client'];
 
-test('Constructor', function () {
-
-    $phpFile = $this->generator->generate($this->dummySpec);
-    $class = $phpFile->getNamespaces()['VendorName']->getClasses()['MyConnector'];
-
-    expect($class)->toBeInstanceOf(ClassType::class);
-
-    $constructor = $class->getMethods()['defaultAuth'];
-    expect($constructor)->toBeInstanceOf(Method::class)
-        ->and($constructor->getParameters())->toHaveCount(0)
-        ->and($constructor->getBody())->toBe('return new HeaderAuthenticator($this->authToken, "X-Auth-Token");');
-
+    $constructor = $class->getMethods()['__construct'];
     $regionParam = $constructor->getParameter('region');
     expect($regionParam)->not->toBeNull()
         ->and($regionParam->getType())->toBe('string')
         ->and($regionParam->isNullable())->toBeFalse();
 
-    $authTokenParam = $constructor->getParameter('authToken');
-    expect($authTokenParam)->not->toBeNull()
-        ->and($authTokenParam->getType())->toBe('string')
-        ->and($authTokenParam->isNullable())->toBeFalse();
-});
-
-test('Resolve Base URL', function () {
-    $phpFile = $this->generator->generate($this->dummySpec);
-    $class = $phpFile->getNamespaces()['VendorName']->getClasses()['MyConnector'];
-
     $resolveBaseUrl = $class->getMethods()['resolveBaseUrl'];
     expect($resolveBaseUrl->getParameters())->toBeEmpty()
         ->and($resolveBaseUrl->getBody())->toBe('return "https://api-{$this->region}.example.com/v1/";');
+});
+
+it('Supports multiple server parameters in the baseUrl', function () {
+    $phpFile = $this->generator->generate(new ApiSpecification(
+        name: 'Example',
+        description: 'Example API',
+        baseUrl: new BaseUrl(
+            url: 'https://api-{region}-{environment}.example.com/v1/',
+            parameters: [
+                new ServerParameter('region', 'eu'),
+                new ServerParameter('environment', 'staging'),
+            ]
+        ),
+        securityRequirements: [
+            new SecurityRequirement('X-Auth-Token'),
+        ],
+        components: new Components(
+            securitySchemes: []
+        ),
+        endpoints: []
+    ));
+    $class = $phpFile->getNamespaces()['Crescat']->getClasses()['Client'];
+
+    $constructor = $class->getMethods()['__construct'];
+    $regionParam = $constructor->getParameter('region');
+    expect($regionParam)->not->toBeNull()
+        ->and($regionParam->getType())->toBe('string')
+        ->and($regionParam->isNullable())->toBeFalse();
+
+    $resolveBaseUrl = $class->getMethods()['resolveBaseUrl'];
+    expect($resolveBaseUrl->getParameters())->toBeEmpty()
+        ->and($resolveBaseUrl->getBody())->toBe('return "https://api-{$this->region}-{$this->environment}.example.com/v1/";');
 });

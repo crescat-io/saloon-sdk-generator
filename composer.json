@@ -56,6 +56,7 @@
         "generate:crescat": "./codegen generate:sdk --force --namespace=Crescat\\\\Sdk --type=openapi --name=Crescat tests/Samples/crescat.yaml --output tests/Output/Crescat",
         "generate:bigcommerce": "./codegen generate:sdk --force --namespace=BigCommerce\\\\Sdk --type=openapi --name=BigCommerce tests/samples/bigcommerce_abandoned_carts.v3.yml --output tests/Output/BigCommerce",
         "generate:vegvesen": "./codegen generate:sdk --force --namespace=Vegvesen\\\\Sdk --type=openapi --name=Vegvesen tests/samples/vegvesen.json --output tests/Output/Vegvesen",
+        "generate:spotify": "./codegen generate:sdk --force --namespace=Spotify\\\\Sdk --type=openapi --name=Spotify tests/samples/spotify.yml --output tests/Output/Spotify",
         "generate:all": [
             "@generate:fiken",
             "@generate:gocardless",

@@ -16,6 +16,8 @@ use Saloon\Http\Response;
 
 class ResourceGenerator extends Generator
 {
+    protected array $duplicateRequests = [];
+
     public function generate(ApiSpecification $specification): PhpFile|array
     {
         return $this->generateResourceClasses($specification);
@@ -78,7 +80,8 @@ class ResourceGenerator extends Generator
                     sprintf('%s%s', $methodName, 'Duplicate'.$duplicateCounter)
                 );
                 $duplicateCounter++;
-                dump("DUPLICATE: {$requestClassName} -> {$deduplicatedMethodName}");
+
+                $this->recordDuplicatedRequestName($requestClassName, $deduplicatedMethodName);
 
                 $method = $classType
                     ->addMethod($deduplicatedMethodName)
@@ -135,5 +138,10 @@ class ResourceGenerator extends Generator
             ->setNullable($parameter->nullable);
 
         return $method;
+    }
+
+    protected function recordDuplicatedRequestName(string $requestClassName, string $deduplicatedMethodName): void
+    {
+        $this->duplicateRequests[$requestClassName][] = $deduplicatedMethodName;
     }
 }

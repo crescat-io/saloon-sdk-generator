@@ -248,11 +248,11 @@ class ConnectorGenerator extends Generator
 
         foreach ($specification->components->securitySchemes ?? [] as $securityScheme) {
             if ($securityScheme->type === SecuritySchemeType::apiKey) {
-                $name = NameHelper::safeVariableName(preg_replace('/^X-/', '', $securityScheme->name));
                 // TODO: Support cookie auth later
+                $name = NameHelper::safeVariableName(preg_replace('/^X-/', '', $securityScheme->name));
                 switch ($securityScheme->in) {
                     case ApiKeyLocation::query:
-                        $authenticators[] = new Literal(sprintf('return new QueryAuthenticator($this->%s, );', $name));
+                        $authenticators[] = new Literal(sprintf('return new QueryAuthenticator("%s", $this->%s);', $securityScheme->name, $name));
                         $namespace->addUse(QueryAuthenticator::class);
                         break;
                     case ApiKeyLocation::header:
@@ -272,12 +272,12 @@ class ConnectorGenerator extends Generator
                         $namespace->addUse(TokenAuthenticator::class);
                         break;
                     case 'basic':
-                        $authenticators[] = new Literal('return new BasicAuthenticator($this->username, $this->password)');
+                        $authenticators[] = new Literal('return new BasicAuthenticator($this->username, $this->password);');
                         $namespace->addUse(BasicAuthenticator::class);
                         break;
                     case 'digest':
                         // TODO: does this require you to provide a "digest" as well?
-                        $authenticators[] = new Literal('return new DigestAuthenticator($this->username, $this->password, "digest")');
+                        $authenticators[] = new Literal('return new DigestAuthenticator($this->username, $this->password, "digest");');
                         $namespace->addUse(DigestAuthenticator::class);
                         break;
                     default:
@@ -340,8 +340,10 @@ class ConnectorGenerator extends Generator
                         );
                 }
 
-                // TODO: Support password grant and other types later.
+                // TODO: Support password grant
             }
+
+            // TODO: Support openIdConnect
         }
 
         $authenticators = array_filter($authenticators);

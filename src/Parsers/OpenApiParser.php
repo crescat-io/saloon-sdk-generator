@@ -135,7 +135,7 @@ class OpenApiParser implements Parser
             $securitySchemes[] = new SecurityScheme(
                 type: SecuritySchemeType::tryFrom($securityScheme->type),
                 name: $securityScheme->name,
-                in: ApiKeyLocation::tryFrom($securityScheme->in),
+                in: ApiKeyLocation::tryFrom($securityScheme->in ?? ''),
                 scheme: $securityScheme->scheme,
                 bearerFormat: $securityScheme->bearerFormat,
                 description: $securityScheme->description,

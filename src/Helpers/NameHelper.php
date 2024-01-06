@@ -95,7 +95,8 @@ class NameHelper
 
         return Str::of($value)
             // Split by camelcase, ex: YearEndNote -> Year End Note
-            ->replaceMatches('/([a-z])([A-Z])/', '$1 $2')
+            // The complexity is in handling acronyms, ex: PDFDocument -> PDF Document
+            ->replaceMatches('/([a-z])([A-Z])|([A-Z]+)([A-Z][a-z])/', '$1$3 $2$4')
             ->replace(' a ', ' ')
             ->replace(' an ', ' ')
             ->replace("'s ", ' ')

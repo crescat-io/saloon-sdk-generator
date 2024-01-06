@@ -25,6 +25,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
+use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -114,7 +115,8 @@ class OpenApiParser implements Parser
     {
         $preprocessedSchemas = [];
         foreach ($schemas as $name => $schema) {
-            if (array_key_exists($name, $preprocessedSchemas)) {
+            $safeName = NameHelper::safeClassName($name);
+            if (array_key_exists($safeName, $preprocessedSchemas)) {
                 continue;
             }
 
@@ -123,10 +125,10 @@ class OpenApiParser implements Parser
             }
 
             if (! $schema->title) {
-                $schema->title = $name;
+                $schema->title = $safeName;
             }
 
-            $preprocessedSchemas[$name] = $schema;
+            $preprocessedSchemas[$safeName] = $schema;
         }
 
         return $preprocessedSchemas;
@@ -140,7 +142,7 @@ class OpenApiParser implements Parser
     {
         $parsedSchemas = [];
         foreach ($schemas as $name => $schema) {
-            $parsed = $this->parseSchema($schema, $parent);
+            $parsed = $this->parseSchema($schema, $parent, $name);
             if ($parsed) {
                 $parsedSchemas[$name] = $parsed;
             }
@@ -149,8 +151,11 @@ class OpenApiParser implements Parser
         return $parsedSchemas;
     }
 
-    protected function parseSchema(OpenApiSchema $schema, ?Schema &$parent = null): Schema
-    {
+    protected function parseSchema(
+        OpenApiSchema $schema,
+        ?Schema &$parent = null,
+        ?string $parentPropName = null
+    ): Schema {
         if (Type::isScalar($schema->type)) {
             return new Schema(
                 name: $schema->title,
@@ -158,6 +163,7 @@ class OpenApiParser implements Parser
                 description: $schema->description,
                 nullable: $schema->nullable,
                 parent: $parent,
+                parentPropName: $parentPropName,
             );
         } elseif ($schema->type === Type::ARRAY) {
             $name = $schema->title;
@@ -191,16 +197,20 @@ class OpenApiParser implements Parser
             return $parsedSchema;
         } else {
             $properties = $schema->properties;
-
             $preprocessedProperties = $this->preprocessSchemas($properties);
+
+            $safeRequired = is_array($schema->required)
+                ? array_map(fn ($prop) => NameHelper::safeVariableName($prop), $schema->required)
+                : $schema->required;
 
             $parsedSchema = new Schema(
                 name: $schema->title,
                 nullable: $schema->nullable,
                 type: $schema->title ?? 'object',
                 description: $schema->description,
-                required: $schema->required,
+                required: $safeRequired,
                 parent: $parent,
+                parentPropName: $parentPropName,
             );
             $parsedProperties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
 
@@ -227,6 +237,12 @@ class OpenApiParser implements Parser
                 );
 
                 $parsedSchema->additionalProperties = $parsedAdditionalPropsSchema;
+
+                // If there are no other properties, then this schema is just an array of additional properties,
+                // and shouldn't be treated as an explicitly defined object type
+                if (count($schema->properties) === 0) {
+                    $parsedSchema->type = $this->mapSchemaTypeToPhpType(Type::ARRAY);
+                }
             }
 
             $parsedSchema->properties = collect($parsedProperties)
@@ -279,7 +295,7 @@ class OpenApiParser implements Parser
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 nullable: $parameter->required == false,
-                name: $parameter->name,
+                name: NameHelper::safeClassName($parameter->name),
                 description: $parameter->description,
             ))
             ->sortBy(fn (Parameter $parameter) => (int) $parameter->isNullable())

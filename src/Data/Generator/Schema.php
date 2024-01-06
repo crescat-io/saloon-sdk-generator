@@ -18,10 +18,16 @@ class Schema extends Parameter
         public ?string $description,
         public bool $nullable = false,
         public bool $isResponse = false,
-        public Schema|bool $additionalProperties = true,
+        // Having this default to false conflicts with the OpenAPI spec (where the default for
+        // additionalProperties is true), but in reality most of the time, most schemas don't
+        // have additional properties
+        public Schema|bool $additionalProperties = false,
         ?string $name = null,
 
         public readonly ?Schema $parent = null,
+        // This is the name of the property in the parent schema that points to this schema
+        public readonly ?string $parentPropName = null,
+
         public ?Schema $items = null,
         public ?array $properties = [],
         public ?array $required = [],
@@ -52,8 +58,8 @@ class Schema extends Parameter
 
     public function isNullable(): bool
     {
-        if (is_array($this->parent?->required)) {
-            return ! in_array($this->name, $this->parent->required);
+        if (is_array($this->parent?->required) && count($this->parent->required) > 0) {
+            return ! in_array($this->parentPropName, $this->parent->required);
         }
 
         return $this->nullable;

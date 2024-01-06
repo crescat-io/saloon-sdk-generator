@@ -68,7 +68,7 @@ trait Deserializes
         if (is_string($type) && ($simpleType = SimpleType::tryFrom($type))) {
             return match ($simpleType) {
                 SimpleType::INTEGER => (int) $value,
-                SimpleType::NUMBER => (float) $value,
+                SimpleType::FLOAT => (float) $value,
                 SimpleType::BOOLEAN => (bool) $value,
                 SimpleType::STRING => (string) $value,
                 SimpleType::DATE, SimpleType::DATETIME => new DateTime($value),

@@ -320,7 +320,7 @@ class OpenApiParser implements Parser
     {
         return match ($type) {
             Type::INTEGER => 'int',
-            Type::NUMBER => 'float|int', // TODO: is "number" always a float in openapi specs?
+            Type::NUMBER => 'float',
             Type::STRING => 'string',
             Type::BOOLEAN => 'bool',
             Type::ARRAY, Type::OBJECT => 'array',

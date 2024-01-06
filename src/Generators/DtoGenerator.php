@@ -22,7 +22,7 @@ class DtoGenerator extends Generator
         $classes = [];
 
         foreach ($specification->schemas as $schema) {
-            if ($schema->type === Type::ARRAY || Type::isScalar($schema->type)) {
+            if ($schema->type === SimpleType::ARRAY->value || SimpleType::isScalar($schema->type)) {
                 continue;
             }
             $classes[] = $this->generateDtoClass($schema);
@@ -47,8 +47,9 @@ class DtoGenerator extends Generator
         $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
         $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
         $complexArrayTypes = [];
+
         foreach ($schema->properties as $parameterName => $property) {
-            $name = NameHelper::safeVariableName($parameterName);
+            $property->name = NameHelper::safeVariableName($parameterName);
             MethodGeneratorHelper::addParameterToConstructor(
                 $classConstructor,
                 $property,
@@ -57,8 +58,13 @@ class DtoGenerator extends Generator
                 namespace: $dtoNamespace
             );
 
-            if ($property->type === Type::ARRAY && $property->items) {
-                $complexArrayTypes[$name] = $property->items->type;
+            // Only add to the complex array types list if the property is an array of non-built-in types
+            if (
+                $property->type === Type::ARRAY
+                && $property->items
+                && ! SimpleType::tryFrom($property->items->type)
+            ) {
+                $complexArrayTypes[$property->name] = $property->items->type;
             }
         }
 

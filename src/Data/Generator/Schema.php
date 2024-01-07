@@ -48,9 +48,8 @@ class Schema extends Parameter
         $type = $this->type;
         if ($this->items) {
             $type = "{$this->items->getDocTypeString()}[]";
-        }
-        if ($this->nullable && ! $required) {
-            $type = "null|{$type}";
+        } else {
+            $type = parent::getDocTypeString();
         }
 
         return $type;

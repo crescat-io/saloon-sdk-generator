@@ -13,28 +13,29 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Dumper;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
+use Nette\PhpGenerator\Parameter as PhpGeneratorParameter;
 
 class MethodGeneratorHelper
 {
     /**
-     * Adds a property to a constructor based on a given parameter.
+     * Adds a property to a method based on a given parameter.
      *
-     * @param  Method  $constructor The consetructor to which the promoted property is added.
-     * @param  Parameter  $parameter The parameter based on which the promoted property is added.
+     * @param  Method  $method The method to which the parameter is added.
+     * @param  Parameter  $parameter The parameter to add.
      * @param  bool  $promote  Whether the parameter should be promoted to a property.
-     * @param  string  $visibility The visibility of the promoted property.
-     * @param  bool  $readonly Whether the promoted property is read-only.
-     * @param  ?string  $namespace  The namespace of the promoted property's type (if any).
-     * @return Method The updated method with the promoted property.
+     * @param  string  $visibility The visibility of the property. Only relevant if $promote = true.
+     * @param  bool  $readonly Whether the property is read-only. Only relevant if $promote = true.
+     * @param  ?string  $namespace  The namespace of the parameter's type (if any).
+     * @return PhpGeneratorParameter The added parameter.
      */
-    public static function addParameterToConstructor(
+    public static function addParameterToMethod(
         Method $method,
         Parameter $parameter,
-        bool $promote = true,
+        bool $promote = false,
         string $visibility = 'protected',
         bool $readonly = false,
         ?string $namespace = null,
-    ): Method {
+    ): PhpGeneratorParameter {
         $name = NameHelper::safeVariableName($parameter->name);
 
         $method->addComment(
@@ -72,7 +73,7 @@ class MethodGeneratorHelper
             $property->setDefaultValue(null);
         }
 
-        return $method;
+        return $property;
     }
 
     /**

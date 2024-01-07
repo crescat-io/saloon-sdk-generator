@@ -50,12 +50,13 @@ class DtoGenerator extends Generator
 
         foreach ($schema->properties as $parameterName => $property) {
             $property->name = NameHelper::safeVariableName($parameterName);
-            MethodGeneratorHelper::addParameterToConstructor(
+            MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
                 $property,
+                namespace: $dtoNamespace,
+                promote: true,
                 visibility: 'public',
                 readonly: true,
-                namespace: $dtoNamespace
             );
 
             // Only add to the complex array types list if the property is an array of non-built-in types
@@ -70,11 +71,11 @@ class DtoGenerator extends Generator
 
         if ($schema->additionalProperties) {
             $classConstructor->setVariadic(true);
-            MethodGeneratorHelper::addParameterToConstructor(
+            MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
                 $schema->additionalProperties,
+                namespace: $dtoNamespace,
                 promote: false,
-                namespace: $dtoNamespace
             );
 
             $classConstructor->addBody('parent::__construct(...$additionalProperties);');

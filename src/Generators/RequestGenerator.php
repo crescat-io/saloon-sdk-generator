@@ -176,7 +176,7 @@ class RequestGenerator extends Generator
 
         // Priority 1. - Path Parameters
         foreach ($endpoint->pathParameters as $pathParam) {
-            MethodGeneratorHelper::addParameterToConstructor($constructor, $pathParam);
+            MethodGeneratorHelper::addParameterToMethod($constructor, $pathParam, promote: true);
         }
 
         // Priority 2. - Body Parameters
@@ -186,11 +186,12 @@ class RequestGenerator extends Generator
             $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
             $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
 
-            MethodGeneratorHelper::addParameterToConstructor(
+            MethodGeneratorHelper::addParameterToMethod(
                 $constructor,
                 $body,
-                visibility: 'public',
                 namespace: $dtoNamespace,
+                promote: true,
+                visibility: 'public',
             );
         }
 
@@ -202,7 +203,7 @@ class RequestGenerator extends Generator
                 ->toArray();
 
             foreach ($queryParams as $queryParam) {
-                MethodGeneratorHelper::addParameterToConstructor($constructor, $queryParam);
+                MethodGeneratorHelper::addParameterToMethod($constructor, $queryParam, promote: true);
             }
 
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);

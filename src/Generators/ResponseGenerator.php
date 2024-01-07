@@ -9,6 +9,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
+use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
@@ -43,37 +44,25 @@ class ResponseGenerator extends Generator
         $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
         $complexArrayTypes = [];
         foreach ($schema->properties as $parameterName => $property) {
-            $name = NameHelper::safeVariableName($parameterName);
-            $param = $classConstructor
-                ->addComment(
-                    trim(sprintf(
-                        '@param %s $%s %s',
-                        $property->getDocTypeString(),
-                        $name,
-                        $property->description
-                    ))
-                )
-                ->addPromotedParameter($name);
+            MethodGeneratorHelper::addParameterToMethod(
+                $classConstructor,
+                $property,
+                namespace: $dtoNamespace,
+                promote: true,
+                visibility: 'public',
+                readonly: true,
+            );
+            $safeName = NameHelper::safeVariableName($parameterName);
 
             $type = $property->type;
             if (! SimpleType::tryFrom($type)) {
-                $safeType = NameHelper::safeClassName($type);
+                $safeType = NameHelper::dtoClassName($type);
                 $type = "{$dtoNamespace}\\{$safeType}";
                 $namespace->addUse($type);
             }
 
-            $param
-                ->setReadOnly()
-                ->setType($type)
-                ->setNullable($property->isNullable())
-                ->setPublic();
-
-            if ($property->isNullable()) {
-                $param->setDefaultValue(null);
-            }
-
             if ($property->type === SimpleType::ARRAY && $property->items) {
-                $complexArrayTypes[$name] = $property->items->type;
+                $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
             }
         }
 

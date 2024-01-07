@@ -30,8 +30,11 @@ class HarParser implements Parser
         return new ApiSpecification(
             name: 'HAR File', // HAR doesn't have a name field
             description: 'Parsed from HAR file',
-            baseUrl: '', // HAR files don't typically have a base URL, but it could be inferred
+            baseUrl: null, // HAR files don't typically have a base URL, but it could be inferred
+            securityRequirements: [],
+            components: null,
             endpoints: $this->parseItems()
+
         );
     }
 

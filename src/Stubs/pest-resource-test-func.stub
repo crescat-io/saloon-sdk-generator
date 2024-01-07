@@ -1,0 +1,11 @@
+it('{{ testDescription }}', function () {
+    Saloon::fake([
+        {{ requestClass }}::class => MockResponse::fixture('{{ fixtureName }}'),
+    ]);
+
+    $response = $this->{{ name }}->{{ resourceName }}()->{{ methodName }}();
+
+    Saloon::assertSent({{ requestClass }}::class);
+
+    expect($response->status())->toBe(200);
+});

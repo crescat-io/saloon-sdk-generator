@@ -13,18 +13,47 @@ use Crescat\SaloonSdkGenerator\Generators\ResourceGenerator;
 
 class CodeGenerator
 {
+    protected array $generators = [];
+
     public function __construct(
         protected Config $config,
         protected ?Generator $requestGenerator = null,
         protected ?Generator $resourceGenerator = null,
         protected ?Generator $dtoGenerator = null,
         protected ?Generator $connectorGenerator = null,
-        protected ?Generator $baseResourceGenerator = null,
+        ?array $generators = [],
     ) {
         $this->requestGenerator ??= new RequestGenerator($config);
         $this->resourceGenerator ??= new ResourceGenerator($config);
         $this->dtoGenerator ??= new DtoGenerator($config);
         $this->connectorGenerator ??= new ConnectorGenerator($config);
+
+        // Register any additional generators
+        $this->registerGenerators($generators);
+    }
+
+    public function registerGenerator(Generator $generator): static
+    {
+        $this->generators[] = $generator;
+
+        return $this;
+    }
+
+    public function registerGenerators(?array $generators = []): static
+    {
+        foreach ($generators as $generator) {
+            $this->generators[] = $generator;
+        }
+
+        return $this;
+    }
+
+    protected function runGenerators(ApiSpecification $specification): array
+    {
+        return collect($this->generators)
+            ->each(fn (Generator $generator) => $generator->setConfig($this->config))
+            ->map(fn (Generator $generator) => $generator->generate($specification))
+            ->toArray();
     }
 
     public function run(ApiSpecification $specification): GeneratedCode
@@ -32,8 +61,9 @@ class CodeGenerator
         return new GeneratedCode(
             requestClasses: $this->requestGenerator->generate($specification),
             resourceClasses: $this->resourceGenerator->generate($specification),
-            dtoClasses: $this->dtoGenerator->generate($specification),
+            dtoClasses: $generatedDtos = $this->dtoGenerator->generate($specification),
             connectorClass: $this->connectorGenerator->generate($specification),
+            generatedFiles: $this->runGenerators($specification),
         );
     }
 }

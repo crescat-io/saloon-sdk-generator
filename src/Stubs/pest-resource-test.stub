@@ -1,0 +1,12 @@
+<?php
+
+
+{{ dtoImports }}
+{{ requestImports }}
+use Saloon\Http\Faking\MockResponse;
+use Saloon\Laravel\Facades\Saloon;
+use Spatie\LaravelData\DataCollection;
+
+beforeEach(function () {
+    $this->{{ name }} = new {{ namespace }}\{{ name }}( /* todo */);
+});

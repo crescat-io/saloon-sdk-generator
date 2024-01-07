@@ -8,7 +8,9 @@ use Nette\PhpGenerator\PhpFile;
 
 interface Generator
 {
-    public function __construct(Config $config);
+    public function __construct(?Config $config = null);
+
+    public function setConfig(Config $config): static;
 
     /**
      * @return PhpFile|PhpFile[]

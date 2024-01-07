@@ -7,6 +7,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
 use Crescat\SaloonSdkGenerator\Exceptions\ParserNotRegisteredException;
 use Crescat\SaloonSdkGenerator\Factory;
+use Crescat\SaloonSdkGenerator\Generators\PestTestGenerator;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -53,7 +54,10 @@ class GenerateSdk extends Command
                     'order_by',
                     'per_page',
                 ]
-            )
+            ),
+            generators: [
+                new PestTestGenerator(),
+            ],
         );
 
         try {

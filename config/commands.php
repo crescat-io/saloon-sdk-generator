@@ -1,5 +1,6 @@
 <?php
 
+use Crescat\SaloonSdkGenerator\Commands\Convert;
 use Crescat\SaloonSdkGenerator\Commands\GenerateSdk;
 
 return [
@@ -43,6 +44,7 @@ return [
 
     'add' => [
         GenerateSdk::class,
+        Convert::class,
     ],
 
     /*

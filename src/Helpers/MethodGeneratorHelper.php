@@ -9,6 +9,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Dumper;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\Method;
+use SensitiveParameter;
 
 class MethodGeneratorHelper
 {
@@ -19,8 +20,14 @@ class MethodGeneratorHelper
      * @param  Parameter  $parameter The parameter based on which the promoted property is added.
      * @return Method The updated method with the promoted property.
      */
-    public static function addParameterAsPromotedProperty(Method $method, Parameter $parameter): Method
-    {
+    public static function addParameterAsPromotedProperty(
+        Method $method,
+        Parameter $parameter,
+        mixed $defaultValue = null,
+        bool $sensitive = false
+    ): Method {
+        // TODO: validate that this is a constructor, promported properties are only supported on constructors.
+
         $name = NameHelper::safeVariableName($parameter->name);
 
         $property = $method
@@ -39,8 +46,14 @@ class MethodGeneratorHelper
             ->setNullable($parameter->nullable)
             ->setProtected();
 
-        if ($parameter->nullable) {
+        if ($defaultValue !== null) {
+            $property->setDefaultValue($defaultValue);
+        } elseif ($parameter->nullable) {
             $property->setDefaultValue(null);
+        }
+
+        if ($sensitive) {
+            $property->addAttribute(SensitiveParameter::class);
         }
 
         return $method;

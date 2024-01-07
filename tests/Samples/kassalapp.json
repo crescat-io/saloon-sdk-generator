@@ -1,1 +1,1096 @@
-{"openapi":"3.1.0","info":{"title":"Kassalapp","version":"0.0.1","description":"This API documentation is meant to be used by OpenAI ChatGPT."},"servers":[{"url":"https:\/\/kassal.app\/api\/v1"}],"security":[{"http":[]}],"paths":{"\/health":{"get":{"operationId":"healthCheck","summary":"Checks if the Kassalapp API is working","tags":["HealthCheck"],"responses":{"200":{"description":"","content":{"application\/json":{"schema":{"type":"object","properties":{"status":{"type":"string","description":"The string \"Healthy\""}},"required":["status"]}}}}}}},"\/physical-stores":{"get":{"operationId":"searchPhysicalStores","description":"Useful for finding a grocery store by name, location or based on the group (grocery store chain), returns name, address, contact information and opening hours for each store.","summary":"Search for physical stores","tags":["PhysicalStore"],"parameters":[{"name":"group","in":"query","description":"Filter by group name.","schema":{"type":["string","null"],"enum":["MENY_NO","SPAR_NO","JOKER_NO","ODA_NO","ENGROSSNETT_NO","NAERBUTIKKEN","BUNNPRIS","KIWI","REMA_1000","EUROPRIS_NO","HAVARISTEN","HOLDBART","FUDI","COOP_NO","COOP_MARKED","MATKROKEN","COOP_MEGA","COOP_PRIX","COOP_OBS","COOP_EXTRA","COOP_BYGGMIX","COOP_OBS_BYGG","COOP_ELEKTRO","ARK","NORLI","ADLIBRIS"]},"example":"BUNNPRIS"},{"name":"search","in":"query","description":"Perform a search based on a keyword.","schema":{"type":["string","null"]},"example":"land\u00e5s"},{"name":"lat","in":"query","description":"Latitude coordinate for proximity search.","schema":{"type":["number","null"]}},{"name":"lng","in":"query","description":"Longitude coordinate for proximity search.","schema":{"type":["number","null"]}},{"name":"km","in":"query","description":"Search radius in kilometers for proximity search.","schema":{"type":["number","null"]}},{"name":"size","in":"query","description":"The number of results to be displayed per page. Must be an integer between 1 and 100.","schema":{"type":["integer","null"],"minimum":1,"maximum":100}}],"responses":{"200":{"description":"Array of `PhysicalStoreResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"type":"array","items":{"$ref":"#\/components\/schemas\/PhysicalStoreResource"}}},"required":["data"]}}}},"422":{"$ref":"#\/components\/responses\/ValidationException"},"403":{"$ref":"#\/components\/responses\/AuthorizationException"}}}},"\/physical-stores\/{physicalStore}":{"get":{"operationId":"findPhysicalStoreById","description":"Finds a grocery store by ID. returns name, address, contact information and opening hours for the store store.","summary":"Find physical store by ID","tags":["PhysicalStore"],"parameters":[{"name":"physicalStore","in":"path","required":true,"description":"The physical store ID","schema":{"type":"integer"}}],"responses":{"200":{"description":"`PhysicalStoreResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"$ref":"#\/components\/schemas\/PhysicalStoreResource"}},"required":["data"]}}}},"404":{"$ref":"#\/components\/responses\/ModelNotFoundException"}}}},"\/products":{"get":{"operationId":"searchProducts","description":"Useful for searching for groceries and various product to find the price, ingredients and nutritional information","summary":"Search for products","tags":["Product"],"parameters":[{"name":"brand","in":"query","description":"Filter products by brand name.","schema":{"type":["string","null"]},"example":"BAMA"},{"name":"vendor","in":"query","description":"Filter products by vendor (leverand\u00f8r).","schema":{"type":["string","null"]},"example":"orkla foods"},{"name":"price_min","in":"query","description":"Filter products by minimum price.","schema":{"type":["number","null"]}},{"name":"price_max","in":"query","description":"Filter products by maximum price.","schema":{"type":["number","null"]}},{"name":"sort","in":"query","description":"Sort the products by a specific criteria. Available options: date_asc, date_desc, name_asc, name_desc, price_asc, price_desc.","schema":{"type":["string","null"],"enum":["date_asc","date_desc","name_asc","name_desc","price_asc","price_desc"]}},{"name":"search","in":"query","description":"Search for products based on a keyword. The keyword must be a string with a minimum length of 3 characters.","schema":{"type":["string","null"]}},{"name":"size","in":"query","description":"The number of products to be displayed per page. Must be an integer between 1 and 100.","schema":{"type":["integer","null"],"minimum":1,"maximum":100}},{"name":"unique","in":"query","description":"If true, the product list will be collapsed based on the EAN number of the product; in practice, set this to true if you don't want duplicate results.","schema":{"type":["boolean","null"]}},{"name":"exclude_without_ean","in":"query","description":"If true, products without an EAN number are excluded from the results.","schema":{"type":["boolean","null"]}},{"name":"excl_allergens","in":"query","description":"Exclude specific allergens from the products. Each element must be a string.","schema":{"type":["array","null"],"items":{"type":"string"}}},{"name":"incl_allergens","in":"query","description":"Include only specific allergens in the products. Each element must be a string.","schema":{"type":["array","null"],"items":{"type":"string"}}}],"responses":{"200":{"description":"Array of `ProductResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"type":"array","items":{"$ref":"#\/components\/schemas\/ProductResource"}}},"required":["data"]}}}},"422":{"$ref":"#\/components\/responses\/ValidationException"},"403":{"$ref":"#\/components\/responses\/AuthorizationException"}}}},"\/products\/id\/{product}":{"get":{"operationId":"findProductById","description":"Gets a specific product by id, returns the product price, nutritional information, ingredients, allergens for the product.","summary":"Lookup product by ID","tags":["Product"],"parameters":[{"name":"product","in":"path","required":true,"description":"The product ID","schema":{"type":"integer"}}],"responses":{"200":{"description":"`ProductResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"$ref":"#\/components\/schemas\/ProductResource"}},"required":["data"]}}}},"404":{"$ref":"#\/components\/responses\/ModelNotFoundException"}}}},"\/products\/ean\/{ean}":{"get":{"operationId":"findProductByEanBarcode","description":"Gets a specific product by EAN (barcode) number, returns the product price, nutritional information, ingredients, allergens for the product.","summary":"Lookup product by EAN number","tags":["Product"],"parameters":[{"name":"ean","in":"path","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"`ProductComparisonResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"$ref":"#\/components\/schemas\/ProductComparisonResource"}},"required":["data"]}}}}}}},"\/products\/find-by-url\/single":{"get":{"operationId":"findProductByUrl","description":"Will look up product information based on an URL, returns the product price, nutritional information, ingredients, allergens for the product.","summary":"Find product info by URL","tags":["Product"],"parameters":[{"name":"url","in":"query","required":true,"description":"The url of the Product you want to get information on.","schema":{"type":"string"},"example":"https:\/\/meny.no\/varer\/middag\/pizza\/pizza\/grandiosa-pizza-7039010019811"}],"responses":{"200":{"description":"`ProductResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"$ref":"#\/components\/schemas\/ProductResource"}},"required":["data"]}}}},"422":{"$ref":"#\/components\/responses\/ValidationException"}}}},"\/products\/find-by-url\/compare":{"get":{"operationId":"findProductsByUrl","description":"Will look up product information based on an URL, and return all matching prices from other stores that stock that item.","summary":"Find product price comparison info by URL","tags":["Product"],"parameters":[{"name":"url","in":"query","required":true,"description":"The url of the Product you want to get comparisons for.","schema":{"type":"string"},"example":"https:\/\/meny.no\/varer\/middag\/pizza\/pizza\/grandiosa-pizza-7039010019811"}],"responses":{"200":{"description":"`ProductComparisonResource`","content":{"application\/json":{"schema":{"type":"object","properties":{"data":{"$ref":"#\/components\/schemas\/ProductComparisonResource"}},"required":["data"]}}}},"422":{"$ref":"#\/components\/responses\/ValidationException"}}}}},"components":{"securitySchemes":{"http":{"type":"http","scheme":"bearer","bearerFormat":"token"}},"schemas":{"AllergenItemResource":{"type":"object","properties":{"code":{"type":"string"},"display_name":{"type":"string"},"contains":{"type":"string","description":"contains"}},"required":["code","display_name","contains"],"title":"AllergenItemResource"},"NutritionItemResource":{"type":"object","properties":{"code":{"type":"string"},"display_name":{"type":"string"},"amount":{"type":"number"},"unit":{"type":"string"}},"required":["code","display_name","amount","unit"],"title":"NutritionItemResource"},"PhysicalStoreResource":{"type":"object","properties":{"id":{"type":"integer"},"group":{"type":["string","null"]},"name":{"type":"string"},"address":{"type":"string"},"phone":{"type":["string","null"]},"email":{"type":["string","null"]},"fax":{"type":["string","null"]},"logo":{"type":"string"},"website":{"type":["string","null"]},"detailUrl":{"type":"string"},"position":{"type":"object","properties":{"lat":{"type":["number","null"]},"lng":{"type":["number","null"]}},"required":["lat","lng"]},"openingHours":{"type":"object","properties":{"monday":{"type":["string","null"]},"tuesday":{"type":["string","null"]},"wednesday":{"type":["string","null"]},"thursday":{"type":["string","null"]},"friday":{"type":["string","null"]},"saturday":{"type":["string","null"]},"sunday":{"type":["string","null"]}},"required":["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]}},"required":["id","group","name","address","phone","email","fax","logo","website","detailUrl","position","openingHours"],"title":"PhysicalStoreResource"},"ProductComparisonItemResource":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"vendor":{"type":"string"},"brand":{"type":"string"},"description":{"type":"string"},"ingredients":{"type":"string"},"url":{"type":"string"},"image":{"type":"string"},"store":{"type":"string"},"current_price":{"type":"string"},"price_history":{"type":"array","items":{"type":"object","properties":{"price":{"type":"number"},"date":{"type":"string"}},"required":["price","date"]}},"kassalapp":{"type":"object","properties":{"url":{"type":"string"},"opengraph":{"type":"string"}},"required":["url","opengraph"]},"created_at":{"type":"string"},"updated_at":{"type":"string"}},"required":["id","name","vendor","brand","description","ingredients","url","image","store","current_price","price_history","kassalapp","created_at","updated_at"],"title":"ProductComparisonItemResource"},"ProductComparisonResource":{"type":"object","properties":{"ean":{"type":"string"},"products":{"type":"array","items":{"$ref":"#\/components\/schemas\/ProductComparisonItemResource"}},"allergens":{"type":"array","items":{"$ref":"#\/components\/schemas\/AllergenItemResource"}},"nutrition":{"type":"array","items":{"$ref":"#\/components\/schemas\/NutritionItemResource"}}},"required":["ean","products","allergens","nutrition"],"title":"ProductComparisonResource"},"ProductResource":{"type":"object","properties":{"id":{"type":"integer"},"name":{"type":"string"},"brand":{"type":["string","null"]},"vendor":{"type":["string","null"]},"ean":{"type":["string","null"]},"url":{"type":"string"},"image":{"type":["string","null"]},"description":{"type":["string","null"]},"ingredients":{"type":["string","null"]},"current_price":{"type":"string"},"store":{"type":"string"},"price_history":{"type":"array","items":{"type":"object","properties":{"price":{"type":"number"},"date":{"type":"string"}},"required":["price","date"]}},"allergens":{"type":"array","items":{"$ref":"#\/components\/schemas\/AllergenItemResource"}},"nutrition":{"type":"array","items":{"$ref":"#\/components\/schemas\/NutritionItemResource"}},"created_at":{"type":["object","null"]},"updated_at":{"type":["object","null"]}},"required":["id","name","brand","vendor","ean","url","image","description","ingredients","current_price","store","price_history","allergens","nutrition","created_at","updated_at"],"title":"ProductResource"}},"responses":{"ValidationException":{"description":"Validation error","content":{"application\/json":{"schema":{"type":"object","properties":{"message":{"type":"string","description":"Errors overview."},"errors":{"type":"object","description":"A detailed description of each field that failed validation.","additionalProperties":{"type":"array","items":{"type":"string"}}}},"required":["message","errors"]}}}},"AuthorizationException":{"description":"Authorization error","content":{"application\/json":{"schema":{"type":"object","properties":{"message":{"type":"string","description":"Error overview."}},"required":["message"]}}}},"ModelNotFoundException":{"description":"Not found","content":{"application\/json":{"schema":{"type":"object","properties":{"message":{"type":"string","description":"Error overview."}},"required":["message"]}}}}}}}
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Kassalapp",
+        "version": "0.0.1",
+        "description": "This API documentation is meant to be used by OpenAI ChatGPT."
+    },
+    "servers": [
+        {
+            "url": "https:\/\/kassal.app\/api\/v1"
+        }
+    ],
+    "security": [
+        {
+            "http": []
+        }
+    ],
+    "paths": {
+        "\/health": {
+            "get": {
+                "operationId": "healthCheck",
+                "summary": "Checks if the Kassalapp API is working",
+                "tags": [
+                    "HealthCheck"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "The string \"Healthy\""
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/physical-stores": {
+            "get": {
+                "operationId": "searchPhysicalStores",
+                "description": "Useful for finding a grocery store by name, location or based on the group (grocery store chain), returns name, address, contact information and opening hours for each store.",
+                "summary": "Search for physical stores",
+                "tags": [
+                    "PhysicalStore"
+                ],
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "query",
+                        "description": "Filter by group name.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "MENY_NO",
+                                "SPAR_NO",
+                                "JOKER_NO",
+                                "ODA_NO",
+                                "ENGROSSNETT_NO",
+                                "NAERBUTIKKEN",
+                                "BUNNPRIS",
+                                "KIWI",
+                                "REMA_1000",
+                                "EUROPRIS_NO",
+                                "HAVARISTEN",
+                                "HOLDBART",
+                                "FUDI",
+                                "COOP_NO",
+                                "COOP_MARKED",
+                                "MATKROKEN",
+                                "COOP_MEGA",
+                                "COOP_PRIX",
+                                "COOP_OBS",
+                                "COOP_EXTRA",
+                                "COOP_BYGGMIX",
+                                "COOP_OBS_BYGG",
+                                "COOP_ELEKTRO",
+                                "ARK",
+                                "NORLI",
+                                "ADLIBRIS"
+                            ]
+                        },
+                        "example": "BUNNPRIS"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Perform a search based on a keyword.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "example": "land\u00e5s"
+                    },
+                    {
+                        "name": "lat",
+                        "in": "query",
+                        "description": "Latitude coordinate for proximity search.",
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "lng",
+                        "in": "query",
+                        "description": "Longitude coordinate for proximity search.",
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "km",
+                        "in": "query",
+                        "description": "Search radius in kilometers for proximity search.",
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of results to be displayed per page. Must be an integer between 1 and 100.",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `PhysicalStoreResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#\/components\/schemas\/PhysicalStoreResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#\/components\/responses\/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "\/physical-stores\/{physicalStore}": {
+            "get": {
+                "operationId": "findPhysicalStoreById",
+                "description": "Finds a grocery store by ID. returns name, address, contact information and opening hours for the store store.",
+                "summary": "Find physical store by ID",
+                "tags": [
+                    "PhysicalStore"
+                ],
+                "parameters": [
+                    {
+                        "name": "physicalStore",
+                        "in": "path",
+                        "required": true,
+                        "description": "The physical store ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PhysicalStoreResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/PhysicalStoreResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#\/components\/responses\/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "\/products": {
+            "get": {
+                "operationId": "searchProducts",
+                "description": "Useful for searching for groceries and various product to find the price, ingredients and nutritional information",
+                "summary": "Search for products",
+                "tags": [
+                    "Product"
+                ],
+                "parameters": [
+                    {
+                        "name": "brand",
+                        "in": "query",
+                        "description": "Filter products by brand name.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "example": "BAMA"
+                    },
+                    {
+                        "name": "vendor",
+                        "in": "query",
+                        "description": "Filter products by vendor (leverand\u00f8r).",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "example": "orkla foods"
+                    },
+                    {
+                        "name": "price_min",
+                        "in": "query",
+                        "description": "Filter products by minimum price.",
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "price_max",
+                        "in": "query",
+                        "description": "Filter products by maximum price.",
+                        "schema": {
+                            "type": [
+                                "number",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort the products by a specific criteria. Available options: date_asc, date_desc, name_asc, name_desc, price_asc, price_desc.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "date_asc",
+                                "date_desc",
+                                "name_asc",
+                                "name_desc",
+                                "price_asc",
+                                "price_desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search for products based on a keyword. The keyword must be a string with a minimum length of 3 characters.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The number of products to be displayed per page. Must be an integer between 1 and 100.",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "unique",
+                        "in": "query",
+                        "description": "If true, the product list will be collapsed based on the EAN number of the product; in practice, set this to true if you don't want duplicate results.",
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "exclude_without_ean",
+                        "in": "query",
+                        "description": "If true, products without an EAN number are excluded from the results.",
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "excl_allergens",
+                        "in": "query",
+                        "description": "Exclude specific allergens from the products. Each element must be a string.",
+                        "schema": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "incl_allergens",
+                        "in": "query",
+                        "description": "Include only specific allergens in the products. Each element must be a string.",
+                        "schema": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of `ProductResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#\/components\/schemas\/ProductResource"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#\/components\/responses\/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "\/products\/id\/{product}": {
+            "get": {
+                "operationId": "findProductById",
+                "description": "Gets a specific product by id, returns the product price, nutritional information, ingredients, allergens for the product.",
+                "summary": "Lookup product by ID",
+                "tags": [
+                    "Product"
+                ],
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "description": "The product ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ProductResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/ProductResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#\/components\/responses\/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "\/products\/ean\/{ean}": {
+            "get": {
+                "operationId": "findProductByEanBarcode",
+                "description": "Gets a specific product by EAN (barcode) number, returns the product price, nutritional information, ingredients, allergens for the product.",
+                "summary": "Lookup product by EAN number",
+                "tags": [
+                    "Product"
+                ],
+                "parameters": [
+                    {
+                        "name": "ean",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ProductComparisonResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/ProductComparisonResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/products\/find-by-url\/single": {
+            "get": {
+                "operationId": "findProductByUrl",
+                "description": "Will look up product information based on an URL, returns the product price, nutritional information, ingredients, allergens for the product.",
+                "summary": "Find product info by URL",
+                "tags": [
+                    "Product"
+                ],
+                "parameters": [
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "required": true,
+                        "description": "The url of the Product you want to get information on.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "https:\/\/meny.no\/varer\/middag\/pizza\/pizza\/grandiosa-pizza-7039010019811"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ProductResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/ProductResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    }
+                }
+            }
+        },
+        "\/products\/find-by-url\/compare": {
+            "get": {
+                "operationId": "findProductsByUrl",
+                "description": "Will look up product information based on an URL, and return all matching prices from other stores that stock that item.",
+                "summary": "Find product price comparison info by URL",
+                "tags": [
+                    "Product"
+                ],
+                "parameters": [
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "required": true,
+                        "description": "The url of the Product you want to get comparisons for.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "https:\/\/meny.no\/varer\/middag\/pizza\/pizza\/grandiosa-pizza-7039010019811"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`ProductComparisonResource`",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/ProductComparisonResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#\/components\/responses\/ValidationException"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "http": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "token"
+            }
+        },
+        "schemas": {
+            "AllergenItemResource": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "display_name": {
+                        "type": "string"
+                    },
+                    "contains": {
+                        "type": "string",
+                        "description": "contains"
+                    }
+                },
+                "required": [
+                    "code",
+                    "display_name",
+                    "contains"
+                ],
+                "title": "AllergenItemResource"
+            },
+            "NutritionItemResource": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "display_name": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "unit": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "display_name",
+                    "amount",
+                    "unit"
+                ],
+                "title": "NutritionItemResource"
+            },
+            "PhysicalStoreResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "group": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "fax": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "logo": {
+                        "type": "string"
+                    },
+                    "website": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "detailUrl": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "object",
+                        "properties": {
+                            "lat": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            },
+                            "lng": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "lat",
+                            "lng"
+                        ]
+                    },
+                    "openingHours": {
+                        "type": "object",
+                        "properties": {
+                            "monday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "tuesday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "wednesday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "thursday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "friday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "saturday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "sunday": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "group",
+                    "name",
+                    "address",
+                    "phone",
+                    "email",
+                    "fax",
+                    "logo",
+                    "website",
+                    "detailUrl",
+                    "position",
+                    "openingHours"
+                ],
+                "title": "PhysicalStoreResource"
+            },
+            "ProductComparisonItemResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "vendor": {
+                        "type": "string"
+                    },
+                    "brand": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "ingredients": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": "string"
+                    },
+                    "store": {
+                        "type": "string"
+                    },
+                    "current_price": {
+                        "type": "string"
+                    },
+                    "price_history": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "price": {
+                                    "type": "number"
+                                },
+                                "date": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "price",
+                                "date"
+                            ]
+                        }
+                    },
+                    "kassalapp": {
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string"
+                            },
+                            "opengraph": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "url",
+                            "opengraph"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "vendor",
+                    "brand",
+                    "description",
+                    "ingredients",
+                    "url",
+                    "image",
+                    "store",
+                    "current_price",
+                    "price_history",
+                    "kassalapp",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ProductComparisonItemResource"
+            },
+            "ProductComparisonResource": {
+                "type": "object",
+                "properties": {
+                    "ean": {
+                        "type": "string"
+                    },
+                    "products": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/ProductComparisonItemResource"
+                        }
+                    },
+                    "allergens": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/AllergenItemResource"
+                        }
+                    },
+                    "nutrition": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/NutritionItemResource"
+                        }
+                    }
+                },
+                "required": [
+                    "ean",
+                    "products",
+                    "allergens",
+                    "nutrition"
+                ],
+                "title": "ProductComparisonResource"
+            },
+            "ProductResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "brand": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vendor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ean": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ingredients": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "current_price": {
+                        "type": "string"
+                    },
+                    "store": {
+                        "type": "string"
+                    },
+                    "price_history": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "price": {
+                                    "type": "number"
+                                },
+                                "date": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "price",
+                                "date"
+                            ]
+                        }
+                    },
+                    "allergens": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/AllergenItemResource"
+                        }
+                    },
+                    "nutrition": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/NutritionItemResource"
+                        }
+                    },
+                    "created_at": {
+                        "type": [
+                            "object",
+                            "null"
+                        ]
+                    },
+                    "updated_at": {
+                        "type": [
+                            "object",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "brand",
+                    "vendor",
+                    "ean",
+                    "url",
+                    "image",
+                    "description",
+                    "ingredients",
+                    "current_price",
+                    "store",
+                    "price_history",
+                    "allergens",
+                    "nutrition",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ProductResource"
+            }
+        },
+        "responses": {
+            "ValidationException": {
+                "description": "Validation error",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Errors overview."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "description": "A detailed description of each field that failed validation.",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "errors"
+                            ]
+                        }
+                    }
+                }
+            },
+            "AuthorizationException": {
+                "description": "Authorization error",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

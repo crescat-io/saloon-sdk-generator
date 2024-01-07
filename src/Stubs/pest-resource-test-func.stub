@@ -3,7 +3,7 @@ it('{{ testDescription }}', function () {
         {{ requestClass }}::class => MockResponse::fixture('{{ fixtureName }}'),
     ]);
 
-    $response = $this->{{ safeVariableName }}->{{ resourceName }}()->{{ methodName }}();
+    $response = $this->{{ name }}->{{ resourceName }}()->{{ methodName }}();
 
     Saloon::assertSent({{ requestClass }}::class);
 

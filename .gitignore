@@ -5,3 +5,4 @@
 .phpunit.result.cache
 tests/Output/*
 !tests/Output/.gitkeep
+.aider*

@@ -15,7 +15,7 @@ info:
       1. OAuth2
       2. Personal API tokens
 
-    Third parties that wish to integrate with Fiken on behalf of their customers should use the OAuth2 authorization method. In order to develop OAuth2 applications that integrate with this API you must log into your Fiken account and check the box saying that you are a developer (**Rediger konto → Profil → Andre innstillinger**). This will allow you to create an App by clicking on the "API" tab under Brukerinnstillinger. If you don't have an existing Fiken account you can create a new user and demo company (demoforetak) at no charge. Send an email to <api@fiken.no> to get free access to Fiken for longer than the included 30 day free trial period. 
+    Third parties that wish to integrate with Fiken on behalf of their customers should use the OAuth2 authorization method. In order to develop OAuth2 applications that integrate with this API you must log into your Fiken account and check the box saying that you are a developer (**Rediger konto ? Profil ? Andre innstillinger**). This will allow you to create an App by clicking on the "API" tab under Brukerinnstillinger. If you don't have an existing Fiken account you can create a new user and demo company (demoforetak) at no charge. Send an email to <api@fiken.no> to get free access to Fiken for longer than the included 30 day free trial period.
 
     Upon creation of the new App you will be provided a Client ID and Client Secret that are needed for the OAuth2 authorization flow.
 
@@ -27,7 +27,7 @@ info:
     All URLs start with https://api.fiken.no/api/v2. Note that TLS is required, unencrypted HTTP is not supported. Although we currently redirect HTTP requests to HTTPS, you are not allowed to this with your application as using HTTP is a security risk. In the future we might respond with 403 Forbidden instead.
 
     ## Concurrent requests / rate limiting
-    You are only allowed to make a single concurrent API-request. This is currently not automatically enforced, but it might be in the future. If you break this rule you might be banned. In case of a ban please contact us to be unbanned.
+    You are only allowed to make a single concurrent API-request. Sending multiple requests concurrently may result in a 429 error response. If you break this rule you might be banned. In case of a ban please contact us to be unbanned.
 
     API calls may be slowed if you execute more than 4 requests per second.
 
@@ -149,11 +149,11 @@ info:
         Authorization: Bearer <access_token_value>
 
     The response for a successful revocation is 200/OK.
-    
+
     ### Managing access
 
-    The end user can manage which companies a given app has access to under **Rediger konto -> Sikkerhet -> Apper du har gitt tilgang til**. 
-    All companies created after the initial consent has been given need to be actively added so that the app will have access to their information. 
+    The end user can manage which companies a given app has access to under **Rediger konto -> Sikkerhet -> Apper du har gitt tilgang til**.
+    All companies created after the initial consent has been given need to be actively added so that the app will have access to their information.
     Additionally the end user can revoke access to any of their companies' data as well.
 
 
@@ -175,7 +175,7 @@ info:
     | Request  Header           | Format   | Description                                                       |
     | ----------------          | -------- | -----------------------------                                     |
     | `X-Request-ID`            | UUID     | UUID used to identify the request                                 |
-    
+
 
 
     ## Response
@@ -260,8 +260,8 @@ info:
 
     ### Date
     Dates are represented as strings formatted as yyyy-MM-dd.
-    "Last modified" returns the date of last modification of the object. 
-    If the object was never modified after creation, last modified date is equal to created date. 
+    "Last modified" returns the date of last modification of the object.
+    If the object was never modified after creation, last modified date is equal to created date.
 
     ##### Examples:
     January 2nd, 1970: "1970-01-02"
@@ -283,11 +283,11 @@ info:
     1500:10001
 
     ### VAT Code
-    Fiken's VAT codes are based upon Sticos mvakoder. To see all VAT codes go to Fiken support, check the "Mva kode"-selector in the Fiken web interface while creating a genereal ledger item ("Fri postering"). 
+    Fiken's VAT codes are based upon Sticos mvakoder. To see all VAT codes go to Fiken support, check the "Mva kode"-selector in the Fiken web interface while creating a genereal ledger item ("Fri postering").
     See below the mapping between VAT codes and types (codes are used at the transaction level while types are used for sales and purchases).
-    
-    | Vat Code | Vat Type                                                                                                                                 | Valid for Purchases/Sales    | 
-    | ---      |---                                                                                                                                       | ---                          |                                         
+
+    | Vat Code | Vat Type                                                                                                                                 | Valid for Purchases/Sales    |
+    | ---      |---                                                                                                                                       | ---                          |
     |  0/7     |NONE (Ingen - KJØP_INGEN_MVABEHANDLING/SALG_INNTEKTER_UTEN_MVABEHANDLING)	                                                              |Both	                         |
     |  1/3	   |HIGH (Høy - KJØP/SALG_MED_HØY_SATS)	                                                                                                      |Both                          |
     |  11/31   |MEDIUM (Middels - KJØP/SALG_MED_MIDDELS_SATS)	                                                                                          |Both         	             |
@@ -308,7 +308,7 @@ info:
     |  89	   |LOW_FOREIGN_SERVICE_NONDEDUCTIBLE (Lav tjeneste utlandet uten fradrag - TJENESTER_KJØPT_FRA_UTLANDET_UTEN_FRADRAG_FOR_LAV_MVA)	          |Purchases	                 |
     |  91	   |HIGH_PURCHASE_OF_EMISSIONSTRADING_OR_GOLD_DEDUCTIBLE (Gull - KJØP_AV_KLIMAKVOTER_ELLER_GULL_MED_FRADRAG_FOR_MVA)	                      |Purchases	                 |
     |  92	   |HIGH_PURCHASE_OF_EMISSIONSTRADING_OR_GOLD_NONDEDUCTIBLE (Gull uten fradrag - KJØP_AV_KLIMAKVOTER_ELLER_GULL_UTEN_FRADRAG_FOR_MVA)	      |Purchases	                 |
-    
+
 
 servers:
   - url: https://api.fiken.no/api/v2
@@ -1276,6 +1276,10 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: invoiceNumber
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -1481,9 +1485,15 @@ paths:
         - $ref: '#/components/parameters/pageSize'
         - name: orderReference
           in: query
-          description: Filter based on order reference for a given invoice
+          description: Filter based on order reference for a given invoice draft
           schema:
             type: string
+        - name: uuid
+          in: query
+          description: Filter based on the UUID of the draft.
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: OK
@@ -3843,8 +3853,10 @@ components:
           description: User-defined identifier for attachment. Could be the Invoice Id or receipt number for example.
         downloadUrl:
           type: string
+          description: For use with API credentials (bearer token or oauth 2)
         downloadUrlWithFikenNormalUserCredentials:
           type: string
+          description: Requires the user to login with username and password in Fiken.
         comment:
           type: string
           description: Field for additional information for this attachment.
@@ -3931,7 +3943,7 @@ components:
         slug:
           type: string
           example: 'fiken-as'
-          description: Formatted name of company.
+          description: Formatted name of company. This is the companySlug that should be used in all URLs related to this company.
         organizationNumber:
           type: string
           example: '913312465'
@@ -3987,13 +3999,17 @@ components:
         name:
           type: string
           example: 'Fiken AS'
+          minLength: 1
+          maxLength: 200
         email:
           type: string
           example: 'kontakt@fiken.gmail'
+          maxLength: 200
         organizationNumber:
           type: string
           example: '913312465'
           description: Brreg organization number.
+          maxLength: 200
         customerNumber:
           type: integer
           format: int64
@@ -4034,6 +4050,7 @@ components:
         bankAccountNumber:
           type: string
           example: '11112233334'
+          maxLength: 11
         contactPerson:
           type: array
           items:
@@ -4259,8 +4276,8 @@ components:
           type: string
           example: 123e4567-e89b-12d3-a456-426655440000
           description: |
-            The UUID of the credit note draft used to create the credit note. 
-            Credit notes created directly from invoices (POST / creditNotes/full and POST /creditNotes/partial) 
+            The UUID of the credit note draft used to create the credit note.
+            Credit notes created directly from invoices (POST / creditNotes/full and POST /creditNotes/partial)
             will not have a draft uuid as no draft is created in this case.
         creditNotePdf:
           $ref: '#/components/schemas/attachment'
@@ -5079,7 +5096,10 @@ components:
           type: integer
           format: int64
           example: 310000
-          description: Net amount
+          description: |
+            This will be the net amount (excluding VAT) for debitAccount lines and gross amount
+            (including VAT) for creditAccount lines. The reason for this difference is due to the
+            way Fiken calculates VAT based on the debitVatCode and creditVatCode.
         account:
           type: string
           readOnly: true
@@ -5466,7 +5486,7 @@ components:
           format: int64
           example: 500000
           readOnly: true
-          description: Attribute of a foreign payment only. Calculated by Fiken if amount is provided in currency other than NOK. Formatted in cents (500000 = 5000.00)
+          description: Attribute of a foreign payment only. Is required if amount is provided in currency other than NOK and should be the actual amount that was received in the bank account. Formatted in cents (500000 = 5000.00)
         currency:
           type: string
           pattern: '^[A-Z]{3}$'
@@ -5475,7 +5495,7 @@ components:
         fee:
           type: integer
           format: int64
-          description: Any fees additional to the amount paid in the specified currency ("NOK" default value).
+          description: Any fees additional to the amount paid in the specified currency. This is always a "NOK" amount even if the sale currency is a different currency.
     product:
       type: object
       required:
@@ -6002,7 +6022,7 @@ components:
               - auto
           description: |
             The method of sending. Has to be auto, email, ehf, efaktura, sms or letter.
-            If several methods are provided they should be in prioritized order as Fiken will only send the invoice to 
+            If several methods are provided they should be in prioritized order as Fiken will only send the invoice to
             the first successful available method. Method "auto" tries available methods for given customer based on
             the information registered for the customer. The order of priority is EHF, eFaktura, Sms, and email.
             Method "letter" means physical letter, printed and sent by our postal service partner (extra charge per

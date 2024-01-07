@@ -43,26 +43,42 @@ class ResponseGenerator extends Generator
         $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
         $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
         $complexArrayTypes = [];
-        foreach ($schema->properties as $parameterName => $property) {
+
+        if ($schema->type === SimpleType::ARRAY->value) {
+            $schema->items->name = NameHelper::safeVariableName($schema->name);
             MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
-                $property,
+                $schema,
                 namespace: $dtoNamespace,
                 promote: true,
                 visibility: 'public',
                 readonly: true,
             );
-            $safeName = NameHelper::safeVariableName($parameterName);
 
-            $type = $property->type;
-            if (! SimpleType::tryFrom($type)) {
-                $safeType = NameHelper::dtoClassName($type);
-                $type = "{$dtoNamespace}\\{$safeType}";
-                $namespace->addUse($type);
-            }
+            $safeName = NameHelper::safeVariableName($schema->name);
+            $complexArrayTypes[$safeName] = NameHelper::dtoClassName($schema->items->type);
+        } else {
+            foreach ($schema->properties as $parameterName => $property) {
+                MethodGeneratorHelper::addParameterToMethod(
+                    $classConstructor,
+                    $property,
+                    namespace: $dtoNamespace,
+                    promote: true,
+                    visibility: 'public',
+                    readonly: true,
+                );
 
-            if ($property->type === SimpleType::ARRAY && $property->items) {
-                $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
+                $type = $property->type;
+                if (! SimpleType::tryFrom($type)) {
+                    $safeType = NameHelper::dtoClassName($type);
+                    $type = "{$dtoNamespace}\\{$safeType}";
+                    $namespace->addUse($type);
+                }
+
+                $safeName = NameHelper::safeVariableName($parameterName);
+                if ($property->type === SimpleType::ARRAY && $property->items) {
+                    $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
+                }
             }
         }
 

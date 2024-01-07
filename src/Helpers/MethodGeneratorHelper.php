@@ -60,7 +60,8 @@ class MethodGeneratorHelper
             if (! $namespace) {
                 throw new InvalidArgumentException('$namespace must be passed if the type is not a built-in.');
             }
-            $type = "{$namespace}\\{$type}";
+            $safeType = NameHelper::safeClassName($type);
+            $type = "{$namespace}\\{$safeType}";
         }
 
         $property

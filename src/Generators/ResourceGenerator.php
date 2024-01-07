@@ -59,6 +59,7 @@ class ResourceGenerator extends Generator
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->requestNamespaceSuffix);
+
             $requestClassFQN = "{$this->config->namespace}{$requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
 
             $namespace
@@ -92,6 +93,17 @@ class ResourceGenerator extends Generator
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
             }
 
+            if ($endpoint->bodySchema) {
+                $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
+                $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
+                $safeSchemaName = NameHelper::requestClassName($endpoint->bodySchema->name);
+                $bodyFQN = "{$dtoNamespace}\\{$safeSchemaName}";
+
+                $namespace->addUse($bodyFQN);
+                $this->addPropertyToMethod($method, $endpoint->bodySchema, $bodyFQN);
+                $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($endpoint->bodySchema->name)));
+            }
+
             foreach ($endpoint->queryParameters as $parameter) {
                 if (in_array($parameter->name, $this->config->ignoredQueryParams)) {
                     continue;
@@ -103,16 +115,6 @@ class ResourceGenerator extends Generator
             $method->setBody(
                 new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassNameAlias ?? $requestClassName, implode(', ', $args)))
             );
-
-            if ($endpoint->bodySchema) {
-                $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-                $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
-                $bodyFQN = "{$dtoNamespace}\\{$endpoint->bodySchema->name}";
-
-                $namespace->addUse($bodyFQN);
-                $this->addPropertyToMethod($method, $endpoint->bodySchema, $bodyFQN);
-                $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($endpoint->bodySchema->name)));
-            }
         }
 
         return $classFile;

@@ -88,11 +88,13 @@ class DtoGenerator extends Generator
 
         if (count($complexArrayTypes) > 0) {
             foreach ($complexArrayTypes as $name => $type) {
-                $dtoFQN = "{$dtoNamespace}\\{$type}";
+                $safeType = NameHelper::dtoClassName($type);
+                $dtoFQN = "{$dtoNamespace}\\{$safeType}";
                 $namespace->addUse($dtoFQN);
 
-                $literalType = new Literal(sprintf('%s::class', $type));
-                $complexArrayTypes[$name] = [$literalType];
+                $literalType = new Literal(sprintf('%s::class', $safeType));
+                $safeName = NameHelper::safeVariableName($name);
+                $complexArrayTypes[$safeName] = [$literalType];
             }
             $classType->addProperty('complexArrayTypes', $complexArrayTypes)
                 ->setStatic()

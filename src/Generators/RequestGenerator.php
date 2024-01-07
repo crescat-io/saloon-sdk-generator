@@ -9,6 +9,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\EmptyResponse;
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
@@ -139,14 +140,25 @@ class RequestGenerator extends Generator
             ->setType(Response::class);
 
         if ($endpoint->bodySchema) {
+            $bodyType = $endpoint->bodySchema->type;
+            if (SimpleType::isScalar($bodyType)) {
+                $returnValText = '[$this->%s]';
+            } elseif (! SimpleType::tryFrom($bodyType)) {
+                $returnValText = '$this->%s->toArray()';
+            } else {
+                $returnValText = '$this->%s';
+            }
             $classType
                 ->addMethod('defaultBody')
                 ->setReturnType('array')
                 ->addBody(
-                    sprintf('return $this->%s->toArray();', NameHelper::safeVariableName($endpoint->bodySchema->name))
+                    sprintf("return {$returnValText};", NameHelper::safeVariableName($endpoint->bodySchema->name))
                 );
 
-            $bodyFQN = $this->bodyFQN($endpoint->bodySchema);
+            $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
+            $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
+            $safeName = NameHelper::requestClassName($endpoint->bodySchema->name);
+            $bodyFQN = "{$dtoNamespace}\\{$safeName}";
             $namespace->addUse($bodyFQN);
         }
 
@@ -171,37 +183,15 @@ class RequestGenerator extends Generator
         if ($endpoint->bodySchema) {
             $body = $endpoint->bodySchema;
 
-            $properties = [];
-            foreach ($body->properties ?? [] as $name => $property) {
-                if (in_array($property->name, $this->config->ignoredBodyParams)) {
-                    continue;
-                }
-                $properties[$name] = $property;
-            }
-            $body->properties = $properties;
+            $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
+            $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
 
-            $name = NameHelper::safeVariableName($body->name);
-
-            $property = $constructor
-                ->addComment(
-                    trim(sprintf(
-                        '@param %s $%s %s',
-                        $body->nullable ? "?{$body->type}" : $body->type,
-                        $name,
-                        $body->description
-                    ))
-                )
-                ->addPromotedParameter($name);
-
-            $bodyFQN = $this->bodyFQN($body);
-            $property
-                ->setType($bodyFQN)
-                ->setNullable($body->nullable)
-                ->setProtected();
-
-            if ($body->nullable) {
-                $property->setDefaultValue(null);
-            }
+            MethodGeneratorHelper::addParameterToConstructor(
+                $constructor,
+                $body,
+                visibility: 'public',
+                namespace: $dtoNamespace,
+            );
         }
 
         // Priority 3. - Query Parameters
@@ -228,6 +218,8 @@ class RequestGenerator extends Generator
         $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
         $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
 
-        return "{$dtoNamespace}\\{$body->name}";
+        $safeName = NameHelper::requestClassName($body->name);
+
+        return "{$dtoNamespace}\\{$safeName}";
     }
 }

@@ -198,16 +198,19 @@ class OpenApiParser implements Parser
             $properties = $schema->properties;
             $preprocessedProperties = $this->preprocessSchemas($properties);
 
-            $safeRequired = is_array($schema->required)
-                ? array_map(fn ($prop) => NameHelper::normalize($prop), $schema->required)
-                : $schema->required;
+            $required = $schema->required;
+            if (is_null($required)) {
+                $required = [];
+            } elseif (is_array($required)) {
+                $required = array_map(fn ($prop) => NameHelper::normalize($prop), $required);
+            }
 
             $parsedSchema = new Schema(
                 name: $schema->title,
                 nullable: $schema->nullable,
                 type: $schema->title ?? 'object',
                 description: $schema->description,
-                required: $safeRequired,
+                required: $required,
                 parent: $parent,
                 parentPropName: $parentPropName,
             );

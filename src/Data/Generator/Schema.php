@@ -57,7 +57,7 @@ class Schema extends Parameter
 
     public function isNullable(): bool
     {
-        if (is_array($this->parent?->required) && count($this->parent->required) > 0) {
+        if (is_array($this->parent?->required)) {
             return ! in_array($this->parentPropName, $this->parent->required);
         }
 

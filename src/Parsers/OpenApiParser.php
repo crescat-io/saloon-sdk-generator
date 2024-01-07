@@ -309,7 +309,7 @@ class OpenApiParser implements Parser
     {
         return collect($responses->getResponses())
             ->mapWithKeys(function (OpenApiResponse|OpenApiReference|null $response, int $httpCode) {
-                if (! $response) {
+                if (! $response || $httpCode === 204) {
                     return [];
                 } elseif ($response instanceof OpenApiReference) {
                     $response = $response->resolve();

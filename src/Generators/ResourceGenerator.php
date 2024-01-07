@@ -6,12 +6,12 @@ namespace Crescat\SaloonSdkGenerator\Generators;
 
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
-use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
+use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\InvalidStateException;
 use Nette\PhpGenerator\Literal;
-use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Http\Response;
 
@@ -89,18 +89,22 @@ class ResourceGenerator extends Generator
             $args = [];
 
             foreach ($endpoint->pathParameters as $parameter) {
-                $this->addPropertyToMethod($method, $parameter);
+                MethodGeneratorHelper::addParameterToMethod($method, $parameter);
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
             }
 
             if ($endpoint->bodySchema) {
                 $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
                 $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
-                $safeSchemaName = NameHelper::requestClassName($endpoint->bodySchema->name);
-                $bodyFQN = "{$dtoNamespace}\\{$safeSchemaName}";
 
-                $namespace->addUse($bodyFQN);
-                $this->addPropertyToMethod($method, $endpoint->bodySchema, $bodyFQN);
+                // Don't need to import the DTO if the body is an array
+                if (SimpleType::tryFrom($endpoint->bodySchema->type) !== SimpleType::ARRAY) {
+                    $safeSchemaName = NameHelper::requestClassName($endpoint->bodySchema->name);
+                    $bodyFQN = "{$dtoNamespace}\\{$safeSchemaName}";
+                    $namespace->addUse($bodyFQN);
+                }
+
+                MethodGeneratorHelper::addParameterToMethod($method, $endpoint->bodySchema, namespace: $dtoNamespace);
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($endpoint->bodySchema->name)));
             }
 
@@ -108,38 +112,19 @@ class ResourceGenerator extends Generator
                 if (in_array($parameter->name, $this->config->ignoredQueryParams)) {
                     continue;
                 }
-                $this->addPropertyToMethod($method, $parameter);
+                MethodGeneratorHelper::addParameterToMethod($method, $parameter);
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
             }
 
             $method->setBody(
-                new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassNameAlias ?? $requestClassName, implode(', ', $args)))
+                new Literal(sprintf(
+                    'return $this->connector->send(new %s(%s));',
+                    $requestClassNameAlias ?? $requestClassName,
+                    implode(', ', $args)
+                ))
             );
         }
 
         return $classFile;
-    }
-
-    protected function addPropertyToMethod(Method $method, Parameter $parameter, ?string $typeFQN = null): Method
-    {
-        $name = NameHelper::safeVariableName($parameter->name);
-
-        $param = $method
-            ->addParameter($name)
-            ->setType($typeFQN ?? $parameter->type)
-            ->setNullable($parameter->nullable);
-
-        if ($parameter->nullable) {
-            $param->setDefaultValue(null);
-        }
-
-        $method->addComment(
-            trim(sprintf(
-                '@param %s $%s %s',
-                $parameter->nullable ? "{$parameter->type}|null" : $parameter->type, $name, $parameter->description
-            ))
-        );
-
-        return $method;
     }
 }

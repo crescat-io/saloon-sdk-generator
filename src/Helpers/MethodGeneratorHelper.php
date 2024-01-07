@@ -107,7 +107,7 @@ class MethodGeneratorHelper
                     $paramCode = new Literal(sprintf('array_filter($this->%s->toArray())', $safeName));
                 }
 
-                return [$name => $paramCode];
+                return [$safeName => $paramCode];
             })
             ->toArray();
     }

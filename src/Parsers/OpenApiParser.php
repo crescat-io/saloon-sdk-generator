@@ -55,6 +55,7 @@ class OpenApiParser implements Parser
         // Schema preprocessing is a prerequisite for parsing schemas, request bodies, and responses. The preprocessed
         // schemas are used inside of $this->parseEndpoint()
         $this->preprocessSchemas($this->openApi->components->schemas);
+
         // Parse schemas before endpoints, because endpoint responses often reference schemas
         $this->schemas = $this->parseSchemas($this->openApi->components->schemas ?? []);
         $this->endpoints = $this->parseItems($this->openApi->paths);
@@ -115,7 +116,7 @@ class OpenApiParser implements Parser
     {
         $preprocessedSchemas = [];
         foreach ($schemas as $name => $schema) {
-            $safeName = NameHelper::safeClassName($name);
+            $safeName = NameHelper::normalize($name);
             if (array_key_exists($safeName, $preprocessedSchemas)) {
                 continue;
             }
@@ -124,10 +125,7 @@ class OpenApiParser implements Parser
                 $schema = $schema->resolve();
             }
 
-            if (! $schema->title) {
-                $schema->title = $safeName;
-            }
-
+            $schema->title = $safeName;
             $preprocessedSchemas[$safeName] = $schema;
         }
 
@@ -142,9 +140,10 @@ class OpenApiParser implements Parser
     {
         $parsedSchemas = [];
         foreach ($schemas as $name => $schema) {
-            $parsed = $this->parseSchema($schema, $parent, $name);
+            $safeName = NameHelper::normalize($name);
+            $parsed = $this->parseSchema($schema, $parent, $safeName);
             if ($parsed) {
-                $parsedSchemas[$name] = $parsed;
+                $parsedSchemas[$safeName] = $parsed;
             }
         }
 
@@ -200,7 +199,7 @@ class OpenApiParser implements Parser
             $preprocessedProperties = $this->preprocessSchemas($properties);
 
             $safeRequired = is_array($schema->required)
-                ? array_map(fn ($prop) => NameHelper::safeVariableName($prop), $schema->required)
+                ? array_map(fn ($prop) => NameHelper::normalize($prop), $schema->required)
                 : $schema->required;
 
             $parsedSchema = new Schema(
@@ -295,7 +294,7 @@ class OpenApiParser implements Parser
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 nullable: $parameter->required == false,
-                name: NameHelper::safeClassName($parameter->name),
+                name: NameHelper::normalize($parameter->name),
                 description: $parameter->description,
             ))
             ->sortBy(fn (Parameter $parameter) => (int) $parameter->isNullable())

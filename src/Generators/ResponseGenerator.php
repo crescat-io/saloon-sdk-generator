@@ -57,7 +57,8 @@ class ResponseGenerator extends Generator
 
             $type = $property->type;
             if (! SimpleType::tryFrom($type)) {
-                $type = "{$dtoNamespace}\\{$type}";
+                $safeType = NameHelper::safeClassName($type);
+                $type = "{$dtoNamespace}\\{$safeType}";
                 $namespace->addUse($type);
             }
 

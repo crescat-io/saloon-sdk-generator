@@ -125,7 +125,10 @@ class OpenApiParser implements Parser
                 $schema = $schema->resolve();
             }
 
-            $schema->title = $safeName;
+            if (! $schema->title) {
+                $schema->title = $safeName;
+            }
+
             $preprocessedSchemas[$safeName] = $schema;
         }
 

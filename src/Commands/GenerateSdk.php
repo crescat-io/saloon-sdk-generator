@@ -25,7 +25,8 @@ class GenerateSdk extends Command
                             {--output=./build : The output path where the code will be created, will be created if it does not exist.}
                             {--force : Force overwriting existing files}
                             {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}
-                            {--zip : Generate a zip archive containing all the files}';
+                            {--zip : Generate a zip archive containing all the files}
+                            {--tests : Generate Pest test suites for each resource}';
 
     protected $description = 'Generate an SDK based on an API specification file.';
 
@@ -55,7 +56,9 @@ class GenerateSdk extends Command
                     'per_page',
                 ]
             ),
-            generators: [
+            // TODO: better name for this
+            postProcessors: [
+                // TODO: Phpunit test generator
                 new PestTestGenerator(),
             ],
         );
@@ -136,10 +139,17 @@ class GenerateSdk extends Command
         foreach ($result->dtoClasses as $dtoClass) {
             $this->dumpToFile($dtoClass);
         }
+        $this->comment("\nTests:");
+        foreach ($result->getWithTag("pest") as $test) {
+            $this->dumpToFile($test->file, $test->path);
+        }
     }
 
-    protected function dumpToFile(PhpFile $file): void
+    protected function dumpToFile(PhpFile $file, $overrideFilePath = null): void
     {
+
+
+
         // TODO: Cleanup this, brittle and will break if you change the namespace
         $wip = sprintf(
             '%s/%s/%s.php',
@@ -148,7 +158,8 @@ class GenerateSdk extends Command
             Arr::first($file->getClasses())->getName(),
         );
 
-        $filePath = Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
+        // TODO: cleanup
+        $filePath = $overrideFilePath ?? Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
 
         if (! file_exists(dirname($filePath))) {
             mkdir(dirname($filePath), recursive: true);
@@ -159,6 +170,7 @@ class GenerateSdk extends Command
 
             return;
         }
+
 
         $ok = file_put_contents($filePath, (string) $file);
 
@@ -197,6 +209,7 @@ class GenerateSdk extends Command
             $result->resourceClasses,
             $result->requestClasses,
             $result->dtoClasses,
+            $result->additionalFiles,
         );
 
         foreach ($filesToZip as $file) {

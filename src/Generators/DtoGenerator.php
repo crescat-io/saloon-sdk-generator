@@ -54,7 +54,7 @@ class DtoGenerator extends Generator
             MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
                 $property,
-                namespace: $dtoNamespace,
+                namespace: $property->isResponse ? $responseNamespace : $dtoNamespace,
                 promote: true,
                 visibility: 'public',
                 readonly: true,
@@ -66,33 +66,45 @@ class DtoGenerator extends Generator
                 && $property->items
                 && ! Utils::isBuiltInType($property->items->type)
             ) {
-                $complexArrayTypes[$property->name] = $property->items->type;
+                $complexArrayTypes[$property->name] = $property->items;
+            }
+
+            if ($property->isResponse) {
+                $safeType = NameHelper::responseClassName($property->type);
+                $namespace->addUse("{$responseNamespace}\\{$safeType}");
             }
         }
 
         if ($schema->additionalProperties) {
+            $additionalProperties = $schema->additionalProperties;
             $classConstructor->setVariadic(true);
             MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
-                $schema->additionalProperties,
-                namespace: $dtoNamespace,
+                $additionalProperties,
+                namespace: $additionalProperties->isResponse ? $responseNamespace : $dtoNamespace,
                 promote: false,
             );
 
             $classConstructor->addBody('parent::__construct(...$additionalProperties);');
 
-            // Since additional properties are implicitly an array type, the additional properties type should
-            // always get added to the complex array types array if it's not a built-in type.
-            if (! SimpleType::tryFrom($schema->additionalProperties->type)) {
-                $complexArrayTypes['additionalProperties'] = $schema->additionalProperties->type;
+            if (! Utils::isBuiltinType($additionalProperties->type)) {
+                // Since additional properties are implicitly an array type, the additional properties type should
+                // always get added to the complex array types array if it's not a built-in type.
+                $complexArrayTypes['additionalProperties'] = $additionalProperties;
+
+                if ($additionalProperties->isResponse) {
+                    $safeType = NameHelper::responseClassName($additionalProperties->type);
+                    $namespace->addUse("{$responseNamespace}\\{$safeType}");
+                }
             }
         }
 
         if (count($complexArrayTypes) > 0) {
-            foreach ($complexArrayTypes as $name => $type) {
-                $safeType = NameHelper::dtoClassName($type);
-                $dtoFQN = "{$dtoNamespace}\\{$safeType}";
-                $namespace->addUse($dtoFQN);
+            foreach ($complexArrayTypes as $name => $schema) {
+                $safeType = NameHelper::dtoClassName($schema->type);
+                $typeNs = $schema->isResponse ? $responseNamespace : $dtoNamespace;
+                $typeFQN = "{$typeNs}\\{$safeType}";
+                $namespace->addUse($typeFQN);
 
                 $literalType = new Literal(sprintf('%s::class', $safeType));
                 $safeName = NameHelper::safeVariableName($name);

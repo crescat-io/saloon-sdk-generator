@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Helpers;
 
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Illuminate\Support\Arr;
 use Nette\PhpGenerator\PhpFile;
-use ReflectionClass;
 
 class Utils
 {
@@ -69,14 +69,8 @@ class Utils
         return $result;
     }
 
-    public static function isBuiltinType(mixed $value): bool
+    public static function isBuiltinType(string $type): bool
     {
-        if (is_object($value)) {
-            $reflectionClass = new ReflectionClass($value::class);
-
-            return $reflectionClass->isInternal();
-        }
-
-        return true;
+        return SimpleType::tryFrom($type) !== null;
     }
 }

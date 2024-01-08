@@ -58,9 +58,8 @@ class ResourceGenerator extends Generator
             $requestClassName = NameHelper::requestClassName($endpoint->name);
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
-            $requestNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->requestNamespaceSuffix);
 
-            $requestClassFQN = "{$this->config->namespace}{$requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
+            $requestClassFQN = "{$this->config->requestNamespace()}\\{$resourceName}\\{$requestClassName}";
 
             $namespace
                 ->addUse(Response::class)
@@ -94,17 +93,14 @@ class ResourceGenerator extends Generator
             }
 
             if ($endpoint->bodySchema) {
-                $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-                $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
-
                 // Don't need to import the DTO if the body is an array
                 if (SimpleType::tryFrom($endpoint->bodySchema->type) !== SimpleType::ARRAY) {
                     $safeSchemaName = NameHelper::requestClassName($endpoint->bodySchema->name);
-                    $bodyFQN = "{$dtoNamespace}\\{$safeSchemaName}";
+                    $bodyFQN = "{$this->config->dtoNamespace()}\\{$safeSchemaName}";
                     $namespace->addUse($bodyFQN);
                 }
 
-                MethodGeneratorHelper::addParameterToMethod($method, $endpoint->bodySchema, namespace: $dtoNamespace);
+                MethodGeneratorHelper::addParameterToMethod($method, $endpoint->bodySchema, namespace: $this->config->dtoNamespace());
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($endpoint->bodySchema->name)));
             }
 

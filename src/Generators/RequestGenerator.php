@@ -88,8 +88,7 @@ class RequestGenerator extends Generator
                     ->pipe(fn (Collection $segments) => new Literal(sprintf('return "/%s";', $segments->implode('/'))))
             );
 
-        $responseSuffix = NameHelper::optionalNamespaceSuffix($this->config->responseNamespaceSuffix);
-        $responseNamespace = "{$this->config->namespace}{$responseSuffix}";
+        $responseNamespace = $this->config->responseNamespace();
 
         $codesByResponseType = collect($endpoint->responses)
             // TODO: We assume JSON is the only response content type for each HTTP status code.
@@ -155,10 +154,8 @@ class RequestGenerator extends Generator
                     sprintf("return {$returnValText};", NameHelper::safeVariableName($endpoint->bodySchema->name))
                 );
 
-            $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-            $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
             $safeName = NameHelper::requestClassName($endpoint->bodySchema->name);
-            $bodyFQN = "{$dtoNamespace}\\{$safeName}";
+            $bodyFQN = "{$this->config->dtoNamespace()}\\{$safeName}";
             $namespace->addUse($bodyFQN);
         }
 
@@ -183,13 +180,10 @@ class RequestGenerator extends Generator
         if ($endpoint->bodySchema) {
             $body = $endpoint->bodySchema;
 
-            $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-            $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
-
             MethodGeneratorHelper::addParameterToMethod(
                 $constructor,
                 $body,
-                namespace: $dtoNamespace,
+                namespace: $this->config->dtoNamespace(),
                 promote: true,
                 visibility: 'public',
             );

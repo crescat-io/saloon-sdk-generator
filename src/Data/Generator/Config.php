@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 use Composer\Autoload\ClassLoader;
+use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Exception;
 use Illuminate\Support\Arr;
 use ReflectionClass;
@@ -54,6 +55,33 @@ class Config
         public readonly array $ignoredBodyParams = [],
         public readonly array $extra = [],
     ) {
+    }
+
+    public function resourceNamespace(): string
+    {
+        return $this->namespaceWithSuffix($this->resourceNamespaceSuffix);
+    }
+
+    public function requestNamespace(): string
+    {
+        return $this->namespaceWithSuffix($this->requestNamespaceSuffix);
+    }
+
+    public function responseNamespace(): string
+    {
+        return $this->namespaceWithSuffix($this->responseNamespaceSuffix);
+    }
+
+    public function dtoNamespace(): string
+    {
+        return $this->namespaceWithSuffix($this->dtoNamespaceSuffix);
+    }
+
+    protected function namespaceWithSuffix(string $suffix): string
+    {
+        $suffix = NameHelper::optionalNamespaceSuffix($suffix);
+
+        return "{$this->namespace}{$suffix}";
     }
 
     /**

@@ -44,8 +44,8 @@ class DtoGenerator extends Generator
 
         $classConstructor = $classType->addMethod('__construct');
 
-        $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-        $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
+        $dtoNamespace = $this->config->dtoNamespace();
+        $responseNamespace = $this->config->responseNamespace();
         $complexArrayTypes = [];
 
         foreach ($schema->properties as $parameterName => $property) {

@@ -26,16 +26,14 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
 {
-    /** @var Schema[] */
-    protected array $schemas;
-
-    /** @var Endpoint[] */
-    protected array $endpoints;
+    /** @var string[] */
+    protected array $responseSchemaTypes = [];
 
     public function __construct(protected OpenApi $openApi)
     {
@@ -158,48 +156,48 @@ class OpenApiParser implements Parser
         ?Schema &$parent = null,
         ?string $parentPropName = null
     ): Schema {
-        if (Type::isScalar($schema->type)) {
-            return new Schema(
+        // TODO: add support for anyOf and oneOf schemas
+        if ($schema->allOf) {
+            $parsedSchema = $this->parseAllOfSchema($schema, $parent, $parentPropName);
+        } elseif (Type::isScalar($schema->type)) {
+            $parsedSchema = new Schema(
                 name: $schema->title,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
-                nullable: $schema->nullable,
+                nullable: $schema->required ?? $schema->nullable,
                 parent: $parent,
                 parentPropName: $parentPropName,
             );
         } elseif ($schema->type === Type::ARRAY) {
             $name = $schema->title;
-            if (str_contains($name, 'List')) {
-                $noList = str_replace('List', '', $name);
-                $pluralized = Str::plural($noList);
-                $name = $pluralized;
+            $singular = preg_replace('/(list|array)$/', '', $name);
+            if ($singular !== $name) {
+                $name = Str::plural($singular);
             }
 
             $parsedSchema = new Schema(
                 name: $name,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
-                nullable: $schema->nullable,
+                nullable: $schema->required ?? $schema->nullable ?? false,
                 parent: $parent,
             );
 
             // Handle scalar array schemas
-            if (Type::isScalar($schema->items->type)) {
+            // Need to null check $schema->items->type because allOf schemas don't have a type property
+            if (SimpleType::isScalar($schema->items->type ?? '')) {
                 $parsedSchema->items = new Schema(
                     name: $name,
                     type: $this->mapSchemaTypeToPhpType($schema->items->type),
                     description: $schema->description,
-                    nullable: $schema->nullable,
+                    nullable: $schema->required ?? $schema->nullable ?? false,
                     parent: $parent,
                 );
             } else {
                 $parsedSchema->items = $this->parseSchema($schema->items, $parsedSchema);
             }
-
-            return $parsedSchema;
         } else {
-            $properties = $schema->properties;
-            $preprocessedProperties = $this->preprocessSchemas($properties);
+            $preprocessedProperties = $this->preprocessSchemas($schema->properties);
 
             $required = $schema->required;
             if (is_null($required)) {
@@ -233,9 +231,56 @@ class OpenApiParser implements Parser
             $parsedSchema->properties = collect($parsedProperties)
                 ->sortBy(fn (Schema $schema) => (int) $schema->isNullable())
                 ->toArray();
-
-            return $parsedSchema;
         }
+
+        $parsedSchema->isResponse = in_array($parsedSchema->type, $this->responseSchemaTypes);
+
+        return $parsedSchema;
+    }
+
+    protected function parseAllOfSchema(
+        OpenApiSchema $schema,
+        ?Schema &$parent = null,
+        ?string $parentPropName = null
+    ): Schema {
+        $parsedSchema = new Schema(
+            name: $schema->title,
+            type: $schema->title ?? 'object',
+            description: $schema->description,
+            parent: $parent,
+            parentPropName: $parentPropName,
+        );
+
+        $allOf = collect($schema->allOf)
+            ->mapWithKeys(fn ($s, $i) => ["{$schema->title} composite {$i}" => $s])
+            ->toArray();
+        $preprocessedAllOf = $this->preprocessSchemas($allOf);
+
+        $parsedAllOf = $this->parseSchemas($preprocessedAllOf, $parsedSchema);
+
+        // TODO: I feel like there's some neater way to handle allOf schemas using intersection types,
+        // but I'm not sure how to do it
+        $allProperties = [];
+        $allRequirements = [];
+        foreach ($parsedAllOf as $s) {
+            foreach ($s->properties as $name => $property) {
+                $safeName = NameHelper::normalize($name);
+                // I don't think conflicting property names on allOf schemas are allowed by the OpenAPI
+                // spec, so I don't believe we run the risk of overwriting properties here
+                $allProperties[$safeName] = $property;
+            }
+
+            $allRequirements = array_merge($allRequirements, $s->required);
+        }
+
+        $parsedSchema->required = $allRequirements;
+        $parsedSchema->properties = collect($allProperties)
+            ->sortBy(fn (Schema $schema) => (int) $schema->isNullable())
+            ->toArray();
+
+        return $parsedSchema;
+    }
+
     protected function addAdditionalProperties(OpenApiSchema $originalSchema, Schema $parsedSchema): Schema
     {
         $additionalProperties = $originalSchema->additionalProperties;

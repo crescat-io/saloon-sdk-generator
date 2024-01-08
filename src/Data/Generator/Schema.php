@@ -24,13 +24,13 @@ class Schema extends Parameter
         public Schema|bool $additionalProperties = false,
         ?string $name = null,
 
-        public readonly ?Schema $parent = null,
+        public ?Schema $parent = null,
         // This is the name of the property in the parent schema that points to this schema
-        public readonly ?string $parentPropName = null,
+        public ?string $parentPropName = null,
 
         public ?Schema $items = null,
         public ?array $properties = [],
-        public ?array $required = [],
+        public ?array $required = null,
     ) {
         if (is_null($name)) {
             if ($this->parent->type === 'array') {

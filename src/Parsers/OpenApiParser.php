@@ -217,33 +217,13 @@ class OpenApiParser implements Parser
                 parent: $parent,
                 parentPropName: $parentPropName,
             );
+
             $parsedProperties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
 
-            $additionalProperties = $schema->additionalProperties;
-            if ($additionalProperties) {
-                $type = SimpleType::MIXED->value;
-                if (! is_bool($additionalProperties)) {
-                    if ($additionalProperties instanceof OpenApiReference) {
-                        $additionalProperties = $additionalProperties->resolve();
-                    }
-                    if (SimpleType::tryFrom($additionalProperties->type) || $additionalProperties->type === Type::OBJECT) {
-                        $type = $this->mapSchemaTypeToPhpType($additionalProperties->type);
-                    } else {
-                        $additionalPropertiesItemType = $this->parseSchema($additionalProperties, $parsedSchema);
-                        $type = $additionalPropertiesItemType->type;
-                    }
-                }
+            if ($schema->additionalProperties) {
+                $parsedSchema = $this->addAdditionalProperties($schema, $parsedSchema);
 
-                $parsedAdditionalPropsSchema = new Schema(
-                    name: 'additionalProperties',
-                    type: $type,
-                    description: null,
-                    parent: $parsedSchema,
-                );
-
-                $parsedSchema->additionalProperties = $parsedAdditionalPropsSchema;
-
-                // If there are no other properties, then this schema is just an array of additional properties,
+                // If there are no properties, then this schema is just an array of additional properties,
                 // and shouldn't be treated as an explicitly defined object type
                 if (count($schema->properties) === 0) {
                     $parsedSchema->type = $this->mapSchemaTypeToPhpType(Type::ARRAY);
@@ -256,6 +236,32 @@ class OpenApiParser implements Parser
 
             return $parsedSchema;
         }
+    protected function addAdditionalProperties(OpenApiSchema $originalSchema, Schema $parsedSchema): Schema
+    {
+        $additionalProperties = $originalSchema->additionalProperties;
+        $type = SimpleType::MIXED->value;
+        if (! is_bool($additionalProperties)) {
+            if ($additionalProperties instanceof OpenApiReference) {
+                $additionalProperties = $additionalProperties->resolve();
+            }
+            if (Utils::isBuiltInType($additionalProperties->type) || $additionalProperties->type === Type::OBJECT) {
+                $type = $this->mapSchemaTypeToPhpType($additionalProperties->type);
+            } else {
+                $additionalPropertiesItemSchema = $this->parseSchema($additionalProperties, $parsedSchema);
+                $type = $additionalPropertiesItemSchema->type;
+            }
+        }
+
+        $parsedAdditionalPropsSchema = new Schema(
+            name: 'additionalProperties',
+            type: $type,
+            description: null,
+            parent: $parsedSchema,
+        );
+
+        $parsedSchema->additionalProperties = $parsedAdditionalPropsSchema;
+
+        return $parsedSchema;
     }
 
     /**

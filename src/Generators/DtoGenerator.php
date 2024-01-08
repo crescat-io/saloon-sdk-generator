@@ -34,7 +34,7 @@ class DtoGenerator extends Generator
 
     public function generateDtoClass(Schema $schema): PhpFile
     {
-        $className = NameHelper::dtoClassName($schema->name);
+        $className = NameHelper::dtoClassName($schema->type);
         [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->dtoNamespaceSuffix);
 
         $namespace->addUse(BaseDto::class);

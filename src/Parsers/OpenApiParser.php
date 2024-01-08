@@ -50,22 +50,23 @@ class OpenApiParser implements Parser
 
     public function parse(): ApiSpecification
     {
-        // Schema preprocessing is a prerequisite for parsing schemas, request bodies, and responses. The preprocessed
-        // schemas are used inside of $this->parseEndpoint()
+        // Schema preprocessing is a prerequisite for parsing schemas, request bodies, and responses.
+        // The preprocessed schemas are used inside of $this->parseEndpoint()
         $this->preprocessSchemas($this->openApi->components->schemas);
 
-        // Parse schemas before endpoints, because endpoint responses often reference schemas
-        $this->schemas = $this->parseSchemas($this->openApi->components->schemas ?? []);
-        $this->endpoints = $this->parseItems($this->openApi->paths);
+        // Parse endpoints before schemas, so that response schemas have already been parsed and
+        // marked as responses before we parse every other schema
+        $endpoints = $this->parseItems($this->openApi->paths);
+        $schemas = $this->parseSchemas($this->openApi->components->schemas ?? []);
 
-        $responses = array_filter($this->schemas, fn (Schema $schema) => $schema->isResponse);
-        $nonResponseSchemas = array_filter($this->schemas, fn (Schema $schema) => ! $schema->isResponse);
+        $responses = array_filter($schemas, fn (Schema $schema) => $schema->isResponse);
+        $nonResponseSchemas = array_filter($schemas, fn (Schema $schema) => ! $schema->isResponse);
 
         return new ApiSpecification(
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
             baseUrl: Arr::first($this->openApi->servers)->url,
-            endpoints: $this->endpoints,
+            endpoints: $endpoints,
             schemas: $nonResponseSchemas,
             responses: $responses,
         );
@@ -335,7 +336,7 @@ class OpenApiParser implements Parser
             $mediaType->schema = $mediaType->schema->resolve();
         }
 
-        $parsedSchema = $this->schemas[$mediaType->schema->title];
+        $parsedSchema = $this->parseSchema($mediaType->schema);
 
         return $parsedSchema;
     }
@@ -377,8 +378,11 @@ class OpenApiParser implements Parser
                         if ($schema instanceof OpenApiReference) {
                             $schema = $content->schema->resolve();
                         }
-                        $parsedSchema = $this->schemas[$schema->title];
+                        $parsedSchema = $this->parseSchema($schema);
                         $parsedSchema->isResponse = true;
+                        if (! in_array($parsedSchema->type, $this->responseSchemaTypes)) {
+                            $this->responseSchemaTypes[] = $parsedSchema->type;
+                        }
 
                         return [$contentType => $parsedSchema];
                     });

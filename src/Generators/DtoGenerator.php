@@ -12,6 +12,7 @@ use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 
@@ -63,7 +64,7 @@ class DtoGenerator extends Generator
             if (
                 $property->type === Type::ARRAY
                 && $property->items
-                && ! SimpleType::tryFrom($property->items->type)
+                && ! Utils::isBuiltInType($property->items->type)
             ) {
                 $complexArrayTypes[$property->name] = $property->items->type;
             }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
-use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Helpers\Utils;
 
 class Parameter
 {
@@ -20,7 +20,7 @@ class Parameter
     public function getDocTypeString(): string
     {
         $type = $this->type;
-        if (! SimpleType::tryFrom($type)) {
+        if (! Utils::isBuiltInType($type)) {
             $type = NameHelper::safeClassName($type);
         }
         $nullString = str_contains($type, '|') ? 'null|' : '?';

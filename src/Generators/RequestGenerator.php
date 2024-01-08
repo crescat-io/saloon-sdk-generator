@@ -142,7 +142,7 @@ class RequestGenerator extends Generator
             $bodyType = $endpoint->bodySchema->type;
             if (SimpleType::isScalar($bodyType)) {
                 $returnValText = '[$this->%s]';
-            } elseif (! SimpleType::tryFrom($bodyType)) {
+            } elseif (! Utils::isBuiltInType($bodyType)) {
                 $returnValText = '$this->%s->toArray()';
             } else {
                 $returnValText = '$this->%s';

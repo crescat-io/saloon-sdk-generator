@@ -11,6 +11,7 @@ use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 
@@ -68,7 +69,7 @@ class ResponseGenerator extends Generator
                 );
 
                 $type = $property->type;
-                if (! SimpleType::tryFrom($type)) {
+                if (! Utils::isBuiltInType($type)) {
                     $safeType = NameHelper::dtoClassName($type);
                     $type = "{$dtoNamespace}\\{$safeType}";
                     $namespace->addUse($type);

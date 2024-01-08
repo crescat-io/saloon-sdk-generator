@@ -6,6 +6,7 @@ namespace Crescat\SaloonSdkGenerator\Helpers;
 
 use Illuminate\Support\Arr;
 use Nette\PhpGenerator\PhpFile;
+use ReflectionClass;
 
 class Utils
 {
@@ -66,5 +67,16 @@ class Utils
         }
 
         return $result;
+    }
+
+    public static function isBuiltinType(mixed $value): bool
+    {
+        if (is_object($value)) {
+            $reflectionClass = new ReflectionClass($value::class);
+
+            return $reflectionClass->isInternal();
+        }
+
+        return true;
     }
 }

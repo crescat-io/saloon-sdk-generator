@@ -7,7 +7,6 @@ namespace Crescat\SaloonSdkGenerator\Helpers;
 namespace Crescat\SaloonSdkGenerator\Helpers;
 
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
-use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use InvalidArgumentException;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Dumper;
@@ -57,7 +56,7 @@ class MethodGeneratorHelper
         }
 
         $type = $parameter->type;
-        if (! SimpleType::tryFrom($type)) {
+        if (! Utils::isBuiltInType($type)) {
             if (! $namespace) {
                 throw new InvalidArgumentException('$namespace must be passed if the type is not a built-in.');
             }
@@ -103,7 +102,7 @@ class MethodGeneratorHelper
                 $name = $parameter->name;
                 $safeName = NameHelper::safeVariableName($name);
 
-                if (SimpleType::tryFrom($parameter->type)) {
+                if (Utils::isBuiltInType($parameter->type)) {
                     $paramCode = new Literal(sprintf('$this->%s', $safeName));
                 } else {
                     $paramCode = new Literal(sprintf('array_filter($this->%s->toArray())', $safeName));

@@ -27,33 +27,34 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
+use Crescat\SaloonSdkGenerator\Normalizers\OpenApiNormalizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class OpenApiParser implements Parser
 {
+    protected OpenApi $openApi;
+
     /** @var string[] */
     protected array $responseSchemaTypes = [];
 
-    public function __construct(protected OpenApi $openApi)
+    public function __construct(OpenApi $openApi)
     {
+        $normalizer = new OpenApiNormalizer($openApi);
+        $this->openApi = $normalizer->normalize();
     }
 
     public static function build($content): static
     {
         return new static(
             Str::endsWith($content, '.json')
-                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
-                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_ALL)
+                ? Reader::readFromJsonFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_INLINE)
+                : Reader::readFromYamlFile(fileName: realpath($content), resolveReferences: ReferenceContext::RESOLVE_MODE_INLINE)
         );
     }
 
     public function parse(): ApiSpecification
     {
-        // Schema preprocessing is a prerequisite for parsing schemas, request bodies, and responses.
-        // The preprocessed schemas are used inside of $this->parseEndpoint()
-        $this->preprocessSchemas($this->openApi->components->schemas);
-
         // Parse endpoints before schemas, so that response schemas have already been parsed and
         // marked as responses before we parse every other schema
         $endpoints = $this->parseItems($this->openApi->paths);
@@ -109,33 +110,6 @@ class OpenApiParser implements Parser
 
     /**
      * @param  OpenApiSchema[]  $schemas
-     * @return OpenApiSchema[]
-     */
-    protected function preprocessSchemas(array $schemas): array
-    {
-        $preprocessedSchemas = [];
-        foreach ($schemas as $name => $schema) {
-            $safeName = NameHelper::normalize($name);
-            if (array_key_exists($safeName, $preprocessedSchemas)) {
-                continue;
-            }
-
-            if ($schema instanceof OpenApiReference) {
-                $schema = $schema->resolve();
-            }
-
-            if (! $schema->title) {
-                $schema->title = $safeName;
-            }
-
-            $preprocessedSchemas[$safeName] = $schema;
-        }
-
-        return $preprocessedSchemas;
-    }
-
-    /**
-     * @param  OpenApiSchema[]|OpenApiReference[]  $schemas
      * @return Schema[]
      */
     protected function parseSchemas(array $schemas, ?Schema &$parent = null): array
@@ -171,7 +145,7 @@ class OpenApiParser implements Parser
             );
         } elseif ($schema->type === Type::ARRAY) {
             $name = $schema->title;
-            $singular = preg_replace('/(list|array)$/', '', $name);
+            $singular = NameHelper::singularFromList($schema->title);
             if ($singular !== $name) {
                 $name = Str::plural($singular);
             }
@@ -196,10 +170,10 @@ class OpenApiParser implements Parser
                 );
             } else {
                 $parsedSchema->items = $this->parseSchema($schema->items, $parsedSchema);
+                // TODO: update this once TODO in mapResponses is addressed
+                $parsedSchema->isResponse = in_array("{$parsedSchema->items->type}[]", $this->responseSchemaTypes);
             }
         } else {
-            $preprocessedProperties = $this->preprocessSchemas($schema->properties);
-
             $required = $schema->required;
             if (is_null($required)) {
                 $required = [];
@@ -217,24 +191,18 @@ class OpenApiParser implements Parser
                 parentPropName: $parentPropName,
             );
 
-            $parsedProperties = $this->parseSchemas($preprocessedProperties, $parsedSchema);
+            $parsedProperties = $this->parseSchemas($schema->properties, $parsedSchema);
 
             if ($schema->additionalProperties) {
                 $parsedSchema = $this->addAdditionalProperties($schema, $parsedSchema);
-
-                // If there are no properties, then this schema is just an array of additional properties,
-                // and shouldn't be treated as an explicitly defined object type
-                if (count($schema->properties) === 0) {
-                    $parsedSchema->type = $this->mapSchemaTypeToPhpType(Type::ARRAY);
-                }
             }
 
             $parsedSchema->properties = collect($parsedProperties)
                 ->sortBy(fn (Schema $schema) => (int) $schema->isNullable())
                 ->toArray();
-        }
 
-        $parsedSchema->isResponse = in_array($parsedSchema->type, $this->responseSchemaTypes);
+            $parsedSchema->isResponse = in_array($parsedSchema->type, $this->responseSchemaTypes);
+        }
 
         return $parsedSchema;
     }
@@ -255,9 +223,7 @@ class OpenApiParser implements Parser
         $allOf = collect($schema->allOf)
             ->mapWithKeys(fn ($s, $i) => ["{$schema->title} composite {$i}" => $s])
             ->toArray();
-        $preprocessedAllOf = $this->preprocessSchemas($allOf);
-
-        $parsedAllOf = $this->parseSchemas($preprocessedAllOf, $parsedSchema);
+        $parsedAllOf = $this->parseSchemas($allOf, $parsedSchema);
 
         // TODO: I feel like there's some neater way to handle allOf schemas using intersection types,
         // but I'm not sure how to do it
@@ -381,7 +347,13 @@ class OpenApiParser implements Parser
                         $parsedSchema = $this->parseSchema($schema);
                         $parsedSchema->isResponse = true;
                         if (! in_array($parsedSchema->type, $this->responseSchemaTypes)) {
-                            $this->responseSchemaTypes[] = $parsedSchema->type;
+                            $savedType = $parsedSchema->type;
+                            // Without this, we end up with "array" in the response types list.
+                            // TODO: This is a brittle solution and doesn't account for scalar arrays
+                            if ($parsedSchema->type === SimpleType::ARRAY->value) {
+                                $savedType = "{$parsedSchema->items->type}[]";
+                            }
+                            $this->responseSchemaTypes[] = $savedType;
                         }
 
                         return [$contentType => $parsedSchema];

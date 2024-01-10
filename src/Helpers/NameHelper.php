@@ -157,6 +157,16 @@ class NameHelper
         return $result;
     }
 
+    public static function singularFromList(string $listName): string
+    {
+        $singular = preg_replace('/(\s?[Ll]ist|[Aa]rray)$/', '', $listName);
+        if ($singular === $listName) {
+            $singular = Str::singular($listName);
+        }
+
+        return $singular;
+    }
+
     /**
      * Given a string that might be a namespace suffix (e.g. a sub-namespace),
      * return it with a leading backslash if it's not empty.

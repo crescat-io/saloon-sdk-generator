@@ -140,15 +140,13 @@ class GenerateSdk extends Command
             $this->dumpToFile($dtoClass);
         }
         $this->comment("\nTests:");
-        foreach ($result->getWithTag("pest") as $test) {
+        foreach ($result->getWithTag('pest') as $test) {
             $this->dumpToFile($test->file, $test->path);
         }
     }
 
     protected function dumpToFile(PhpFile $file, $overrideFilePath = null): void
     {
-
-
 
         // TODO: Cleanup this, brittle and will break if you change the namespace
         $wip = sprintf(
@@ -170,7 +168,6 @@ class GenerateSdk extends Command
 
             return;
         }
-
 
         $ok = file_put_contents($filePath, (string) $file);
 

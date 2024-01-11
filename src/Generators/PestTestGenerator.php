@@ -12,9 +12,7 @@ use Crescat\SaloonSdkGenerator\Data\TaggedOutputFile;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
-use Nette\PhpGenerator\PhpNamespace;
 
 class PestTestGenerator implements PostProcessor
 {
@@ -85,23 +83,16 @@ class PestTestGenerator implements PostProcessor
 
         $fileStub = file_get_contents(__DIR__.'/../Stubs/pest-resource-test.stub');
 
-        // TODO: remove this, its for debugging so i see when i generated a file
-        $fileStub = str_replace('{{ prelude }}', '// changed - '.date('Y-m-d H:i:s'), $fileStub);
-
+        $fileStub = str_replace('{{ prelude }}', '// Generated '.date('Y-m-d H:i:s'), $fileStub);
         $fileStub = str_replace('{{ connectorName }}', $this->config->connectorName, $fileStub);
-        $fileStub = str_replace('{{ clientName }}', NameHelper::safeVariableName($this->config->connectorName), $fileStub);
-
         $fileStub = str_replace('{{ namespace }}', $this->config->namespace, $fileStub);
         $fileStub = str_replace('{{ name }}', $this->config->connectorName, $fileStub);
+        $fileStub = str_replace('{{ clientName }}', NameHelper::safeVariableName($this->config->connectorName), $fileStub);
 
-        // TODO: Get construcor args from connector class
+        $namespace = Arr::first($this->generatedCode->connectorClass->getNamespaces());
+        $classType = Arr::first($namespace->getClasses());
 
-        /** @var PhpNamespace $wip */
-        $wip = Arr::first($this->generatedCode->connectorClass->getNamespaces());
-        /** @var ClassType $wip2 */
-        $wip2 = Arr::first($wip->getClasses());
-
-        $constructorParameters = $wip2->getMethod('__construct')->getParameters();
+        $constructorParameters = $classType->getMethod('__construct')->getParameters();
 
         $constructorArgs = [];
         foreach ($constructorParameters as $parameter) {
@@ -111,14 +102,14 @@ class PestTestGenerator implements PostProcessor
                 continue;
             }
 
-            $value = match ($parameter->getType()) {
+            $defaultValue = match ($parameter->getType()) {
                 'string' => "'replace'",
                 'bool' => 'true',
                 'int' => 0,
                 default => 'null',
             };
 
-            $constructorArgs[] = $parameter->getName().': '.$value;
+            $constructorArgs[] = $parameter->getName().': '.$defaultValue;
         }
 
         $fileStub = str_replace('{{ connectorArgs }}', Str::wrap(implode(",\n\t\t", $constructorArgs), "\n\t\t", "\n\t"), $fileStub);
@@ -146,13 +137,7 @@ class PestTestGenerator implements PostProcessor
             $functionStub = str_replace('{{ resourceName }}', $resourceNameSafe = NameHelper::safeVariableName($resourceName), $functionStub);
             $functionStub = str_replace('{{ methodName }}', $methodNameSafe = NameHelper::safeVariableName($requestClassName), $functionStub);
             $functionStub = str_replace('{{ fixtureName }}', Str::camel($resourceNameSafe.'.'.$methodNameSafe), $functionStub);
-
-            // testDescription
-
-            // TODO: Customizable description via config
-            $descriptionFallback = "calls the {$methodNameSafe} in the {$resourceName} resource";
-            // TODO: Configurable maxlength via config
-            $description = trim(Str::limit(addslashes($endpoint->description ?: $descriptionFallback), 120));
+            $description = trim(Str::limit(addslashes($endpoint->description ?: "calls the {$methodNameSafe} in the {$resourceName} resource"), 120));
             $functionStub = str_replace('{{ testDescription }}', $description, $functionStub);
 
             $methodArguments = [];
@@ -189,7 +174,7 @@ class PestTestGenerator implements PostProcessor
             return new TaggedOutputFile(
                 tag: 'pest',
                 file: $file,
-                path:  "tests/{$resourceName}Test.php",
+                path: "tests/{$resourceName}Test.php",
             );
         } catch (\Exception $e) {
             // TODO: Inform about exception

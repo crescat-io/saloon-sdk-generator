@@ -21,15 +21,14 @@ class CodeGenerator
     protected array $postProcessors = [];
 
     public function __construct(
-        protected Config     $config,
+        protected Config $config,
         protected ?Generator $requestGenerator = null,
         protected ?Generator $resourceGenerator = null,
         protected ?Generator $dtoGenerator = null,
         protected ?Generator $connectorGenerator = null,
-        ?array               $additionalGenerators = [],
-        ?array               $postProcessors = [],
-    )
-    {
+        ?array $additionalGenerators = [],
+        ?array $postProcessors = [],
+    ) {
         // Register default generators.
         $this->requestGenerator ??= new RequestGenerator($config);
         $this->resourceGenerator ??= new ResourceGenerator($config);
@@ -51,7 +50,7 @@ class CodeGenerator
     public function registerPostProcessors(?array $postProcessors = []): static
     {
         foreach ($postProcessors as $postProcessor) {
-            if (!$postProcessor instanceof PostProcessor) {
+            if (! $postProcessor instanceof PostProcessor) {
                 throw new InvalidArgumentException(sprintf('Post processor must implement %s but got %s', PostProcessor::class, get_class($postProcessor)));
             }
 
@@ -71,7 +70,7 @@ class CodeGenerator
     public function registerGenerators(?array $generators = []): static
     {
         foreach ($generators as $generator) {
-            if (!$generator instanceof Generator) {
+            if (! $generator instanceof Generator) {
                 throw new InvalidArgumentException(sprintf('Generator must implement %s but got %s', PostProcessor::class, get_class($generator)));
             }
 
@@ -105,15 +104,15 @@ class CodeGenerator
     protected function runGenerators(ApiSpecification $specification): array
     {
         return collect($this->generators)
-            ->each(fn(Generator $generator) => $generator->setConfig($this->config))
-            ->map(fn(Generator $generator) => $generator->generate($specification))
+            ->each(fn (Generator $generator) => $generator->setConfig($this->config))
+            ->map(fn (Generator $generator) => $generator->generate($specification))
             ->toArray();
     }
 
     protected function runPostProcessors(ApiSpecification $specification, GeneratedCode $generatedCode): array
     {
         return collect($this->postProcessors)
-            ->map(fn(PostProcessor $postProcessor) => $postProcessor->process($this->config, $specification, $generatedCode))
+            ->map(fn (PostProcessor $postProcessor) => $postProcessor->process($this->config, $specification, $generatedCode))
             ->toArray();
     }
 

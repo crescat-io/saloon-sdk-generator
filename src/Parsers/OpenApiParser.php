@@ -10,6 +10,8 @@ use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
+use cebe\openapi\spec\Reference;
+use cebe\openapi\spec\RequestBody;
 use cebe\openapi\spec\SecurityRequirement;
 use cebe\openapi\spec\Server;
 use cebe\openapi\spec\Type;
@@ -152,6 +154,12 @@ class OpenApiParser implements Parser
 
     protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
     {
+
+        if ($operation->operationId == 'createPurchase') {
+            // TODO: Parse the request body
+            dd();
+        }
+
         return new Endpoint(
             name: trim($operation->operationId ?: $operation->summary ?: ''),
             method: Method::parse($method),
@@ -162,8 +170,38 @@ class OpenApiParser implements Parser
             queryParameters: $this->mapParams($operation->parameters, 'query'),
             // TODO: Check if this differs between spec versions
             pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
-            bodyParameters: [], // TODO: implement "definition" parsing
+            bodyParameters: $this->parseRequestBody($operation->requestBody),
         );
+    }
+
+    protected function parseRequestBody(RequestBody|Reference|null $requestBody): array
+    {
+
+        if (! $requestBody) {
+            return [];
+        }
+
+        $bodyParameters = [];
+
+        // Assume that the requestBody content is of type 'application/json'
+        $content = $requestBody->content['application/json'] ?? null;
+
+        if ($requestBody instanceof Reference) {
+            $requestBody = $requestBody->resolveReferences();
+        }
+
+        if ($content && $content->schema && $content->schema?->type != null) {
+            foreach ($content->schema->properties as $name => $property) {
+                $bodyParameters[] = new Parameter(
+                    type: $this->mapSchemaTypeToPhpType($property->type),
+                    nullable: $property->nullable ?? false,
+                    name: $name,
+                    description: $property->description ?? ''
+                );
+            }
+        }
+
+        return $bodyParameters;
     }
 
     /**

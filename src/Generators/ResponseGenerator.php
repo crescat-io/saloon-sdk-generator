@@ -55,13 +55,22 @@ class ResponseGenerator extends Generator
                 readonly: true,
             );
 
-            $safeName = NameHelper::safeVariableName($schema->name);
-            $complexArrayTypes[$safeName] = NameHelper::dtoClassName($schema->items->type);
+            if (! Utils::isBuiltInType($schema->items->type)) {
+                $safeName = NameHelper::safeVariableName($schema->name);
+                $complexArrayTypes[$safeName] = NameHelper::dtoClassName($schema->items->type);
+            }
         } else {
             foreach ($schema->properties as $parameterName => $property) {
+                $safeName = NameHelper::safeVariableName($parameterName);
+
+                // Clone property before modifying to avoid any weird downstream effects
+                $param = clone $property;
+                // Make sure the constructor parameter is named the same thing as the parameter
+                // in the original spec
+                $param->name = $safeName;
                 MethodGeneratorHelper::addParameterToMethod(
                     $classConstructor,
-                    $property,
+                    $param,
                     namespace: $dtoNamespace,
                     promote: true,
                     visibility: 'public',
@@ -75,8 +84,11 @@ class ResponseGenerator extends Generator
                     $namespace->addUse($type);
                 }
 
-                $safeName = NameHelper::safeVariableName($parameterName);
-                if ($property->type === SimpleType::ARRAY && $property->items) {
+                if (
+                    $property->type === SimpleType::ARRAY->value
+                    && $property->items
+                    && ! Utils::isBuiltInType($property->items->type)
+                ) {
                     $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
                 }
             }

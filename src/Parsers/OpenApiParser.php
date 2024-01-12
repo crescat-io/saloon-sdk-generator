@@ -258,6 +258,7 @@ class OpenApiParser implements Parser
             $allRequirements = array_merge($allRequirements, $s->required);
         }
 
+        $parsedSchema->isResponse = in_array($parsedSchema->type, $this->responseSchemaTypes);
         $parsedSchema->required = $allRequirements;
         $parsedSchema->properties = collect($allProperties)
             ->sortBy(fn (Schema $schema) => (int) $schema->isNullable())

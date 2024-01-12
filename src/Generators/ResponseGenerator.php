@@ -42,6 +42,7 @@ class ResponseGenerator extends Generator
         $classConstructor = $classType->addMethod('__construct');
 
         $dtoNamespace = $this->config->dtoNamespace();
+        $attributeMap = [];
         $complexArrayTypes = [];
 
         if ($schema->type === SimpleType::ARRAY->value) {
@@ -54,6 +55,10 @@ class ResponseGenerator extends Generator
                 visibility: 'public',
                 readonly: true,
             );
+
+            if ($schema->name !== $schema->rawName) {
+                $attributeMap[$schema->name] = $schema->rawName;
+            }
 
             if (! Utils::isBuiltInType($schema->items->type)) {
                 $safeName = NameHelper::safeVariableName($schema->name);
@@ -92,9 +97,20 @@ class ResponseGenerator extends Generator
                     $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
                 }
             }
+
+            if ($parameterName !== $safeName) {
+                $attributeMap[$safeName] = $property->rawName;
+            }
         }
 
-        if (count($complexArrayTypes) > 0) {
+        if ($attributeMap) {
+            $classType->addProperty('attributeMap', $attributeMap)
+                ->setStatic()
+                ->setType('array')
+                ->setProtected();
+        }
+
+        if ($complexArrayTypes) {
             foreach ($complexArrayTypes as $name => $type) {
                 $dtoFQN = "{$dtoNamespace}\\{$type}";
                 $namespace->addUse($dtoFQN);

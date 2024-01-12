@@ -24,7 +24,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
-use Crescat\SaloonSdkGenerator\EmptyResponse;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
@@ -117,10 +116,9 @@ class OpenApiParser implements Parser
     {
         $parsedSchemas = [];
         foreach ($schemas as $name => $schema) {
-            $safeName = NameHelper::normalize($name);
-            $parsed = $this->parseSchema($schema, $parent, $safeName);
+            $parsed = $this->parseSchema($schema, $parent, $name);
             if ($parsed) {
-                $parsedSchemas[$safeName] = $parsed;
+                $parsedSchemas[$name] = $parsed;
             }
         }
 
@@ -138,11 +136,11 @@ class OpenApiParser implements Parser
         } elseif (Type::isScalar($schema->type)) {
             $parsedSchema = new Schema(
                 name: $schema->title ?? $parentPropName,
+                rawName: $parentPropName,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
                 nullable: $schema->required ?? $schema->nullable,
                 parent: $parent,
-                parentPropName: $parentPropName,
             );
         } elseif ($schema->type === Type::ARRAY) {
             $name = $schema->title;
@@ -178,18 +176,16 @@ class OpenApiParser implements Parser
             $required = $schema->required;
             if (is_null($required)) {
                 $required = [];
-            } elseif (is_array($required)) {
-                $required = array_map(fn ($prop) => NameHelper::normalize($prop), $required);
             }
 
             $parsedSchema = new Schema(
                 name: $schema->title ?? $parentPropName,
+                rawName: $parentPropName,
                 nullable: $schema->nullable,
                 type: $schema->title ?? 'object',
                 description: $schema->description,
                 required: $required,
                 parent: $parent,
-                parentPropName: $parentPropName,
             );
 
             $parsedProperties = $this->parseSchemas($schema->properties, $parsedSchema);
@@ -198,8 +194,8 @@ class OpenApiParser implements Parser
             // usually present. We're ignoring it unless it's explicitly set to a type definition, or
             // the object has no other properties
             if (
-                ($schema->type === Type::OBJECT && !$schema->properties && $schema->additionalProperties)
-                || !is_bool($schema->additionalProperties)
+                ($schema->type === Type::OBJECT && ! $schema->properties && $schema->additionalProperties)
+                || ! is_bool($schema->additionalProperties)
             ) {
                 $parsedSchema = $this->addAdditionalProperties($schema, $parsedSchema);
             }
@@ -212,7 +208,7 @@ class OpenApiParser implements Parser
 
             // If there are no properties and this isn't a response schema, we don't need to generate
             // a DTO class for it
-            if (count($schema->properties) === 0 && !$parsedSchema->isResponse) {
+            if (count($schema->properties) === 0 && ! $parsedSchema->isResponse) {
                 // This handles the case where there is a schema with no properties, but it has additionalProperties
                 // set to a type definition
                 if (! Utils::isBuiltinType($parsedSchema->type)) {
@@ -235,7 +231,7 @@ class OpenApiParser implements Parser
             type: $schema->title ?? 'object',
             description: $schema->description,
             parent: $parent,
-            parentPropName: $parentPropName,
+            rawName: $parentPropName,
         );
 
         $allOf = collect($schema->allOf)
@@ -249,10 +245,9 @@ class OpenApiParser implements Parser
         $allRequirements = [];
         foreach ($parsedAllOf as $s) {
             foreach ($s->properties as $name => $property) {
-                $safeName = NameHelper::normalize($name);
                 // I don't think conflicting property names on allOf schemas are allowed by the OpenAPI
                 // spec, so I don't believe we run the risk of overwriting properties here
-                $allProperties[$safeName] = $property;
+                $allProperties[$name] = $property;
             }
 
             $allRequirements = array_merge($allRequirements, $s->required);
@@ -337,7 +332,7 @@ class OpenApiParser implements Parser
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
                 type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
                 nullable: $parameter->required == false,
-                name: NameHelper::normalize($parameter->name),
+                name: $parameter->name,
                 description: $parameter->description,
             ))
             ->sortBy(fn (Parameter $parameter) => (int) $parameter->isNullable())

@@ -24,10 +24,9 @@ class Schema extends Parameter
         // have additional properties
         public Schema|bool $additionalProperties = false,
         ?string $name = null,
+        public ?string $rawName = null,
 
         public ?Schema $parent = null,
-        // This is the name of the property in the parent schema that points to this schema
-        public ?string $parentPropName = null,
 
         public ?Schema $items = null,
         public ?array $properties = [],
@@ -35,7 +34,7 @@ class Schema extends Parameter
     ) {
         if (is_null($name)) {
             if ($this->parent->type === SimpleType::ARRAY->value) {
-                $this->name = $this->parent->name.' item';
+                $this->name = $this->parent->name.'Item';
             } else {
                 throw new InvalidArgumentException('$name must be defined if the parent schema is not of type `array`.');
             }
@@ -59,7 +58,7 @@ class Schema extends Parameter
     public function isNullable(): bool
     {
         if (is_array($this->parent?->required)) {
-            return ! in_array($this->parentPropName, $this->parent->required);
+            return ! in_array($this->rawName, $this->parent->required);
         }
 
         return $this->nullable;

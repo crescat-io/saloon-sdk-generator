@@ -47,10 +47,12 @@ class DtoGenerator extends Generator
 
         $dtoNamespace = $this->config->dtoNamespace();
         $responseNamespace = $this->config->responseNamespace();
+        $attributeMap = [];
         $complexArrayTypes = [];
 
         foreach ($schema->properties as $parameterName => $property) {
-            $property->name = NameHelper::safeVariableName($parameterName);
+            $safeName = NameHelper::safeVariableName($parameterName);
+            $property->name = $safeName;
             MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
                 $property,
@@ -59,6 +61,10 @@ class DtoGenerator extends Generator
                 visibility: 'public',
                 readonly: true,
             );
+
+            if ($property->rawName && $property->rawName !== $safeName) {
+                $attributeMap[$safeName] = $property->rawName;
+            }
 
             // Only add to the complex array types list if the property is an array of non-built-in types
             if (
@@ -107,7 +113,14 @@ class DtoGenerator extends Generator
             }
         }
 
-        if (count($complexArrayTypes) > 0) {
+        if ($attributeMap) {
+            $classType->addProperty('attributeMap', $attributeMap)
+                ->setStatic()
+                ->setType('array')
+                ->setProtected();
+        }
+
+        if ($complexArrayTypes) {
             foreach ($complexArrayTypes as $name => $schema) {
                 $safeType = NameHelper::dtoClassName($schema->type);
                 $typeNs = $schema->isResponse ? $responseNamespace : $dtoNamespace;

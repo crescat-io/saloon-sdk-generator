@@ -12,6 +12,13 @@ trait HasArrayableAttributes
 {
     use HasComplexArrayTypes;
 
+    /**
+     * @var array{string, string}
+     *
+     * A mapping of internal attribute names to their original names per the API specification.
+     */
+    public static array $attributeMap = [];
+
     public function toArray(): array
     {
         $constructor = (new ReflectionClass(static::class))->getConstructor();
@@ -40,7 +47,8 @@ trait HasArrayableAttributes
             if ($name === 'additionalProperties') {
                 $asArray = array_merge($asArray, $attributeAsArray);
             } else {
-                $asArray[$name] = $attributeAsArray;
+                $originalName = $this->attributeMap[$name] ?? $name;
+                $asArray[$originalName] = $attributeAsArray;
             }
         }
 

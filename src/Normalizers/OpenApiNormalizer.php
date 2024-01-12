@@ -18,6 +18,7 @@ use InvalidArgumentException;
 class OpenApiNormalizer
 {
     protected array $normalizedSchemas = [];
+
     protected ReferenceContext $context;
 
     public function __construct(protected OpenApi $spec)
@@ -50,8 +51,7 @@ class OpenApiNormalizer
     {
         $normalized = [];
         foreach ($schemas as $name => $schema) {
-            $safeName = is_string($name) ? NameHelper::normalize($name) : null;
-            $normalized[$safeName] = $this->normalizeSchema($schema, $safeName, $createUnlessRef);
+            $normalized[$name] = $this->normalizeSchema($schema, $name, $createUnlessRef);
         }
 
         return $normalized;
@@ -103,7 +103,7 @@ class OpenApiNormalizer
         } elseif ($schema->type === Type::OBJECT) {
             $schema->properties = $this->normalizeSchemas($schema->properties, true);
 
-            if (!is_bool($schema->additionalProperties)) {
+            if (! is_bool($schema->additionalProperties)) {
                 $additionalProperties = $schema->additionalProperties;
                 $schema->additionalProperties = $this->normalizeSchema(
                     $additionalProperties,
@@ -169,8 +169,9 @@ class OpenApiNormalizer
         $this->mapOperations(function (Operation &$operation) {
             $responses = [];
             foreach ($operation->responses->getResponses() as $httpCode => $response) {
-                if (!$response->content) {
+                if (! $response->content) {
                     $responses[$httpCode] = $response;
+
                     continue;
                 }
 

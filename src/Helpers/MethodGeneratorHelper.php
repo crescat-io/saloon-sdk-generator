@@ -101,8 +101,7 @@ class MethodGeneratorHelper
     {
         return collect($parameters)
             ->mapWithKeys(function (Parameter $parameter) {
-                $name = $parameter->name;
-                $safeName = NameHelper::safeVariableName($name);
+                $safeName = NameHelper::safeVariableName($parameter->name);
 
                 if (Utils::isBuiltInType($parameter->type)) {
                     $paramCode = new Literal(sprintf('$this->%s', $safeName));
@@ -110,7 +109,7 @@ class MethodGeneratorHelper
                     $paramCode = new Literal(sprintf('array_filter($this->%s->toArray())', $safeName));
                 }
 
-                return [$safeName => $paramCode];
+                return [$parameter->rawName => $paramCode];
             })
             ->toArray();
     }

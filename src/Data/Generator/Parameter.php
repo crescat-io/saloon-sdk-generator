@@ -9,12 +9,18 @@ use Crescat\SaloonSdkGenerator\Helpers\Utils;
 
 class Parameter
 {
+    public string $name;
+
+    public ?string $rawName;
+
     public function __construct(
         public string $type,
         public bool $nullable,
-        public string $name,
+        string $name,
         public ?string $description = null
     ) {
+        $this->name = NameHelper::normalize($name);
+        $this->rawName = $name;
     }
 
     public function getDocTypeString(): string

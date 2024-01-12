@@ -18,9 +18,11 @@ use InvalidArgumentException;
 class OpenApiNormalizer
 {
     protected array $normalizedSchemas = [];
+    protected ReferenceContext $context;
 
     public function __construct(protected OpenApi $spec)
     {
+        $this->context = new ReferenceContext($this->spec, '/');
     }
 
     public function normalize(): OpenApi
@@ -33,8 +35,7 @@ class OpenApiNormalizer
         $this->normalizeSchemas($this->spec->components->schemas, createUnlessRef: false);
 
         // Now that we've normalized all the schemas and references, we can resolve them
-        $context = new ReferenceContext($this->spec, '/');
-        $this->spec->resolveReferences($context);
+        $this->spec->resolveReferences($this->context);
 
         return $this->spec;
     }
@@ -56,20 +57,33 @@ class OpenApiNormalizer
         return $normalized;
     }
 
-    protected function normalizeSchema(Schema|Reference $schema, ?string $name = null, bool $createUnlessRef = true): Schema|Reference
-    {
+    protected function normalizeSchema(
+        Schema|Reference $schema,
+        ?string $name = null,
+        bool $createUnlessRef = true
+    ): Schema|Reference {
         if ($schema instanceof Reference) {
             return $schema;
         }
 
-        if (! $name && $createUnlessRef) {
+        if (! $name && $createUnlessRef && $schema->type === Type::OBJECT) {
             throw new InvalidArgumentException(
-                'Cannot create a schema without a name. If $createUnlessRef is true, $name must not be null.'
+                'Cannot create an object schema without a name. If $createUnlessRef is true, $name must not be null.'
             );
         }
 
-        if (array_key_exists($name, $this->normalizedSchemas)) {
-            return $this->normalizedSchemas[$name];
+        if (
+            array_key_exists($name, $this->normalizedSchemas)
+        ) {
+            $normalized = $this->normalizedSchemas[$name];
+            if ($normalized instanceof Reference) {
+                $normalized = $normalized->resolve($this->context);
+            }
+
+            // It's possible to have two schemas with the same name, but different types
+            if ($normalized->type === $schema->type) {
+                return $this->normalizedSchemas[$name];
+            }
         }
 
         if (! $schema->title) {
@@ -85,17 +99,10 @@ class OpenApiNormalizer
         } elseif (Type::isScalar($schema->type)) {
             return $schema;
         } elseif ($schema->type === Type::ARRAY) {
-            $schema->items = $this->normalizeSchema($schema->items, NameHelper::singularFromList($name ?? ''));
+            $schema->items = $this->normalizeSchema($schema->items, $name);
         } elseif ($schema->type === Type::OBJECT) {
             $schema->properties = $this->normalizeSchemas($schema->properties, true);
-        }
 
-        if ($createUnlessRef) {
-            $matchingRef = $this->findMatchingSchema($schema, $name);
-            if ($matchingRef) {
-                $schema = $matchingRef;
-            } else {
-                $schema = $this->addSchema($schema, $name);
             if (!is_bool($schema->additionalProperties)) {
                 $additionalProperties = $schema->additionalProperties;
                 $schema->additionalProperties = $this->normalizeSchema(
@@ -104,6 +111,14 @@ class OpenApiNormalizer
                     false
                 );
             }
+
+            if ($createUnlessRef) {
+                $matchingRef = $this->findMatchingSchema($schema, $name);
+                if ($matchingRef) {
+                    $schema = $matchingRef;
+                } else {
+                    $schema = $this->addSchema($schema, $name);
+                }
             }
         }
 
@@ -161,7 +176,7 @@ class OpenApiNormalizer
 
                 foreach ($response->content as $contentType => $mediaType) {
                     $schema = $mediaType->schema;
-                    if ($schema instanceof Reference || Type::isScalar($schema->type)) {
+                    if ($schema instanceof Reference) {
                         continue;
                     }
 
@@ -203,9 +218,13 @@ class OpenApiNormalizer
 
         $destinationRef = new Reference(['$ref' => $newRef], Schema::class);
         $destinationRef->setDocumentContext($this->spec, new JsonPointer(''));
+
         $components = $this->spec->components;
         $schemas = $components->schemas;
+
         $schemas[$name] = $schema;
+        $this->normalizedSchemas[$name] = $schema;
+
         $components->schemas = $schemas;
         $this->spec->components = $components;
 

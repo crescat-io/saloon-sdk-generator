@@ -40,6 +40,8 @@ class MethodGeneratorHelper
         $method->addComment(
             trim(sprintf(
                 '@param %s $%s %s',
+                // TODO: if the type is aliased, we should detect it and note it in the
+                // schema object somehow so that accurate docstrings are generated
                 $parameter->getDocTypeString(),
                 $name,
                 $parameter->description

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
+use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use InvalidArgumentException;
 
 class Schema extends Parameter
@@ -33,8 +34,8 @@ class Schema extends Parameter
         public ?array $required = null,
     ) {
         if (is_null($name)) {
-            if ($this->parent->type === 'array') {
-                $this->name = $this->parent->name.'Item';
+            if ($this->parent->type === SimpleType::ARRAY->value) {
+                $this->name = $this->parent->name.' item';
             } else {
                 throw new InvalidArgumentException('$name must be defined if the parent schema is not of type `array`.');
             }
@@ -43,7 +44,7 @@ class Schema extends Parameter
         }
     }
 
-    public function getDocTypeString(bool $required = false): string
+    public function getDocTypeString(): string
     {
         $type = $this->type;
         if ($this->items) {

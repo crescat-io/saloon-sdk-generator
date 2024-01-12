@@ -62,6 +62,7 @@ class NameHelper
         'new',
         'null',
         'or',
+        'parent',
         'print',
         'private',
         'protected',

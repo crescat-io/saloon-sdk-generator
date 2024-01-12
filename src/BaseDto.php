@@ -12,11 +12,4 @@ abstract class BaseDto implements Deserializable
 {
     use Deserializes;
     use HasArrayableAttributes;
-
-    public readonly array $additionalProperties;
-
-    public function __construct(...$additionalProperties)
-    {
-        $this->additionalProperties = $additionalProperties;
-    }
 }

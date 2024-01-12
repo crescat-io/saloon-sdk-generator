@@ -193,7 +193,13 @@ class OpenApiParser implements Parser
 
             $parsedProperties = $this->parseSchemas($schema->properties, $parsedSchema);
 
-            if ($schema->additionalProperties) {
+            // additionalProperties defaults to true according to OpenAPI spec, but it actually isn't
+            // usually present. We're ignoring it unless it's explicitly set to a type definition, or
+            // the object has no other properties
+            if (
+                ($schema->type === Type::OBJECT && !$schema->properties && $schema->additionalProperties)
+                || !is_bool($schema->additionalProperties)
+            ) {
                 $parsedSchema = $this->addAdditionalProperties($schema, $parsedSchema);
             }
 
@@ -202,6 +208,17 @@ class OpenApiParser implements Parser
                 ->toArray();
 
             $parsedSchema->isResponse = in_array($parsedSchema->type, $this->responseSchemaTypes);
+
+            // If there are no properties and this isn't a response schema, we don't need to generate
+            // a DTO class for it
+            if (count($schema->properties) === 0 && !$parsedSchema->isResponse) {
+                // This handles the case where there is a schema with no properties, but it has additionalProperties
+                // set to a type definition
+                if (! Utils::isBuiltinType($parsedSchema->type)) {
+                    $parsedSchema->items = $parsedSchema->additionalProperties;
+                }
+                $parsedSchema->type = $this->mapSchemaTypeToPhpType(Type::ARRAY);
+            }
         }
 
         return $parsedSchema;
@@ -253,10 +270,10 @@ class OpenApiParser implements Parser
         $additionalProperties = $originalSchema->additionalProperties;
         $type = SimpleType::MIXED->value;
         if (! is_bool($additionalProperties)) {
-            if ($additionalProperties instanceof OpenApiReference) {
-                $additionalProperties = $additionalProperties->resolve();
-            }
-            if (Utils::isBuiltInType($additionalProperties->type) || $additionalProperties->type === Type::OBJECT) {
+            if (
+                SimpleType::isScalar($additionalProperties->type)
+                || ($additionalProperties->type === Type::OBJECT && ! $additionalProperties->properties)
+            ) {
                 $type = $this->mapSchemaTypeToPhpType($additionalProperties->type);
             } else {
                 $additionalPropertiesItemSchema = $this->parseSchema($additionalProperties, $parsedSchema);

@@ -85,7 +85,15 @@ class DtoGenerator extends Generator
                 promote: false,
             );
 
-            $classConstructor->addBody('parent::__construct(...$additionalProperties);');
+            $safeType = Utils::isBuiltinType($additionalProperties->type)
+                ? $additionalProperties->type
+                : NameHelper::safeClassName($additionalProperties->type);
+            $classType->addProperty('additionalProperties')
+                ->setPublic()
+                ->addComment("@var {$safeType}[]")
+                ->setType('array');
+
+            $classConstructor->addBody('$this->additionalProperties = $additionalProperties;');
 
             if (! Utils::isBuiltinType($additionalProperties->type)) {
                 // Since additional properties are implicitly an array type, the additional properties type should

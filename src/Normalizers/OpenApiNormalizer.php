@@ -96,6 +96,14 @@ class OpenApiNormalizer
                 $schema = $matchingRef;
             } else {
                 $schema = $this->addSchema($schema, $name);
+            if (!is_bool($schema->additionalProperties)) {
+                $additionalProperties = $schema->additionalProperties;
+                $schema->additionalProperties = $this->normalizeSchema(
+                    $additionalProperties,
+                    $additionalProperties->title ?? null,
+                    false
+                );
+            }
             }
         }
 

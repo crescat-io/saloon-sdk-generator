@@ -154,6 +154,11 @@ class OpenApiNormalizer
         $this->mapOperations(function (Operation &$operation) {
             $responses = [];
             foreach ($operation->responses->getResponses() as $httpCode => $response) {
+                if (!$response->content) {
+                    $responses[$httpCode] = $response;
+                    continue;
+                }
+
                 foreach ($response->content as $contentType => $mediaType) {
                     $schema = $mediaType->schema;
                     if ($schema instanceof Reference || Type::isScalar($schema->type)) {

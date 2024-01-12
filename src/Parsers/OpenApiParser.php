@@ -24,6 +24,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
+use Crescat\SaloonSdkGenerator\EmptyResponse;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
@@ -136,7 +137,7 @@ class OpenApiParser implements Parser
             $parsedSchema = $this->parseAllOfSchema($schema, $parent, $parentPropName);
         } elseif (Type::isScalar($schema->type)) {
             $parsedSchema = new Schema(
-                name: $schema->title,
+                name: $schema->title ?? $parentPropName,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
                 nullable: $schema->required ?? $schema->nullable,
@@ -182,7 +183,7 @@ class OpenApiParser implements Parser
             }
 
             $parsedSchema = new Schema(
-                name: $schema->title,
+                name: $schema->title ?? $parentPropName,
                 nullable: $schema->nullable,
                 type: $schema->title ?? 'object',
                 description: $schema->description,
@@ -349,8 +350,8 @@ class OpenApiParser implements Parser
     {
         return collect($responses->getResponses())
             ->mapWithKeys(function (OpenApiResponse|OpenApiReference|null $response, int $httpCode) {
-                if (! $response || $httpCode === 204) {
-                    return [];
+                if (! $response || ! $response->content) {
+                    return [$httpCode => []];
                 } elseif ($response instanceof OpenApiReference) {
                     $response = $response->resolve();
                 }

@@ -208,7 +208,7 @@ class OpenApiParser implements Parser
             if (count($schema->properties) === 0 && ! $parsedSchema->isResponse) {
                 // This handles the case where there is a schema with no properties, but it has additionalProperties
                 // set to a type definition
-                if (! Utils::isBuiltinType($parsedSchema->type)) {
+                if (! Utils::isBuiltinType($parsedSchema->type) && $parsedSchema->additionalProperties) {
                     $parsedSchema->items = $parsedSchema->additionalProperties;
                 }
                 $parsedSchema->type = $this->mapSchemaTypeToPhpType(Type::ARRAY);
@@ -343,7 +343,7 @@ class OpenApiParser implements Parser
     {
         return collect($responses->getResponses())
             ->mapWithKeys(function (OpenApiResponse|OpenApiReference|null $response, int $httpCode) {
-                if (! $response || ! $response->content) {
+                if (! $response || ! $response->content || $httpCode === 204) {
                     return [$httpCode => []];
                 } elseif ($response instanceof OpenApiReference) {
                     $response = $response->resolve();

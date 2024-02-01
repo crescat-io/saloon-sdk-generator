@@ -154,11 +154,11 @@ class PestTestGenerator implements PostProcessor
             ];
 
             foreach ($combined as $param) {
-                $methodArguments[] = $param->name.': '.match ($param->type) {
+                $methodArguments[] = sprintf('%s: %d', Namehelper::safeVariableName($param->name), match ($param->type) {
                     'integer' => 0,
                     'boolean' => 'true',
                     default => "'replace me'",
-                };
+                });
             }
 
             $methodArguments = Str::wrap(implode(",\n\t\t", $methodArguments), "\n\t\t", "\n\t");
@@ -177,6 +177,7 @@ class PestTestGenerator implements PostProcessor
                 path: "tests/{$resourceName}Test.php",
             );
         } catch (\Exception $e) {
+
             // TODO: Inform about exception
             return null;
         }

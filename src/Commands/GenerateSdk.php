@@ -141,7 +141,7 @@ class GenerateSdk extends Command
         }
         $this->comment("\nTests:");
         foreach ($result->getWithTag('pest') as $test) {
-            $this->dumpToFile($test->file, $test->path);
+            $this->dumpToFile($test->file, $this->option('output').'/'.$test->path);
         }
     }
 

@@ -23,7 +23,12 @@ class Parameter
         $this->rawName = $name;
     }
 
-    public function getDocTypeString(): string
+    /**
+     * Generate a docstring for this parameter.
+     *
+     * @param  bool  $notNull  If true, the parameter will be forced to be marked non-null
+     */
+    public function getDocTypeString(bool $notNull = false): string
     {
         $type = $this->type;
         if (! Utils::isBuiltInType($type)) {
@@ -31,7 +36,7 @@ class Parameter
         }
         $nullString = str_contains($type, '|') ? 'null|' : '?';
 
-        return $this->isNullable() ? "{$nullString}{$type}" : $type;
+        return $this->isNullable() && !$notNull ? "{$nullString}{$type}" : $type;
     }
 
     public function isNullable(): bool

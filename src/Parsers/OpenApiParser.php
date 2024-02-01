@@ -144,13 +144,10 @@ class OpenApiParser implements Parser
             );
         } elseif ($schema->type === Type::ARRAY) {
             $name = $schema->title;
-            $singular = NameHelper::singularFromList($schema->title);
-            if ($singular !== $name) {
-                $name = Str::plural($singular);
-            }
 
             $parsedSchema = new Schema(
                 name: $name,
+                rawName: $parentPropName,
                 type: $this->mapSchemaTypeToPhpType($schema->type),
                 description: $schema->description,
                 nullable: $schema->required ?? $schema->nullable ?? false,

@@ -43,11 +43,18 @@ class Schema extends Parameter
         }
     }
 
-    public function getDocTypeString(): string
+    public function getDocTypeString(bool $notNull = false): string
     {
         $type = $this->type;
         if ($this->items) {
-            $type = "{$this->items->getDocTypeString()}[]";
+            $type = "{$this->items->getDocTypeString(!$this->isNullable())}[]";
+            // Sometimes the array itself isn't nullable, but its items are
+            if (! $this->isNullable() && $this->items->isNullable() && $type[0] === '?') {
+                $type = substr($type, 1);
+            // And sometimes the array is nullable, but its items aren't
+            } else if ($this->isNullable() && ! $this->items->isNullable()) {
+                $type = "{$type}|null";
+            }
         } else {
             $type = parent::getDocTypeString();
         }

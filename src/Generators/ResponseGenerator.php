@@ -89,6 +89,10 @@ class ResponseGenerator extends Generator
                     $namespace->addUse($type);
                 }
 
+                if ($parameterName !== $safeName) {
+                    $attributeMap[$safeName] = $property->rawName;
+                }
+
                 if (
                     $property->type === SimpleType::ARRAY->value
                     && $property->items
@@ -96,10 +100,6 @@ class ResponseGenerator extends Generator
                 ) {
                     $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
                 }
-            }
-
-            if ($parameterName !== $safeName) {
-                $attributeMap[$safeName] = $property->rawName;
             }
         }
 

@@ -47,12 +47,12 @@ class Schema extends Parameter
     {
         $type = $this->type;
         if ($this->items) {
-            $type = "{$this->items->getDocTypeString(!$this->isNullable())}[]";
+            $type = "{$this->items->getDocTypeString(! $this->isNullable())}[]";
             // Sometimes the array itself isn't nullable, but its items are
             if (! $this->isNullable() && $this->items->isNullable() && $type[0] === '?') {
                 $type = substr($type, 1);
             // And sometimes the array is nullable, but its items aren't
-            } else if ($this->isNullable() && ! $this->items->isNullable()) {
+            } elseif ($this->isNullable() && ! $this->items->isNullable()) {
                 $type = "{$type}|null";
             }
         } else {

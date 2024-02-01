@@ -36,7 +36,7 @@ class Parameter
         }
         $nullString = str_contains($type, '|') ? 'null|' : '?';
 
-        return $this->isNullable() && !$notNull ? "{$nullString}{$type}" : $type;
+        return $this->isNullable() && ! $notNull ? "{$nullString}{$type}" : $type;
     }
 
     public function isNullable(): bool

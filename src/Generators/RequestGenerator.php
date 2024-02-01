@@ -101,8 +101,9 @@ class RequestGenerator extends Generator
                     $cls = "{$responseNamespace}\\{$className}";
                 }
                 $namespace->addUse($cls);
+                $alias = array_flip($namespace->getUses())[$cls];
 
-                return [$httpCode => $cls];
+                return [$httpCode => $alias];
             })
             ->reduce(function (Collection $carry, string $className, int $httpCode) {
                 $carry->put(
@@ -117,9 +118,11 @@ class RequestGenerator extends Generator
             ->addUse(Exception::class)
             ->addUse(Response::class);
 
+        $aliasMap = $namespace->getUses();
+        $returnType = $codesByResponseType->map(fn (array $codes, string $className) => $aliasMap[$className])->implode('|');
         $createDtoMethod = $classType->addMethod('createDtoFromResponse')
             ->setPublic()
-            ->setReturnType($codesByResponseType->keys()->implode('|'))
+            ->setReturnType($returnType)
             ->addBody('$status = $response->status();')
             ->addBody('$responseCls = match ($status) {')
             ->addBody(

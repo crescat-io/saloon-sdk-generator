@@ -26,6 +26,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\SecurityScheme;
 use Crescat\SaloonSdkGenerator\Data\Generator\SecuritySchemeType;
 use Crescat\SaloonSdkGenerator\Data\Generator\ServerParameter;
 use Illuminate\Support\Str;
+use Throwable;
 
 class OpenApiParser implements Parser
 {
@@ -155,11 +156,6 @@ class OpenApiParser implements Parser
     protected function parseEndpoint(Operation $operation, $pathParams, string $path, string $method): ?Endpoint
     {
 
-        if ($operation->operationId == 'createPurchase') {
-            // TODO: Parse the request body
-            dd();
-        }
-
         return new Endpoint(
             name: trim($operation->operationId ?: $operation->summary ?: ''),
             method: Method::parse($method),
@@ -170,11 +166,11 @@ class OpenApiParser implements Parser
             queryParameters: $this->mapParams($operation->parameters, 'query'),
             // TODO: Check if this differs between spec versions
             pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
-            bodyParameters: $this->parseRequestBody($operation->requestBody),
+            bodyParameters: $this->parseRequestBody($operation->requestBody) ?? [],
         );
     }
 
-    protected function parseRequestBody(RequestBody|Reference|null $requestBody): array
+    protected function parseRequestBody(RequestBody|Reference|null $requestBody): ?array
     {
 
         if (! $requestBody) {
@@ -186,19 +182,24 @@ class OpenApiParser implements Parser
         // Assume that the requestBody content is of type 'application/json'
         $content = $requestBody->content['application/json'] ?? null;
 
-        if ($requestBody instanceof Reference) {
-            $requestBody = $requestBody->resolveReferences();
-        }
+        try {
 
-        if ($content && $content->schema && $content->schema?->type != null) {
-            foreach ($content->schema->properties as $name => $property) {
-                $bodyParameters[] = new Parameter(
-                    type: $this->mapSchemaTypeToPhpType($property->type),
-                    nullable: $property->nullable ?? false,
-                    name: $name,
-                    description: $property->description ?? ''
-                );
+            if ($requestBody instanceof Reference) {
+                $requestBody = $requestBody->resolveReferences();
             }
+
+            if ($content && $content->schema?->type != null) {
+                foreach ($content->schema->properties as $name => $property) {
+                    $bodyParameters[] = new Parameter(
+                        type: $this->mapSchemaTypeToPhpType($property->type),
+                        nullable: $property->nullable ?? false,
+                        name: $name,
+                        description: $property->description ?? ''
+                    );
+                }
+            }
+        } catch (Throwable) {
+            return [];
         }
 
         return $bodyParameters;

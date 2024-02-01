@@ -95,6 +95,10 @@ class CodeGenerator
         $additionalFiles = Arr::collapse($this->runPostProcessors($specification, $generatedCode));
 
         foreach ($additionalFiles as $additionalFile) {
+            if (! $additionalFile) {
+                continue;
+            }
+
             $generatedCode->addAdditionalFile($additionalFile);
         }
 
@@ -114,10 +118,5 @@ class CodeGenerator
         return collect($this->postProcessors)
             ->map(fn (PostProcessor $postProcessor) => $postProcessor->process($this->config, $specification, $generatedCode))
             ->toArray();
-    }
-
-    protected function runCodeGenerators()
-    {
-
     }
 }

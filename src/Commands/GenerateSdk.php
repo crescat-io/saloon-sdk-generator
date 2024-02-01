@@ -153,7 +153,7 @@ class GenerateSdk extends Command
             '%s/%s/%s.php',
             $this->option('output'),
             str_replace($this->option('namespace'), '', Arr::first($file->getNamespaces())->getName()),
-            Arr::first($file->getClasses())->getName(),
+            Arr::first($file->getClasses())?->getName(),
         );
 
         // TODO: cleanup

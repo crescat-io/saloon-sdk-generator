@@ -2,6 +2,8 @@
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
+use Illuminate\Support\Str;
+
 class Endpoint
 {
     /**
@@ -40,5 +42,10 @@ class Endpoint
     public function pathAsString(): string
     {
         return implode('/', $this->pathSegments);
+    }
+
+    public function pathAsStringExcludingPlaceholders(): string
+    {
+        return collect($this->pathSegments)->reject(fn ($segment) => Str::startsWith($segment, ':'))->implode('/');
     }
 }

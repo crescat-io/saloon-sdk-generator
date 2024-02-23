@@ -70,4 +70,19 @@ enum Method: string
     {
         return $this == self::TRACE;
     }
+
+    public function actionLabel()
+    {
+        return match ($this) {
+            self::GET => 'Get',
+            self::HEAD => 'Head',
+            self::POST => 'Create',
+            self::PUT => 'Update',
+            self::PATCH => 'Update',
+            self::DELETE => 'Delete',
+            self::OPTIONS => 'Options',
+            self::CONNECT => 'Connect',
+            self::TRACE => 'Trace',
+        };
+    }
 }

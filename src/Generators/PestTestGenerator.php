@@ -10,6 +10,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\TaggedOutputFile;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\PhpFile;
@@ -52,6 +53,7 @@ class PestTestGenerator implements PostProcessor
 
         foreach ($groupedByCollection as $collection => $items) {
             $classes[] = $this->generateTest($collection, $items->toArray());
+
         }
 
         return $classes;
@@ -169,14 +171,12 @@ class PestTestGenerator implements PostProcessor
 
         try {
 
-            $file = PhpFile::fromCode($fileStub);
-
             return new TaggedOutputFile(
                 tag: 'pest',
-                file: $file,
+                file: $fileStub,
                 path: "tests/{$resourceName}Test.php",
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
             // TODO: Inform about exception
             return null;

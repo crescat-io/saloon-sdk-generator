@@ -139,9 +139,11 @@ class GenerateSdk extends Command
         foreach ($result->dtoClasses as $dtoClass) {
             $this->dumpToFile($dtoClass);
         }
+
         $this->comment("\nTests:");
         foreach ($result->getWithTag('pest') as $test) {
-            $this->dumpToFile($test->file, $this->option('output').'/'.$test->path);
+            // TODO: Temporary Hacky workaround
+            file_put_contents($this->option('output').'/'.$test->path, $test->file);
         }
     }
 

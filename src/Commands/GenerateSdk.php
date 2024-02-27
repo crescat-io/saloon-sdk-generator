@@ -143,6 +143,7 @@ class GenerateSdk extends Command
         $this->comment("\nTests:");
         foreach ($result->getWithTag('pest') as $test) {
             // TODO: Temporary Hacky workaround
+
             file_put_contents($this->option('output').'/'.$test->path, $test->file);
         }
     }

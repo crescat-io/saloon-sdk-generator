@@ -35,7 +35,7 @@ class GenerateSdk extends Command
         $inputPath = $this->argument('path');
 
         // TODO: Support remote URLs or move this into each parser class so they can deal with it instead.
-        if (!file_exists($inputPath)) {
+        if (! file_exists($inputPath)) {
             $this->error("File not found: $inputPath");
 
             return;
@@ -72,7 +72,7 @@ class GenerateSdk extends Command
                 $this->warn('Note: the --type option is used to specify the API Specification type (ex: openapi, postman), not the file format.');
             }
 
-            $this->line('Available types: ' . implode(', ', Factory::getRegisteredParserTypes()));
+            $this->line('Available types: '.implode(', ', Factory::getRegisteredParserTypes()));
 
             return;
         }
@@ -147,18 +147,17 @@ class GenerateSdk extends Command
             foreach ($result->getWithTag('pest') as $test) {
                 // TODO: Temporary Hacky workaround due to the way the PestTestGenerator works (not returning PhpFile)
 
-                $testFilePath = $this->option('output') . '/' . $test->path;
+                $testFilePath = $this->option('output').'/'.$test->path;
 
-                if (!file_exists(dirname($testFilePath))) {
+                if (! file_exists(dirname($testFilePath))) {
                     mkdir(dirname($testFilePath), recursive: true);
                 }
 
-                if (file_exists($testFilePath) && !$this->option('force')) {
+                if (file_exists($testFilePath) && ! $this->option('force')) {
                     $this->warn("- File already exists: $testFilePath");
 
                     return;
                 }
-
 
                 $ok = file_put_contents($testFilePath, $test->file);
 
@@ -185,17 +184,17 @@ class GenerateSdk extends Command
         // TODO: cleanup
         $filePath = $overrideFilePath ?? Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
 
-        if (!file_exists(dirname($filePath))) {
+        if (! file_exists(dirname($filePath))) {
             mkdir(dirname($filePath), recursive: true);
         }
 
-        if (file_exists($filePath) && !$this->option('force')) {
+        if (file_exists($filePath) && ! $this->option('force')) {
             $this->warn("- File already exists: $filePath");
 
             return;
         }
 
-        $ok = file_put_contents($filePath, (string)$file);
+        $ok = file_put_contents($filePath, (string) $file);
 
         if ($ok === false) {
             $this->error("- Failed to write: $filePath");
@@ -206,14 +205,14 @@ class GenerateSdk extends Command
 
     protected function generateZipArchive(GeneratedCode $result): void
     {
-        $zipFileName = $this->option('name') . '_sdk.zip';
-        $zipPath = $this->option('output') . DIRECTORY_SEPARATOR . $zipFileName;
+        $zipFileName = $this->option('name').'_sdk.zip';
+        $zipPath = $this->option('output').DIRECTORY_SEPARATOR.$zipFileName;
 
-        if (!file_exists(dirname($zipPath))) {
+        if (! file_exists(dirname($zipPath))) {
             mkdir(dirname($zipPath), recursive: true);
         }
 
-        if (file_exists($zipPath) && !$this->option('force')) {
+        if (file_exists($zipPath) && ! $this->option('force')) {
             $this->warn("- Zip archive already exists: $zipPath");
 
             return;
@@ -236,8 +235,8 @@ class GenerateSdk extends Command
         );
 
         foreach ($filesToZip as $file) {
-            $filePathInZip = str_replace('\\', '/', Arr::first($file->getNamespaces())->getName()) . '/' . Arr::first($file->getClasses())->getName() . '.php';
-            $zip->addFromString($filePathInZip, (string)$file);
+            $filePathInZip = str_replace('\\', '/', Arr::first($file->getNamespaces())->getName()).'/'.Arr::first($file->getClasses())->getName().'.php';
+            $zip->addFromString($filePathInZip, (string) $file);
             $this->line("- Wrote file to ZIP: $filePathInZip");
         }
 

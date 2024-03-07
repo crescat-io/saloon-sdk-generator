@@ -61,7 +61,9 @@ class ResourceGenerator extends Generator
         $duplicateCounter = 1;
 
         foreach ($endpoints as $endpoint) {
-            $requestClassName = NameHelper::resourceClassName($endpoint->name);
+
+            $pathBasedName = NameHelper::pathBasedName($endpoint);
+            $requestClassName = NameHelper::resourceClassName($endpoint->name ?: $pathBasedName);
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";

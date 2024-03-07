@@ -7,6 +7,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
 use Crescat\SaloonSdkGenerator\Exceptions\ParserNotRegisteredException;
 use Crescat\SaloonSdkGenerator\Factory;
+use Crescat\SaloonSdkGenerator\Generators\PestTestGenerator;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -24,7 +25,8 @@ class GenerateSdk extends Command
                             {--output=./build : The output path where the code will be created, will be created if it does not exist.}
                             {--force : Force overwriting existing files}
                             {--dry : Dry run, will only show the files to be generated, does not create or modify any files.}
-                            {--zip : Generate a zip archive containing all the files}';
+                            {--zip : Generate a zip archive containing all the files}
+                            {--pest : Generate Pest test suites for each resource}';
 
     protected $description = 'Generate an SDK based on an API specification file.';
 
@@ -53,8 +55,12 @@ class GenerateSdk extends Command
                     'order_by',
                     'per_page',
                 ]
-            )
+            ),
         );
+
+        if ($this->option('pest')) {
+            $generator->registerPostProcessor(new PestTestGenerator());
+        }
 
         try {
             $specification = Factory::parse($type, $inputPath);
@@ -107,6 +113,8 @@ class GenerateSdk extends Command
         foreach ($result->dtoClasses as $dtoClass) {
             $this->line(Utils::formatNamespaceAndClass($dtoClass));
         }
+
+        // TODO: Test files
     }
 
     protected function dumpGeneratedFiles(GeneratedCode $result): void
@@ -132,19 +140,49 @@ class GenerateSdk extends Command
         foreach ($result->dtoClasses as $dtoClass) {
             $this->dumpToFile($dtoClass);
         }
+
+        if ($this->option('pest')) {
+
+            $this->comment("\nTests:");
+            foreach ($result->getWithTag('pest') as $test) {
+                // TODO: Temporary Hacky workaround due to the way the PestTestGenerator works (not returning PhpFile)
+
+                $testFilePath = $this->option('output').'/'.$test->path;
+
+                if (! file_exists(dirname($testFilePath))) {
+                    mkdir(dirname($testFilePath), recursive: true);
+                }
+
+                if (file_exists($testFilePath) && ! $this->option('force')) {
+                    $this->warn("- File already exists: $testFilePath");
+
+                    return;
+                }
+
+                $ok = file_put_contents($testFilePath, $test->file);
+
+                if ($ok === false) {
+                    $this->error("- Failed to write: $testFilePath");
+                } else {
+                    $this->line("- Created: $testFilePath");
+                }
+            }
+        }
     }
 
-    protected function dumpToFile(PhpFile $file): void
+    protected function dumpToFile(PhpFile $file, $overrideFilePath = null): void
     {
+
         // TODO: Cleanup this, brittle and will break if you change the namespace
         $wip = sprintf(
             '%s/%s/%s.php',
             $this->option('output'),
             str_replace($this->option('namespace'), '', Arr::first($file->getNamespaces())->getName()),
-            Arr::first($file->getClasses())->getName(),
+            Arr::first($file->getClasses())?->getName(),
         );
 
-        $filePath = Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
+        // TODO: cleanup
+        $filePath = $overrideFilePath ?? Str::of($wip)->replace('\\', '/')->replace('//', '/')->toString();
 
         if (! file_exists(dirname($filePath))) {
             mkdir(dirname($filePath), recursive: true);
@@ -193,6 +231,7 @@ class GenerateSdk extends Command
             $result->resourceClasses,
             $result->requestClasses,
             $result->dtoClasses,
+            $result->additionalFiles,
         );
 
         foreach ($filesToZip as $file) {

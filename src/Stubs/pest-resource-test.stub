@@ -1,0 +1,12 @@
+<?php
+
+{{ prelude }}
+{{ dtoImports }}
+{{ requestImports }}
+use Saloon\Http\Faking\MockResponse;
+use Saloon\Laravel\Facades\Saloon;
+use Spatie\LaravelData\DataCollection;
+
+beforeEach(function () {
+    $this->{{ clientName }} = new {{ namespace }}\{{ connectorName }}({{ connectorArgs }});
+});

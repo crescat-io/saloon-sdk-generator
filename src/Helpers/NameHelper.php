@@ -2,6 +2,7 @@
 
 namespace Crescat\SaloonSdkGenerator\Helpers;
 
+use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Illuminate\Support\Str;
 
 class NameHelper
@@ -154,6 +155,17 @@ class NameHelper
         self::$classNameCache[$value] = $result;
 
         return $result;
+    }
+
+    public static function pathBasedName(Endpoint $endpoint): string
+    {
+        $path = $endpoint->pathAsStringExcludingPlaceholders();
+
+        if (Str::startsWith($path, ['https://', 'http://'])) {
+            $path = Str::of($path)->after('://')->after('/');
+        }
+
+        return $endpoint->method->actionLabel().self::safeClassName($path);
     }
 
     public static function dtoClassName(string $value): string

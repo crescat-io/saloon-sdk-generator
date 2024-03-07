@@ -16,8 +16,8 @@ class MethodGeneratorHelper
     /**
      * Adds a promoted property to a method based on a given parameter.
      *
-     * @param  Method  $method The method to which the promoted property is added.
-     * @param  Parameter  $parameter The parameter based on which the promoted property is added.
+     * @param  Method  $method  The method to which the promoted property is added.
+     * @param  Parameter  $parameter  The parameter based on which the promoted property is added.
      * @return Method The updated method with the promoted property.
      */
     public static function addParameterAsPromotedProperty(

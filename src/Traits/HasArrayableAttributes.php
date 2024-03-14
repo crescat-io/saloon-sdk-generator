@@ -17,7 +17,7 @@ trait HasArrayableAttributes
      *
      * A mapping of internal attribute names to their original names per the API specification.
      */
-    public static array $attributeMap = [];
+    protected static array $attributeMap = [];
 
     public function toArray(): array
     {

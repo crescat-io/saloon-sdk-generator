@@ -24,7 +24,8 @@ trait Deserializes
             return null;
         }
 
-        $constructor = (new ReflectionClass(static::class))->getConstructor();
+        $reflectionClass = new ReflectionClass(static::class);
+        $constructor = $reflectionClass->getConstructor();
         if (! $constructor) {
             throw new InvalidAttributeTypeException('Class to be deserialized must have a constructor');
         }
@@ -45,8 +46,18 @@ trait Deserializes
             $attributeTypes[$name] = $type;
         }
 
+        $hasAttributeMap = $reflectionClass->hasProperty('attributeMap');
+        $attributeMap = $hasAttributeMap
+            ? array_flip($reflectionClass->getProperty('attributeMap')->getValue())
+            : [];
         $unknownKeys = [];
-        foreach ($data as $key => $value) {
+
+        foreach ($data as $rawKey => $value) {
+            $key = $rawKey;
+            if ($hasAttributeMap) {
+                $key = $attributeMap[$rawKey] ?? $key;
+            }
+
             if (! array_key_exists($key, $attributeTypes)) {
                 $unknownKeys[] = $key;
 
@@ -57,7 +68,7 @@ trait Deserializes
 
         if (count($unknownKeys) > 0) {
             $cls = static::class;
-            echo "[WARNING] Unknown keys when deserializing into $cls: ".implode(', ', $unknownKeys)."\n";
+            echo "Warning: Unknown keys when deserializing into $cls: ".implode(', ', $unknownKeys)."\n";
         }
 
         return new static(...$deserializedParams);

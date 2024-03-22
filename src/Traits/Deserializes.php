@@ -82,13 +82,15 @@ trait Deserializes
                 SimpleType::FLOAT => (float) $value,
                 SimpleType::BOOLEAN => (bool) $value,
                 SimpleType::STRING => (string) $value,
-                SimpleType::DATE, SimpleType::DATETIME => new DateTime($value),
+                SimpleType::DATE, SimpleType::DATETIME => DateTime::createFromFormat(DateTime::RFC3339, $value),
                 SimpleType::ARRAY, SimpleType::MIXED => $value,
                 SimpleType::NULL => null,
             };
         } elseif (is_string($type)) {
             if (! class_exists($type)) {
                 throw new InvalidAttributeTypeException("Class `$type` does not exist");
+            } elseif ($type === DateTime::class) {
+                return DateTime::createFromFormat(DateTime::RFC3339, $value);
             }
 
             $deserialized = $type::deserialize($value);

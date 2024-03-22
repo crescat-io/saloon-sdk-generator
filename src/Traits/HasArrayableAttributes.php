@@ -6,6 +6,7 @@ namespace Crescat\SaloonSdkGenerator\Traits;
 
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Exceptions\InvalidAttributeTypeException;
+use DateTime;
 use ReflectionClass;
 
 trait HasArrayableAttributes
@@ -59,6 +60,8 @@ trait HasArrayableAttributes
     {
         if (is_null($value)) {
             return null;
+        } elseif ($value instanceof DateTime) {
+            return $value->format(DateTime::RFC3339);
         }
 
         if (is_string($type) && SimpleType::tryFrom($type)) {

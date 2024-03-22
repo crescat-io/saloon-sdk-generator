@@ -146,6 +146,8 @@ class RequestGenerator extends Generator
             $bodyType = $endpoint->bodySchema->type;
             if (SimpleType::isScalar($bodyType)) {
                 $returnValText = '[$this->%s]';
+            } elseif ($bodyType === 'DateTime') {
+                $returnValText = '[$this->%s->format(\DateTime::RFC3339)]';
             } elseif (! Utils::isBuiltInType($bodyType)) {
                 $returnValText = '$this->%s->toArray()';
             } else {

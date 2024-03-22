@@ -136,7 +136,7 @@ class OpenApiParser implements Parser
             $parsedSchema = new Schema(
                 name: $schema->title ?? $parentPropName,
                 rawName: $parentPropName,
-                type: $this->mapSchemaTypeToPhpType($schema->type),
+                type: $this->mapSchemaTypeToPhpType($schema->type, $schema->format),
                 description: $schema->description,
                 nullable: $schema->required ?? $schema->nullable,
                 parent: $parent,
@@ -147,7 +147,7 @@ class OpenApiParser implements Parser
             $parsedSchema = new Schema(
                 name: $name,
                 rawName: $parentPropName,
-                type: $this->mapSchemaTypeToPhpType($schema->type),
+                type: $this->mapSchemaTypeToPhpType($schema->type, $schema->format),
                 description: $schema->description,
                 nullable: $schema->required ?? $schema->nullable ?? false,
                 parent: $parent,
@@ -158,7 +158,7 @@ class OpenApiParser implements Parser
             if (SimpleType::isScalar($schema->items->type ?? '')) {
                 $parsedSchema->items = new Schema(
                     name: $name,
-                    type: $this->mapSchemaTypeToPhpType($schema->items->type),
+                    type: $this->mapSchemaTypeToPhpType($schema->items->type, $schema->items->format),
                     description: $schema->description,
                     nullable: $schema->required ?? $schema->nullable ?? false,
                     parent: $parent,
@@ -267,7 +267,7 @@ class OpenApiParser implements Parser
                 SimpleType::isScalar($additionalProperties->type)
                 || ($additionalProperties->type === Type::OBJECT && ! $additionalProperties->properties)
             ) {
-                $type = $this->mapSchemaTypeToPhpType($additionalProperties->type);
+                $type = $this->mapSchemaTypeToPhpType($additionalProperties->type, $additionalProperties->format);
             } else {
                 $additionalPropertiesItemSchema = $this->parseSchema($additionalProperties, $parsedSchema);
                 $type = $additionalPropertiesItemSchema->type;
@@ -326,7 +326,7 @@ class OpenApiParser implements Parser
         return collect($parameters)
             ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
-                type: $this->mapSchemaTypeToPhpType($parameter->schema?->type),
+                type: $this->mapSchemaTypeToPhpType($parameter->schema?->type, $parameter->schema?->format),
                 nullable: $parameter->required == false,
                 name: $parameter->name,
                 description: $parameter->description,
@@ -374,8 +374,15 @@ class OpenApiParser implements Parser
             ->toArray();
     }
 
-    protected function mapSchemaTypeToPhpType($type): string
+    protected function mapSchemaTypeToPhpType(string $type, ?string $format = null): string
     {
+        if ($type === Type::STRING && $format) {
+            return match ($format) {
+                'date-time', 'date' => 'DateTime',
+                default => 'string',
+            };
+        }
+
         return match ($type) {
             Type::INTEGER => 'int',
             Type::NUMBER => 'float',

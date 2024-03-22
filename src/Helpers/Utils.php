@@ -71,6 +71,6 @@ class Utils
 
     public static function isBuiltinType(string $type): bool
     {
-        return SimpleType::tryFrom($type) !== null;
+        return SimpleType::tryFrom($type) !== null || $type === 'DateTime';
     }
 }

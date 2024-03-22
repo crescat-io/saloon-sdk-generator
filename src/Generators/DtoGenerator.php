@@ -23,7 +23,11 @@ class DtoGenerator extends Generator
         $classes = [];
 
         foreach ($specification->schemas as $schema) {
-            if ($schema->type === SimpleType::ARRAY->value || SimpleType::isScalar($schema->type)) {
+            if (
+                $schema->type === SimpleType::ARRAY->value
+                || SimpleType::isScalar($schema->type)
+                || $schema->type === 'DateTime'
+            ) {
                 continue;
             }
             $classes[] = $this->generateDtoClass($schema);

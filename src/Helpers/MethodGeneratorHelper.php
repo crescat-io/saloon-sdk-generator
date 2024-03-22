@@ -58,8 +58,10 @@ class MethodGeneratorHelper
         }
 
         $type = $parameter->type;
-        if (! Utils::isBuiltInType($type)) {
-            if (! $namespace) {
+        if ($type === 'DateTime') {
+            $type = '\DateTime';
+        } elseif (! Utils::isBuiltInType($type)) {
+            if ($namespace === null) {
                 throw new InvalidArgumentException('$namespace must be passed if the type is not a built-in.');
             }
             $safeType = NameHelper::safeClassName($type);
@@ -104,7 +106,12 @@ class MethodGeneratorHelper
                 $safeName = NameHelper::safeVariableName($parameter->name);
 
                 if (Utils::isBuiltInType($parameter->type)) {
-                    $paramCode = new Literal(sprintf('$this->%s', $safeName));
+                    if ($parameter->type === 'DateTime') {
+                        $printStr = '$this->%s?->format(\DateTime::RFC3339)';
+                    } else {
+                        $printStr = '$this->%s';
+                    }
+                    $paramCode = new Literal(sprintf($printStr, $safeName));
                 } else {
                     $paramCode = new Literal(sprintf('array_filter($this->%s->toArray())', $safeName));
                 }

@@ -20,6 +20,7 @@ use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Helpers;
 use Nette\PhpGenerator\Literal;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method as SaloonHttpMethod;
@@ -170,7 +171,7 @@ class RequestGenerator extends Generator
         return $classFile;
     }
 
-    protected function generateConstructor(Endpoint $endpoint, ClassType $classType): void
+    protected function generateConstructor(Endpoint $endpoint, ClassType $classType): Method
     {
         $constructor = $classType->addMethod('__construct');
 
@@ -206,9 +207,7 @@ class RequestGenerator extends Generator
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);
         }
 
-        if (count($constructor->getParameters()) === 0) {
-            $classType->removeMethod('__construct');
-        }
+        return $constructor;
     }
 
     protected function bodyFQN(Schema $body): string

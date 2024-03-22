@@ -62,7 +62,7 @@ class ResponseGenerator extends Generator
 
             if (! Utils::isBuiltInType($schema->items->type)) {
                 $safeName = NameHelper::safeVariableName($schema->name);
-                $complexArrayTypes[$safeName] = NameHelper::dtoClassName($schema->items->type);
+                $complexArrayTypes[$safeName] = $schema->items;
             }
         } else {
             foreach ($schema->properties as $parameterName => $property) {
@@ -98,7 +98,7 @@ class ResponseGenerator extends Generator
                     && $property->items
                     && ! Utils::isBuiltInType($property->items->type)
                 ) {
-                    $complexArrayTypes[$safeName] = NameHelper::dtoClassName($property->items->type);
+                    $complexArrayTypes[$safeName] = $property->items;
                 }
             }
         }
@@ -111,9 +111,17 @@ class ResponseGenerator extends Generator
         }
 
         if ($complexArrayTypes) {
-            foreach ($complexArrayTypes as $name => $type) {
-                $dtoFQN = "{$dtoNamespace}\\{$type}";
-                $namespace->addUse($dtoFQN);
+            foreach ($complexArrayTypes as $name => $schema) {
+                if ($schema->isResponse) {
+                    $type = NameHelper::responseClassName($schema->type);
+                    $namespacePath = $this->config->responseNamespace();
+                } else {
+                    $type = NameHelper::dtoClassName($schema->type);
+                    $namespacePath = $dtoNamespace;
+                }
+
+                $fqn = "{$namespacePath}\\{$type}";
+                $namespace->addUse($fqn);
 
                 $literalType = new Literal(sprintf('%s::class', $type));
                 $complexArrayTypes[$name] = [$literalType];

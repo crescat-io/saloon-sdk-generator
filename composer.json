@@ -1,5 +1,5 @@
 {
-    "name": "crescat-io/saloon-sdk-generator",
+    "name": "highsidelabs/saloon-sdk-generator",
     "description": "Simplified SDK Scaffolding for Saloon",
     "keywords": [
         "sdk generator",
@@ -11,6 +11,10 @@
         {
             "name": "Helge Sverre",
             "email": "helge.sverre@crescat.io"
+        },
+        {
+            "name": "Jesse Evers",
+            "email": "jesse@highsidelabs.co"
         }
     ],
     "require": {

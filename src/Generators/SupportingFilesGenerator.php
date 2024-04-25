@@ -22,7 +22,7 @@ class SupportingFilesGenerator extends Generator
         SupportingFile::TRAIT->value => ['Deserializes', 'HasArrayableAttributes', 'HasComplexArrayTypes'],
     ];
 
-    public function generate(ApiSpecification $specification): array
+    public function generate(ApiSpecification $specification): PhpFile|array
     {
         $files = [];
         foreach (static::$included as $type => $paths) {

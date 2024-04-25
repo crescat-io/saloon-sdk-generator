@@ -15,7 +15,7 @@ use Nette\PhpGenerator\PhpFile;
 
 class ResponseGenerator extends BaseResponseGenerator
 {
-    public function generate(ApiSpecification $specification): array
+    public function generate(ApiSpecification $specification): PhpFile|array
     {
         $classes = [];
 

@@ -16,7 +16,7 @@ use Nette\PhpGenerator\PhpFile;
 
 class DtoGenerator extends BaseDtoGenerator
 {
-    public function generate(ApiSpecification $specification): array
+    public function generate(ApiSpecification $specification): PhpFile|array
     {
         $classes = [];
 

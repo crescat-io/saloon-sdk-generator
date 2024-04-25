@@ -16,7 +16,7 @@ use Saloon\Http\Response;
 
 class ResourceGenerator extends BaseResourceGenerator
 {
-    public function generate(ApiSpecification $specification): array
+    public function generate(ApiSpecification $specification): PhpFile|array
     {
         return $this->generateResourceClasses($specification);
     }

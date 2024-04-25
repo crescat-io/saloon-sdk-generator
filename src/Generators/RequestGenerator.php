@@ -28,7 +28,7 @@ use Saloon\Traits\Body\HasJsonBody;
 
 class RequestGenerator extends BaseRequestGenerator
 {
-    public function generate(ApiSpecification $specification): array
+    public function generate(ApiSpecification $specification): PhpFile|array
     {
         $classes = [];
 

@@ -16,7 +16,7 @@ class BaseResponseGenerator extends Generator
 {
     public static string $baseClsName = 'Response';
 
-    public function generate(ApiSpecification $specification): array
+    public function generate(ApiSpecification $specification): PhpFile|array
     {
         $baseClassType = new ClassType(static::$baseClsName);
         $baseClassFile = new PhpFile();

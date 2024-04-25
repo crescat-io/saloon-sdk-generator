@@ -75,13 +75,16 @@ Configure the `CodeGenerator` with the desired settings:
 
 ```php
 $generator = new CodeGenerator(
-   namespace: "App\Sdk",
-   resourceNamespaceSuffix: 'Resource',
-   requestNamespaceSuffix: 'Requests',
-   dtoNamespaceSuffix: 'Dto',
-   connectorName: 'MySDK', // Replace with your desired SDK name
-   outputFolder: './Generated', // Replace with your desired output folder
-   ignoredQueryParams: ['after', 'order_by', 'per_page'] // Ignore params used for pagination
+    namespace: "App\Sdk",
+    baseFilesNamespace: "App\Sdk\Base",
+    namespaceSuffixes: [
+        'resource' => 'Resource',
+        'request' => 'Request',
+        'dto' => 'Dto',
+    ],
+    connectorName: 'MySDK', // Replace with your desired SDK name
+    outputFolder: './Generated', // Replace with your desired output folder
+    ignoredQueryParams: ['after', 'order_by', 'per_page'] // Ignore params used for pagination
 );
 ```
 
@@ -149,6 +152,9 @@ The Saloon SDK Generator is modular, allowing you to replace default generators 
 generation to your needs. The following generators can be customized:
 
 - `BaseResourceGenerator`
+- `BaseRequestGenerator`
+- `BaseResponseGenerator`
+- `BaseDtoGenerator`
 - `ConnectorGenerator`
 - `DtoGenerator`
 - `RequestGenerator`

@@ -13,73 +13,104 @@ use ReflectionClass;
 class Config
 {
     const CONFIG_OPTS = [
-        'connectorName', 'namespace', 'resourceNamespaceSuffix', 'requestNamespaceSuffix', 'dtoNamespaceSuffix', 'fallbackResourceName',
-        'baseResourceNamespace',
+        'connectorName', 'namespace', 'namespaceSuffixes', 'baseFilesNamespace', 'fallbackResourceName',
         'type', 'outputDir', 'force',
         'ignoredQueryParams', 'ignoredBodyParams', 'extra',
     ];
 
     const REQUIRED_OPTS = ['connectorName', 'namespace'];
 
+    const DEFAULT_OPTIONS = [
+        'baseFilesNamespace' => '',
+        'namespaceSuffixes' => [
+            'resource' => 'Resource',
+            'request' => 'Requests',
+            'response' => 'Responses',
+            'dto' => 'Dto',
+        ],
+        'fallbackResourceName' => 'Misc',
+        'type' => 'postman',
+        'outputDir' => './build',
+        'force' => false,
+        'ignoredQueryParams' => [],
+        'ignoredBodyParams' => [],
+        'extra' => [],
+    ];
+
+    public readonly array $namespaceSuffixes;
+
+    public readonly string $baseFilesNamespace;
+
     /**
-     * @param  string|null  $connectorName The name of the connector class.
-     * @param  string|null  $namespace The main namespace for the generated SDK.
-     * @param  string|null  $resourceNamespaceSuffix The suffix for the resource namespace.
-     * @param  string|null  $requestNamespaceSuffix The suffix for the request namespace.
-     * @param  string|null  $responseNamespaceSuffix The suffix for the response namespace.
-     * @param  string|null  $dtoNamespaceSuffix The suffix for the DTO namespace.
-     * @param  string|null  $baseResourceNamespace The namespace for the base resource class.
-     * @param  string|null  $fallbackResourceName The default name to use for resources if none could be inferred from the specification.
-     * @param  string|null  $type The type of API specification to parse.
-     * @param  string|null  $outputDir The output directory where the generated code will be saved.
-     * @param  bool|null  $force Whether to overwrite existing files.
-     * @param  array  $ignoredQueryParams List of query parameters that should be ignored.
-     * @param  array  $ignoredBodyParams List of body parameters that should be ignored.
-     * @param  array  $extra Additional configuration for custom code generators.
+     * @param  string|null  $connectorName  The name of the connector class.
+     * @param  string|null  $namespace  The main namespace for the generated SDK.
+     * @param  string|null  $baseFilesNamespace  The namespace for the supporting files.
+     * @param  array|null  $namespaceSuffixes  The options for the namespace.
+     * @param  string|null  $fallbackResourceName  The default name to use for resources if none could be inferred from the specification.
+     * @param  string|null  $type  The type of API specification to parse.
+     * @param  string|null  $outputDir  The output directory where the generated code will be saved.
+     * @param  bool|null  $force  Whether to overwrite existing files.
+     * @param  array  $ignoredQueryParams  List of query parameters that should be ignored.
+     * @param  array  $ignoredBodyParams  List of body parameters that should be ignored.
+     * @param  array  $extra  Additional configuration for custom code generators.
      */
     public function __construct(
         public readonly ?string $connectorName,
         public readonly ?string $namespace,
-        public readonly ?string $resourceNamespaceSuffix = 'Resource',
-        public readonly ?string $requestNamespaceSuffix = 'Requests',
-        public readonly ?string $responseNamespaceSuffix = 'Responses',
-        public readonly ?string $dtoNamespaceSuffix = 'Dto',
-        public readonly ?string $baseResourceNamespace = null,
-        public readonly ?string $fallbackResourceName = 'Misc',
+        ?string $baseFilesNamespace = '',
+        ?array $namespaceSuffixes = self::DEFAULT_OPTIONS['namespaceSuffixes'],
+        public readonly ?string $fallbackResourceName = self::DEFAULT_OPTIONS['fallbackResourceName'],
 
-        public readonly ?string $type = 'postman',
-        public readonly ?string $outputDir = './build',
-        public readonly ?bool $force = false,
+        public readonly ?string $type = self::DEFAULT_OPTIONS['type'],
+        public readonly ?string $outputDir = self::DEFAULT_OPTIONS['outputDir'],
+        public readonly ?bool $force = self::DEFAULT_OPTIONS['force'],
 
-        public readonly array $ignoredQueryParams = [],
-        public readonly array $ignoredBodyParams = [],
-        public readonly array $extra = [],
+        public readonly array $ignoredQueryParams = self::DEFAULT_OPTIONS['ignoredQueryParams'],
+        public readonly array $ignoredBodyParams = self::DEFAULT_OPTIONS['ignoredBodyParams'],
+        public readonly array $extra = self::DEFAULT_OPTIONS['extra'],
     ) {
+        $this->namespaceSuffixes = array_merge(
+            self::DEFAULT_OPTIONS['namespaceSuffixes'],
+            $namespaceSuffixes
+        );
+        if (! $baseFilesNamespace) {
+            $this->baseFilesNamespace = $this->namespace;
+        } else {
+            $this->baseFilesNamespace = $baseFilesNamespace;
+        }
+    }
+
+    public function baseFilesNamespace(): string
+    {
+        return $this->baseFilesNamespace
+            ? $this->baseFilesNamespace
+            : $this->namespace;
     }
 
     public function resourceNamespace(): string
     {
-        return $this->namespaceWithSuffix($this->resourceNamespaceSuffix);
+        return $this->namespaceWithSuffix('resource');
     }
 
     public function requestNamespace(): string
     {
-        return $this->namespaceWithSuffix($this->requestNamespaceSuffix);
+        return $this->namespaceWithSuffix('request');
     }
 
     public function responseNamespace(): string
     {
-        return $this->namespaceWithSuffix($this->responseNamespaceSuffix);
+        return $this->namespaceWithSuffix('response');
     }
 
     public function dtoNamespace(): string
     {
-        return $this->namespaceWithSuffix($this->dtoNamespaceSuffix);
+        return $this->namespaceWithSuffix('dto');
+    }
     }
 
-    protected function namespaceWithSuffix(string $suffix): string
+    protected function namespaceWithSuffix(string $type): string
     {
-        $suffix = NameHelper::optionalNamespaceSuffix($suffix);
+        $suffix = NameHelper::optionalNamespaceSuffix($this->namespaceSuffixes[$type]);
 
         return "{$this->namespace}{$suffix}";
     }
@@ -116,27 +147,35 @@ class Config
             echo '[WARNING] Unknown config file keys: '.implode(', ', $unknownKeys)."\n";
         }
 
-        $getOpt = fn ($key, $default) => isset($overrides[$key]) ? $overrides[$key] : Arr::get($config, $key, $default ?? null);
+        $getOpt = function (string $key, mixed $default = null) use ($overrides, $config) {
+            $_default = $default ?? Arr::get(self::DEFAULT_OPTIONS, $key);
+
+            return isset($overrides[$key])
+                ? $overrides[$key]
+                : Arr::get($config, $key, $_default);
+        };
 
         $outputDir = $getOpt('outputDir', './build');
 
         return new static(
             connectorName: $overrides['connectorName'] ?? $config['connectorName'],
             namespace: $overrides['namespace'] ?? $config['namespace'],
-            resourceNamespaceSuffix: $getOpt('resourceNamespaceSuffix', 'Resource'),
-            requestNamespaceSuffix: $getOpt('requestNamespaceSuffix', 'Requests'),
-            responseNamespaceSuffix: $getOpt('responseNamespaceSuffix', 'Responses'),
-            dtoNamespaceSuffix: $getOpt('dtoNamespaceSuffix', 'Dto'),
-            baseResourceNamespace: $getOpt('baseResourceNamespace', null),
-            fallbackResourceName: $getOpt('fallbackResourceName', 'Misc'),
+            baseFilesNamespace: $getOpt('baseFilesNamespace'),
+            namespaceSuffixes: [
+                'resource' => $getOpt('namespaceSuffixes.resource'),
+                'request' => $getOpt('namespaceSuffixes.request'),
+                'response' => $getOpt('namespaceSuffixes.response'),
+                'dto' => $getOpt('namespaceSuffixes.dto'),
+            ],
+            fallbackResourceName: $getOpt('fallbackResourceName'),
 
-            type: $getOpt('type', 'postman'),
+            type: $getOpt('type'),
             outputDir: trim($outputDir, '/'),
-            force: $getOpt('force', false),
+            force: $getOpt('force'),
 
-            ignoredQueryParams: $getOpt('ignoredQueryParams', []),
-            ignoredBodyParams: $getOpt('ignoredBodyParams', []),
-            extra: $getOpt('extra', []),
+            ignoredQueryParams: $getOpt('ignoredQueryParams'),
+            ignoredBodyParams: $getOpt('ignoredBodyParams'),
+            extra: $getOpt('extra'),
         );
     }
 }

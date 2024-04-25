@@ -7,7 +7,6 @@ namespace Crescat\SaloonSdkGenerator\Generators;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
-use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Nette\InvalidStateException;
@@ -15,9 +14,9 @@ use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 use Saloon\Http\Response;
 
-class ResourceGenerator extends Generator
+class ResourceGenerator extends BaseResourceGenerator
 {
-    public function generate(ApiSpecification $specification): PhpFile|array
+    public function generate(ApiSpecification $specification): array
     {
         return $this->generateResourceClasses($specification);
     }
@@ -47,10 +46,11 @@ class ResourceGenerator extends Generator
      */
     public function generateResourceClass(string $resourceName, array $endpoints): ?PhpFile
     {
-        [$classFile, $namespace, $classType] = $this->makeClass($resourceName, $this->config->resourceNamespaceSuffix);
+        [$classFile, $namespace, $classType] = $this->makeClass($resourceName, $this->config->namespaceSuffixes['resource']);
 
-        $classType->setExtends("{$this->config->namespace}\\Resource");
-        $namespace->addUse("{$this->config->namespace}\\Resource");
+        $baseResourceFqn = $this->baseClassFqn();
+        $namespace->addUse($baseResourceFqn);
+        $classType->setExtends($baseResourceFqn);
 
         $duplicateCounter = 1;
 

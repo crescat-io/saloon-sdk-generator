@@ -51,8 +51,7 @@ class Schema extends Parameter
             // Sometimes the array itself isn't nullable, but its items are
             if (! $this->isNullable() && $this->items->isNullable() && $type[0] === '?') {
                 $type = substr($type, 1);
-            // And sometimes the array is nullable, but its items aren't
-            } elseif ($this->isNullable() && ! $this->items->isNullable()) {
+            } elseif ($this->isNullable() && ! $this->items->isNullable()) {  // And sometimes the array is nullable, but its items aren't
                 $type = "{$type}|null";
             }
         } else {

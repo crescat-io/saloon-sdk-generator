@@ -159,6 +159,7 @@ generation to your needs. The following generators can be customized:
 - `DtoGenerator`
 - `RequestGenerator`
 - `ResourceGenerator`
+- `SupportingFilesGenerator`
 
 ## Core Data Structures
 

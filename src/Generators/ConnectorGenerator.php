@@ -42,6 +42,7 @@ class ConnectorGenerator extends Generator
             );
 
         $namespace = $classFile
+            ->setStrictTypes()
             ->addNamespace("{$this->config->namespace}")
             ->addUse(Connector::class);
 

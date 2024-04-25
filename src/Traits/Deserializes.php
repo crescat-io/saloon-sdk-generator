@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Traits;
 
-use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Exceptions\InvalidAttributeTypeException;
 use DateTime;
 use ReflectionClass;
@@ -12,11 +11,6 @@ use ReflectionClass;
 trait Deserializes
 {
     use HasComplexArrayTypes;
-
-    public function __deserialize(array $data): static
-    {
-        return static::deserialize($data);
-    }
 
     public static function deserialize(mixed $data): mixed
     {
@@ -74,19 +68,25 @@ trait Deserializes
         return new static(...$deserializedParams);
     }
 
-    protected static function deserializeValue(mixed $value, SimpleType|array|string $type): mixed
+    protected static function deserializeValue(mixed $value, array|string $type): mixed
     {
-        if (is_string($type) && ($simpleType = SimpleType::tryFrom($type))) {
-            return match ($simpleType) {
-                SimpleType::INTEGER => (int) $value,
-                SimpleType::FLOAT => (float) $value,
-                SimpleType::BOOLEAN => (bool) $value,
-                SimpleType::STRING => (string) $value,
-                SimpleType::DATE, SimpleType::DATETIME => DateTime::createFromFormat(DateTime::RFC3339, $value),
-                SimpleType::ARRAY, SimpleType::MIXED => $value,
-                SimpleType::NULL => null,
+        if (is_string($type)) {
+            // Not using SimpleType enum to avoid needing to import the enum in the generated code
+            $value = match ($type) {
+                'int' => (int) $value,
+                'float' => (float) $value,
+                'bool' => (bool) $value,
+                'string' => (string) $value,
+                'date', 'datetime' => DateTime::createFromFormat(DateTime::RFC3339, $value),
+                'array', 'mixed' => $value,
+                'null' => null,
+                default => 0x0,
             };
-        } elseif (is_string($type)) {
+
+            if ($value !== 0x0) {
+                return $value;
+            }
+
             if (! class_exists($type)) {
                 throw new InvalidAttributeTypeException("Class `$type` does not exist");
             } elseif ($type === DateTime::class) {

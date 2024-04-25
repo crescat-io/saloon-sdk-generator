@@ -8,9 +8,7 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Endpoint;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
-use Crescat\SaloonSdkGenerator\EmptyResponse;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
-use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
@@ -28,9 +26,9 @@ use Saloon\Http\Request;
 use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
-class RequestGenerator extends Generator
+class RequestGenerator extends BaseRequestGenerator
 {
-    public function generate(ApiSpecification $specification): PhpFile|array
+    public function generate(ApiSpecification $specification): array
     {
         $classes = [];
 
@@ -47,10 +45,11 @@ class RequestGenerator extends Generator
         $className = NameHelper::requestClassName($endpoint->name);
 
         [$classFile, $namespace, $classType] = $this->makeClass(
-            $className, [$this->config->requestNamespaceSuffix, $resourceName]
+            $className, [$this->config->namespaceSuffixes['request'], $resourceName]
         );
 
-        $classType->setExtends(Request::class)
+        $baseRequestClass = $this->baseClassFqn();
+        $classType->setExtends($baseRequestClass)
             ->setComment($endpoint->name)
             ->addComment('')
             ->addComment(Utils::wrapLongLines($endpoint->description ?? ''));
@@ -96,7 +95,7 @@ class RequestGenerator extends Generator
             // We should support multiple response types in the future
             ->mapWithKeys(function (array $response, int $httpCode) use ($namespace, $responseNamespace) {
                 if (count($response) === 0) {
-                    $cls = EmptyResponse::class;
+                    $cls = "{$this->config->baseFilesNamespace()}\\EmptyResponse";
                 } else {
                     $className = NameHelper::responseClassName($response[array_key_first($response)]->name);
                     $cls = "{$responseNamespace}\\{$className}";
@@ -116,6 +115,7 @@ class RequestGenerator extends Generator
             }, collect());
 
         $namespace
+            ->addUse($baseRequestClass)
             ->addUse(Exception::class)
             ->addUse(Response::class);
 
@@ -214,9 +214,7 @@ class RequestGenerator extends Generator
 
     protected function bodyFQN(Schema $body): string
     {
-        $dtoNamespaceSuffix = NameHelper::optionalNamespaceSuffix($this->config->dtoNamespaceSuffix);
-        $dtoNamespace = "{$this->config->namespace}{$dtoNamespaceSuffix}";
-
+        $dtoNamespace = $this->config->dtoNamespace();
         $safeName = NameHelper::requestClassName($body->name);
 
         return "{$dtoNamespace}\\{$safeName}";

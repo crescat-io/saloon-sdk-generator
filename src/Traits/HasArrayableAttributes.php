@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Traits;
 
-use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use Crescat\SaloonSdkGenerator\Exceptions\InvalidAttributeTypeException;
 use DateTime;
 use ReflectionClass;
@@ -56,22 +55,18 @@ trait HasArrayableAttributes
         return $asArray;
     }
 
-    public function valueToArray(mixed $value, SimpleType|array|string $type): mixed
+    public function valueToArray(mixed $value, array|string $type): mixed
     {
         if (is_null($value)) {
             return null;
         } elseif ($value instanceof DateTime) {
             return $value->format(DateTime::RFC3339);
-        }
-
-        if (is_string($type) && SimpleType::tryFrom($type)) {
-            return $value;
         } elseif (is_string($type)) {
-            if (! class_exists($type)) {
-                throw new InvalidAttributeTypeException("Class `$type` does not exist");
+            if (class_exists($type)) {
+                return $value->toArray();
             }
 
-            return $value->toArray();
+            return $value;
         } elseif (is_array($type)) {
             $typeLen = count($type);
 
@@ -88,5 +83,7 @@ trait HasArrayableAttributes
 
             return $arrayified;
         }
+
+        throw new InvalidAttributeTypeException("Unrecognized attribute type `$type`");
     }
 }

@@ -13,9 +13,10 @@ use Nette\PhpGenerator\PhpNamespace;
 
 abstract class Generator implements GeneratorContract
 {
+    public static string $baseClsName;
+
     public function __construct(protected Config $config)
     {
-
     }
 
     /**
@@ -29,6 +30,8 @@ abstract class Generator implements GeneratorContract
         $classType = new ClassType($className);
 
         $classFile = new PhpFile;
+        $classFile->setStrictTypes();
+
         $suffixes = [];
         foreach ($namespaceSuffixes as $suffix) {
             $suffixes[] = NameHelper::optionalNamespaceSuffix($suffix);
@@ -38,5 +41,10 @@ abstract class Generator implements GeneratorContract
         $namespace->add($classType);
 
         return [$classFile, $namespace, $classType];
+    }
+
+    protected function baseClassFqn(?string $className = null): string
+    {
+        return $this->config->baseFilesNamespace().'\\'.($className ?? static::$baseClsName);
     }
 }

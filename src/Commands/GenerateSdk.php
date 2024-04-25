@@ -7,6 +7,7 @@ namespace Crescat\SaloonSdkGenerator\Commands;
 use Crescat\SaloonSdkGenerator\CodeGenerator;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Data\Generator\GeneratedCode;
+use Crescat\SaloonSdkGenerator\Enums\SupportingFile;
 use Crescat\SaloonSdkGenerator\Exceptions\ParserNotRegisteredException;
 use Crescat\SaloonSdkGenerator\Factory;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
@@ -48,9 +49,6 @@ class GenerateSdk extends Command
             config: new Config(
                 connectorName: $this->option('name'),
                 namespace: $this->option('namespace'),
-                resourceNamespaceSuffix: 'Resource',
-                requestNamespaceSuffix: 'Requests',
-                dtoNamespaceSuffix: 'Dto',
                 ignoredQueryParams: [
                     'after',
                     'order_by',
@@ -135,10 +133,28 @@ class GenerateSdk extends Command
             $this->result->dumpToFile($result->connectorClass, $path);
         }
 
+        $this->comment("\nBase Request:");
+        if ($this->result->requestBaseClass) {
+            $path = $fileHandler->baseRequestPath($this->result->requestBaseClass);
+            $this->dumpToFile($this->result->requestBaseClass, $path);
+        }
+
+        $this->comment("\nBase Responses:");
+        foreach ($this->result->responseBaseClasses as $responseBaseClass) {
+            $path = $fileHandler->baseResourcePath($responseBaseClass);
+            $this->dumpToFile($responseBaseClass, $path);
+        }
+
         $this->comment("\nBase Resource:");
         if ($this->result->resourceBaseClass) {
             $path = $fileHandler->baseResourcePath($result->resourceBaseClass);
             $this->dumpToFile($result->resourceBaseClass, $path);
+        }
+
+        $this->comment("\nBase DTO:");
+        if ($this->result->dtoBaseClass) {
+            $path = $fileHandler->baseDtoPath($this->result->dtoBaseClass);
+            $this->dumpToFile($this->result->dtoBaseClass, $path);
         }
 
         $this->comment("\nResources:");
@@ -163,6 +179,14 @@ class GenerateSdk extends Command
         foreach ($result->dtoClasses as $dtoClass) {
             $path = $fileHandler->dtoPath($dtoClass);
             $this->dumpToFile($dtoClass, $path);
+        }
+
+        $this->comment("\nSupporting Files: ");
+        foreach ($this->result->supportingFiles as $type => $supportingFile) {
+            $this->comment("...$type");
+            $_type = SupportingFile::tryFrom($type);
+            $path = $fileHandler->supportingFilePath($_type, $supportingFile);
+            $this->dumpToFile($supportingFile, $path);
         }
     }
 

@@ -8,26 +8,24 @@ use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Generator;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
-use Saloon\Http\Connector;
+use Saloon\Http\Request;
 
-class BaseResourceGenerator extends Generator
+class BaseRequestGenerator extends Generator
 {
-    public static string $baseClsName = 'BaseResource';
+    public static string $baseClsName = 'Request';
 
     public function generate(ApiSpecification $specification): PhpFile|array
     {
         $classType = new ClassType(static::$baseClsName);
-        $classType
-            ->addMethod('__construct')
-            ->addPromotedParameter('connector')
-            ->setType(Connector::class)
-            ->setProtected();
-
         $classFile = new PhpFile();
         $namespace = $this->config->baseFilesNamespace();
-        $classFile->addNamespace($namespace)
-            ->addUse(Connector::class)
-            ->add($classType);
+
+        $classType->setExtends(Request::class)
+            ->setAbstract();
+        $classFile->setStrictTypes()
+            ->addNamespace($namespace)
+            ->add($classType)
+            ->addUse(Request::class, 'SaloonRequest');
 
         return $classFile;
     }

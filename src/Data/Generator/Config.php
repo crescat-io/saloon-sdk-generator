@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
 use Composer\Autoload\ClassLoader;
+use Crescat\SaloonSdkGenerator\Enums\SupportingFile;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Exception;
 use Illuminate\Support\Arr;
@@ -106,6 +107,12 @@ class Config
     {
         return $this->namespaceWithSuffix('dto');
     }
+
+    public function getSupportingFilesNamespace(?SupportingFile $type = null): string
+    {
+        $typeNs = $type ? "\\{$type->value}" : '';
+
+        return $this->baseFilesNamespace().$typeNs;
     }
 
     protected function namespaceWithSuffix(string $type): string

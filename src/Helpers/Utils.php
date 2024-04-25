@@ -22,8 +22,8 @@ class Utils
     /**
      * Wrap long lines of text to a specified maximum line length.
      *
-     * @param  string  $inputString The input string to be wrapped.
-     * @param  int  $maxLineLength The maximum length of each line (default: 100).
+     * @param  string  $inputString  The input string to be wrapped.
+     * @param  int  $maxLineLength  The maximum length of each line (default: 100).
      * @return string The input string with newlines inserted as needed.
      */
     public static function wrapLongLines(string $inputString, int $maxLineLength = 100): string

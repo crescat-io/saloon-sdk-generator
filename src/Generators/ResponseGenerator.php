@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Generators;
 
-use Crescat\SaloonSdkGenerator\BaseResponse;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Schema;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
-use Crescat\SaloonSdkGenerator\Generator;
 use Crescat\SaloonSdkGenerator\Helpers\MethodGeneratorHelper;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Nette\PhpGenerator\Literal;
 use Nette\PhpGenerator\PhpFile;
 
-class ResponseGenerator extends Generator
+class ResponseGenerator extends BaseResponseGenerator
 {
-    public function generate(ApiSpecification $specification): PhpFile|array
+    public function generate(ApiSpecification $specification): array
     {
         $classes = [];
 
@@ -31,13 +29,14 @@ class ResponseGenerator extends Generator
     public function generateResponseClass(Schema $schema): PhpFile
     {
         $className = NameHelper::responseClassName($schema->name);
-        [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->responseNamespaceSuffix);
+        [$classFile, $namespace, $classType] = $this->makeClass($className, $this->config->namespaceSuffixes['response']);
 
-        $namespace->addUse(BaseResponse::class);
+        $baseResponseFqn = $this->baseClassFqn();
+        $namespace->addUse($baseResponseFqn);
 
         $classType
             ->setFinal()
-            ->setExtends(BaseResponse::class);
+            ->setExtends($baseResponseFqn);
 
         $classConstructor = $classType->addMethod('__construct');
 

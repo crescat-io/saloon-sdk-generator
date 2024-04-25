@@ -19,11 +19,11 @@ class MethodGeneratorHelper
     /**
      * Adds a property to a method based on a given parameter.
      *
-     * @param  Method  $method The method to which the parameter is added.
-     * @param  Parameter  $parameter The parameter to add.
+     * @param  Method  $method  The method to which the parameter is added.
+     * @param  Parameter  $parameter  The parameter to add.
      * @param  bool  $promote  Whether the parameter should be promoted to a property.
-     * @param  string  $visibility The visibility of the property. Only relevant if $promote = true.
-     * @param  bool  $readonly Whether the property is read-only. Only relevant if $promote = true.
+     * @param  string  $visibility  The visibility of the property. Only relevant if $promote = true.
+     * @param  bool  $readonly  Whether the property is read-only. Only relevant if $promote = true.
      * @param  ?string  $namespace  The namespace of the parameter's type (if any).
      * @return PhpGeneratorParameter The added parameter.
      */

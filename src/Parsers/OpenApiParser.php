@@ -313,6 +313,7 @@ class OpenApiParser implements Parser
         }
 
         $parsedSchema = $this->parseSchema($mediaType->schema);
+        $parsedSchema->contentType = $contentType;
 
         return $parsedSchema;
     }
@@ -354,8 +355,11 @@ class OpenApiParser implements Parser
                         if ($schema instanceof OpenApiReference) {
                             $schema = $content->schema->resolve();
                         }
+
                         $parsedSchema = $this->parseSchema($schema);
+                        $parsedSchema->contentType = $contentType;
                         $parsedSchema->isResponse = true;
+
                         if (! in_array($parsedSchema->type, $this->responseSchemaTypes)) {
                             $savedType = $parsedSchema->type;
                             // Without this, we end up with "array" in the response types list.

@@ -18,6 +18,7 @@ class Schema extends Parameter
         public string $type,
         public ?string $description,
         public bool $nullable = false,
+        public ?string $contentType = null,
         public bool $isResponse = false,
         // Having this default to false conflicts with the OpenAPI spec (where the default for
         // additionalProperties is true), but in reality most of the time, most schemas don't
@@ -33,7 +34,7 @@ class Schema extends Parameter
         public ?array $required = null,
     ) {
         if (is_null($name)) {
-            if ($this->parent->type === SimpleType::ARRAY->value) {
+            if ($this->parent?->type === SimpleType::ARRAY->value) {
                 $this->name = $this->parent->name.'Item';
             } else {
                 throw new InvalidArgumentException('$name must be defined if the parent schema is not of type `array`.');

@@ -6,6 +6,7 @@ namespace Crescat\SaloonSdkGenerator\Traits;
 
 use Crescat\SaloonSdkGenerator\Exceptions\InvalidAttributeTypeException;
 use DateTime;
+use DateTimeInterface;
 use ReflectionClass;
 
 trait HasArrayableAttributes
@@ -59,7 +60,7 @@ trait HasArrayableAttributes
     {
         if (is_null($value)) {
             return null;
-        } elseif ($value instanceof DateTime) {
+        } elseif ($value instanceof DateTimeInterface) {
             return $value->format(DateTime::RFC3339);
         } elseif (is_string($type)) {
             if (class_exists($type)) {

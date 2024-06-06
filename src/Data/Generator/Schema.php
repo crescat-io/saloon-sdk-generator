@@ -31,6 +31,7 @@ class Schema extends Parameter
         public ?Schema $items = null,
         public ?array $properties = [],
         public ?array $required = null,
+        public ?string $bodyContentType = null,
     ) {
         if (is_null($name)) {
             if ($this->parent->type === SimpleType::ARRAY->value) {

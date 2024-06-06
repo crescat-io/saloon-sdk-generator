@@ -314,6 +314,7 @@ class OpenApiParser implements Parser
 
         $parsedSchema = $this->parseSchema($mediaType->schema);
 
+        $parsedSchema->bodyContentType = $contentType;
         return $parsedSchema;
     }
 

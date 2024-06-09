@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Normalizers;
 
+use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\json\JsonPointer;
 use cebe\openapi\ReferenceContext;
 use cebe\openapi\spec\OpenApi;
@@ -15,23 +16,30 @@ use cebe\openapi\spec\Type;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use InvalidArgumentException;
 
-class OpenApiNormalizer
+final class OpenApiNormalizer
 {
-    protected array $normalizedSchemas = [];
+    private SchemaCache $schemaCache;
 
-    protected ReferenceContext $context;
+    private ReferenceContext $context;
 
-    public function __construct(protected OpenApi $spec)
+    /**
+     * @throws UnresolvableReferenceException
+     */
+    public function __construct(private OpenApi $spec)
     {
+        $this->schemaCache = new SchemaCache();
         $this->context = new ReferenceContext($this->spec, '/');
     }
 
+    /**
+     * @throws UnresolvableReferenceException
+     */
     public function normalize(): OpenApi
     {
         $this->normalizeBodies();
         $this->normalizeResponses();
 
-        $this->normalizedSchemas = [];
+        $this->schemaCache->reset();
         // Set $createUnlessRef to false at this (top) level, so that we don't re-create all the existing schemas
         $this->normalizeSchemas($this->spec->components->schemas, createUnlessRef: false);
 
@@ -47,7 +55,7 @@ class OpenApiNormalizer
      *                                 added to the spec's /components/schemas section.
      * @return Schema[]|Reference[]
      */
-    protected function normalizeSchemas(array $schemas, bool $createUnlessRef): array
+    private function normalizeSchemas(array $schemas, bool $createUnlessRef): array
     {
         $normalized = [];
         foreach ($schemas as $name => $schema) {
@@ -57,7 +65,7 @@ class OpenApiNormalizer
         return $normalized;
     }
 
-    protected function normalizeSchema(
+    private function normalizeSchema(
         Schema|Reference $schema,
         ?string $name = null,
         bool $createUnlessRef = true
@@ -72,18 +80,9 @@ class OpenApiNormalizer
             );
         }
 
-        if (
-            array_key_exists($name, $this->normalizedSchemas)
-        ) {
-            $normalized = $this->normalizedSchemas[$name];
-            if ($normalized instanceof Reference) {
-                $normalized = $normalized->resolve($this->context);
-            }
-
-            // It's possible to have two schemas with the same name, but different types
-            if ($normalized->type === $schema->type) {
-                return $this->normalizedSchemas[$name];
-            }
+        $normalized = $this->schemaCache->getSchema($schema, $name, $this->context);
+        if ($normalized) {
+            return $normalized;
         }
 
         if (! $schema->title) {
@@ -101,37 +100,14 @@ class OpenApiNormalizer
         } elseif ($schema->type === Type::ARRAY) {
             $schema->items = $this->normalizeSchema($schema->items, $name);
         } elseif ($schema->type === Type::OBJECT) {
-            $schema->properties = $this->normalizeSchemas($schema->properties, true);
-
-            if (! is_bool($schema->additionalProperties)) {
-                $additionalProperties = $schema->additionalProperties;
-                $schema->additionalProperties = $this->normalizeSchema(
-                    $additionalProperties,
-                    $additionalProperties->title ?? null,
-                    false
-                );
-            }
-
-            if ($createUnlessRef) {
-                $matchingRef = $this->findMatchingSchema($schema, $name);
-                if ($matchingRef) {
-                    $schema = $matchingRef;
-                } else {
-                    $schema = $this->addSchema($schema, $name);
-                }
-            }
+            $schema = $this->normalizeObject($schema, $createUnlessRef, $name);
         }
-
-        // We occasionally want schemas to be anonymous, like an inline schema in an allOf.
-        // There's no good way to name them, and we can parse them without a name
-        if ($name) {
-            $this->normalizedSchemas[$name] = $schema;
-        }
+        $this->schemaCache->add($name, $schema);
 
         return $schema;
     }
 
-    protected function normalizeBodies(): void
+    private function normalizeBodies(): void
     {
         $this->mapOperations(function (Operation &$operation) {
             if (! $operation->requestBody) {
@@ -164,7 +140,7 @@ class OpenApiNormalizer
         });
     }
 
-    protected function normalizeResponses(): void
+    private function normalizeResponses(): void
     {
         $this->mapOperations(function (Operation &$operation) {
             $responses = [];
@@ -202,7 +178,7 @@ class OpenApiNormalizer
         });
     }
 
-    protected function mapOperations(callable $callback): void
+    private function mapOperations(callable $callback): void
     {
         foreach ($this->spec->paths as $path => $item) {
             foreach ($item->getOperations() as $method => &$operation) {
@@ -213,7 +189,7 @@ class OpenApiNormalizer
         }
     }
 
-    protected function addSchema(Schema $schema, string $name): Reference
+    private function addSchema(Schema $schema, string $name): Reference
     {
         $newRef = "#/components/schemas/$name";
 
@@ -224,7 +200,7 @@ class OpenApiNormalizer
         $schemas = $components->schemas;
 
         $schemas[$name] = $schema;
-        $this->normalizedSchemas[$name] = $schema;
+        $this->schemaCache->add($name, $schema);
 
         $components->schemas = $schemas;
         $this->spec->components = $components;
@@ -232,7 +208,7 @@ class OpenApiNormalizer
         return $destinationRef;
     }
 
-    protected function findMatchingSchema(Schema $schema, string $schemaName): ?Reference
+    private function findMatchingSchema(Schema $schema, string $schemaName): ?Reference
     {
         foreach ($this->spec->components->schemas as $name => $existingSchema) {
             if ($name === $schemaName && $existingSchema == $schema) {
@@ -241,5 +217,30 @@ class OpenApiNormalizer
         }
 
         return null;
+    }
+
+    private function normalizeObject(Schema|Reference $schema, bool $createUnlessRef, ?string $name): Reference|Schema
+    {
+        $schema->properties = $this->normalizeSchemas($schema->properties, true);
+
+        if (! is_bool($schema->additionalProperties)) {
+            $additionalProperties = $schema->additionalProperties;
+            $schema->additionalProperties = $this->normalizeSchema(
+                $additionalProperties,
+                $additionalProperties->title ?? null,
+                false
+            );
+        }
+
+        if ($createUnlessRef) {
+            $matchingRef = $this->findMatchingSchema($schema, $name);
+            if ($matchingRef) {
+                $schema = $matchingRef;
+            } else {
+                $schema = $this->addSchema($schema, $name);
+            }
+        }
+
+        return $schema;
     }
 }

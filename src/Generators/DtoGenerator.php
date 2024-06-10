@@ -97,6 +97,11 @@ class DtoGenerator extends BaseDtoGenerator
             $safeType = Utils::isBuiltinType($additionalProperties->type)
                 ? $additionalProperties->type
                 : NameHelper::safeClassName($additionalProperties->type);
+
+            if ($safeType === 'DateTime') {
+                $safeType = '\DateTimeInterface';
+            }
+
             $classType->addProperty('additionalProperties')
                 ->setPublic()
                 ->addComment("@var {$safeType}[]")

@@ -59,7 +59,7 @@ class MethodGeneratorHelper
 
         $type = $parameter->type;
         if ($type === 'DateTime') {
-            $type = '\DateTime';
+            $type = '\DateTimeInterface';
         } elseif (! Utils::isBuiltInType($type)) {
             if ($namespace === null) {
                 throw new InvalidArgumentException('$namespace must be passed if the type is not a built-in.');

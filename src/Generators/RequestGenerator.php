@@ -82,10 +82,10 @@ class RequestGenerator extends BaseRequestGenerator
             ->addBody(
                 collect($endpoint->pathSegments)
                     ->map(fn ($segment) => Str::startsWith($segment, ':')
-                        ? new Literal(sprintf('{$this->%s}', NameHelper::safeVariableName($segment)))
+                        ? sprintf('{$this->%s}', NameHelper::safeVariableName($segment))
                         : $segment
                     )
-                    ->pipe(fn (Collection $segments) => new Literal(sprintf('return "/%s";', $segments->implode('/'))))
+                    ->pipe(fn (Collection $segments) => sprintf('return "/%s";', $segments->implode('/')))
             );
 
         $responseNamespace = $this->config->responseNamespace();

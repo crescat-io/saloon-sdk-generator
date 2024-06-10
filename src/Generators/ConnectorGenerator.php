@@ -38,7 +38,7 @@ class ConnectorGenerator extends Generator
         $classType->addMethod('resolveBaseUrl')
             ->setReturnType('string')
             ->setBody(
-                new Literal(sprintf(sprintf("return '%s';", $specification->baseUrl ?? 'TODO')))
+                sprintf("return '%s';", $specification->baseUrl)
             );
 
         $namespace = $classFile
@@ -67,7 +67,7 @@ class ConnectorGenerator extends Generator
                 ->addMethod(NameHelper::safeVariableName($collection))
                 ->setReturnType($resourceFQN)
                 ->setBody(
-                    new Literal(sprintf('return new %s($this);', $resourceClassName))
+                    sprintf('return new %s($this);', $resourceClassName)
                 );
 
         }

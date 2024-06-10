@@ -47,7 +47,7 @@ trait HasArrayableAttributes
             if ($name === 'additionalProperties') {
                 $asArray = array_merge($asArray, $attributeAsArray);
             } else {
-                $originalName = $this->attributeMap[$name] ?? $name;
+                $originalName = static::$attributeMap[$name] ?? $name;
                 $asArray[$originalName] = $attributeAsArray;
             }
         }

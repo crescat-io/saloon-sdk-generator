@@ -61,7 +61,8 @@ class BasicFileHandler extends AbstractFileHandler
         return $this->baseOutputPath($file, $type->value, true);
     }
 
-    protected function outputPath(PhpFile $file): string {
+    protected function outputPath(PhpFile $file): string
+    {
         $components = [
             $this->config->outputDir,
             str_replace($this->config->namespace, '', Arr::first($file->getNamespaces())->getName()),
@@ -84,7 +85,8 @@ class BasicFileHandler extends AbstractFileHandler
 
     protected function buildPath(array $components): string
     {
-        $path = implode('/', $components) . '.php';
+        $path = implode('/', $components).'.php';
+
         return Str::of($path)->replace('\\', '/')->replace('//', '/')->toString();
     }
 }

@@ -22,10 +22,12 @@ abstract class Generator implements GeneratorContract
     /**
      * @return array{PhpFile, PhpNamespace, ClassType}
      */
-    protected function makeClass(string $className, array|string $namespaceSuffixes = []): array
+    protected function makeClass(string $className, array|string|null $namespaceSuffixes = []): array
     {
         if (is_string($namespaceSuffixes)) {
             $namespaceSuffixes = [$namespaceSuffixes];
+        } elseif (is_null($namespaceSuffixes)) {
+            $namespaceSuffixes = [];
         }
         $classType = new ClassType($className);
 

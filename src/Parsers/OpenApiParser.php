@@ -178,6 +178,8 @@ class OpenApiParser implements Parser
                 name: $schema->title ?? $parentPropName,
                 rawName: $parentPropName,
                 nullable: $schema->nullable,
+                // Using $schema->title instead of $schema->type since title is the user-defined
+                // type name from the schema file
                 type: $schema->title ?? 'object',
                 description: $schema->description,
                 required: $required,

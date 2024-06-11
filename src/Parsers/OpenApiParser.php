@@ -115,6 +115,14 @@ class OpenApiParser implements Parser
     {
         $parsedSchemas = [];
         foreach ($schemas as $name => $schema) {
+            $_parent = $parent;
+            while ($_parent !== null) {
+                if ($_parent->rawName === $name) {
+                    continue 2;
+                }
+                $_parent = $_parent->parent;
+            }
+
             $parsed = $this->parseSchema($schema, $parent, $name);
             if ($parsed) {
                 $parsedSchemas[$name] = $parsed;

@@ -1,6 +1,5 @@
 {
     "name": "highsidelabs/saloon-sdk-generator",
-    "version": "2.0.0",
     "description": "Simplified SDK Scaffolding for Saloon",
     "keywords": [
         "sdk generator",

@@ -24,7 +24,12 @@ use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method as SaloonHttpMethod;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
+use Saloon\Traits\Body\HasFormBody;
 use Saloon\Traits\Body\HasJsonBody;
+use Saloon\Traits\Body\HasMultipartBody;
+use Saloon\Traits\Body\HasStreamBody;
+use Saloon\Traits\Body\HasStringBody;
+use Saloon\Traits\Body\HasXmlBody;
 
 class RequestGenerator extends BaseRequestGenerator
 {
@@ -54,15 +59,30 @@ class RequestGenerator extends BaseRequestGenerator
             ->addComment('')
             ->addComment(Utils::wrapLongLines($endpoint->description ?? ''));
 
-        // TODO: We assume JSON body if post/patch, make these assumptions configurable in the future.
-        if ($endpoint->method->isPost() || $endpoint->method->isPatch()) {
-            $classType
-                ->addImplement(HasBody::class)
-                ->addTrait(HasJsonBody::class);
+        if ($endpoint->method->isPost() || $endpoint->method->isPatch() || $endpoint->method->isPut()) {
+            $contentType = $endpoint->bodySchema->contentType;
+            if ($contentType === 'application/x-www-form-urlencoded') {
+                $classType->addTrait(HasFormBody::class);
+                $namespace->addUse(HasFormBody::class);
+            } elseif ($contentType === 'multipart/form-data') {
+                $classType->addTrait(HasMultipartBody::class);
+                $namespace->addUse(HasMultipartBody::class);
+            } elseif ($contentType === 'text/xml') {
+                $classType->addTrait(HasXmlBody::class);
+                $namespace->addUse(HasXmlBody::class);
+            } elseif ($contentType === 'text/plain') {
+                $classType->addTrait(HasStringBody::class);
+                $namespace->addUse(HasStringBody::class);
+            } elseif ($contentType === 'application/octet-stream') {
+                $classType->addTrait(HasStreamBody::class);
+                $namespace->addUse(HasStreamBody::class);
+            } else {
+                $classType->addTrait(HasJsonBody::class);
+                $namespace->addUse(HasJsonBody::class);
+            }
 
-            $namespace
-                ->addUse(HasBody::class)
-                ->addUse(HasJsonBody::class);
+            $classType->addImplement(HasBody::class);
+            $namespace->addUse(HasBody::class);
         }
 
         $classType->addProperty('method')

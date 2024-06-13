@@ -117,7 +117,7 @@ class OpenApiParser implements Parser
         foreach ($schemas as $name => $schema) {
             $_parent = $parent;
             while ($_parent !== null) {
-                if ($_parent->rawName === $name) {
+                if ($_parent->rawName === $name && $_parent->description === $schema->description) {
                     continue 2;
                 }
                 $_parent = $_parent->parent;

@@ -37,8 +37,8 @@ class Schema extends Parameter
         if (is_null($name)) {
             if ($this->parent?->type === SimpleType::ARRAY->value) {
                 $this->name = $this->parent->name.'Item';
-            } else {
-                throw new InvalidArgumentException('$name must be defined if the parent schema is not of type `array`.');
+            } elseif ($this->type !== SimpleType::ARRAY->value) {
+                throw new InvalidArgumentException('$name must be defined if the schema or parent schema is not of type `array`.');
             }
         } else {
             $this->name = $name;

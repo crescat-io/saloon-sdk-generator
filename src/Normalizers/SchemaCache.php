@@ -49,7 +49,6 @@ final class SchemaCache
         $name = $this->getName($schema, $name);
 
         if (! $this->normalizedSchemas->has($name)) {
-
             return null;
         }
 
@@ -60,16 +59,17 @@ final class SchemaCache
 
         // It's possible to have two schemas with the same name, but different types
         if ($normalized->type !== $schema->type) {
-
             return null;
         }
 
-        if (count($normalized->properties) !== count($schema->properties) || array_keys($normalized->properties) !== array_keys($schema->properties)) {
-
+        if (
+            count($normalized->properties) !== count($schema->properties)
+            || array_keys($normalized->properties) !== array_keys($schema->properties)
+        ) {
             return null;
         }
+
         if ($normalized->description !== $schema->description) {
-
             return null;
         }
 

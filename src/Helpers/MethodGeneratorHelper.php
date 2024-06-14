@@ -82,9 +82,9 @@ class MethodGeneratorHelper
     /**
      * Generates a method that returns parameters as an array.
      */
-    public static function generateArrayReturnMethod(ClassType $classType, string $name, array $parameters, bool $withArrayFilterWrapper = false): Method
+    public static function generateArrayReturnMethod(ClassType $classType, string $name, array $parameters, string $datetimeFormat, bool $withArrayFilterWrapper = false): Method
     {
-        $paramArray = self::buildParameterArray($parameters);
+        $paramArray = self::buildParameterArray($parameters, $datetimeFormat);
 
         $body = $withArrayFilterWrapper
             ? sprintf('return array_filter(%s);', (new Dumper)->dump($paramArray))
@@ -99,15 +99,15 @@ class MethodGeneratorHelper
     /**
      * Builds an array of parameters with their corresponding values.
      */
-    protected static function buildParameterArray(array $parameters): array
+    protected static function buildParameterArray(array $parameters, string $datetimeFormat): array
     {
         return collect($parameters)
-            ->mapWithKeys(function (Parameter $parameter) {
+            ->mapWithKeys(function (Parameter $parameter) use ($datetimeFormat) {
                 $safeName = NameHelper::safeVariableName($parameter->name);
 
                 if (Utils::isBuiltInType($parameter->type)) {
                     if ($parameter->type === 'DateTime') {
-                        $printStr = '$this->%s?->format(\DateTime::RFC3339)';
+                        $printStr = '$this->%s?->format(\''.$datetimeFormat.'\')';
                     } else {
                         $printStr = '$this->%s';
                     }

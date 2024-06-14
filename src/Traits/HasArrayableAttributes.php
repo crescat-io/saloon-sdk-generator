@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Crescat\SaloonSdkGenerator\Traits;
 
 use Crescat\SaloonSdkGenerator\Exceptions\InvalidAttributeTypeException;
-use DateTime;
 use DateTimeInterface;
 use ReflectionClass;
 
 trait HasArrayableAttributes
 {
     use HasComplexArrayTypes;
+
+    protected static string $datetimeFormat = 'Y-m-d\TH:i:sP';  // RFC3339
 
     /**
      * @var array{string, string}
@@ -61,7 +62,7 @@ trait HasArrayableAttributes
         if (is_null($value)) {
             return null;
         } elseif ($value instanceof DateTimeInterface) {
-            return $value->format(DateTime::RFC3339);
+            return $value->format(static::$datetimeFormat);
         } elseif (is_string($type)) {
             if (class_exists($type)) {
                 return $value->toArray();

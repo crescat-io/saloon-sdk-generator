@@ -7,6 +7,7 @@ namespace Crescat\SaloonSdkGenerator\Data\Generator;
 use Composer\Autoload\ClassLoader;
 use Crescat\SaloonSdkGenerator\Enums\SupportingFile;
 use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
+use DateTime;
 use Exception;
 use Illuminate\Support\Arr;
 use ReflectionClass;
@@ -16,7 +17,7 @@ class Config
     const CONFIG_OPTS = [
         'connectorName', 'namespace', 'namespaceSuffixes', 'baseFilesNamespace', 'fallbackResourceName',
         'type', 'outputDir', 'force',
-        'ignoredQueryParams', 'ignoredBodyParams', 'extra',
+        'ignoredQueryParams', 'ignoredBodyParams', 'datetimeFormat', 'extra',
     ];
 
     const REQUIRED_OPTS = ['connectorName', 'namespace'];
@@ -35,6 +36,7 @@ class Config
         'force' => false,
         'ignoredQueryParams' => [],
         'ignoredBodyParams' => [],
+        'datetimeFormat' => DateTime::RFC3339,
         'extra' => [],
     ];
 
@@ -53,6 +55,7 @@ class Config
      * @param  bool|null  $force  Whether to overwrite existing files.
      * @param  array  $ignoredQueryParams  List of query parameters that should be ignored.
      * @param  array  $ignoredBodyParams  List of body parameters that should be ignored.
+     * @param  string  $datetimeFormat  The format to use for date and datetime parameters.
      * @param  array  $extra  Additional configuration for custom code generators.
      */
     public function __construct(
@@ -68,6 +71,7 @@ class Config
 
         public readonly array $ignoredQueryParams = self::DEFAULT_OPTIONS['ignoredQueryParams'],
         public readonly array $ignoredBodyParams = self::DEFAULT_OPTIONS['ignoredBodyParams'],
+        public readonly string $datetimeFormat = self::DEFAULT_OPTIONS['datetimeFormat'],
         public readonly array $extra = self::DEFAULT_OPTIONS['extra'],
     ) {
         $this->namespaceSuffixes = array_merge(
@@ -182,6 +186,7 @@ class Config
 
             ignoredQueryParams: $getOpt('ignoredQueryParams'),
             ignoredBodyParams: $getOpt('ignoredBodyParams'),
+            datetimeFormat: $getOpt('datetimeFormat'),
             extra: $getOpt('extra'),
         );
     }

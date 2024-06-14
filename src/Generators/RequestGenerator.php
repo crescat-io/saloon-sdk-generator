@@ -167,7 +167,7 @@ class RequestGenerator extends BaseRequestGenerator
             if (SimpleType::isScalar($bodyType)) {
                 $returnValText = '[$this->%s]';
             } elseif ($bodyType === 'DateTime') {
-                $returnValText = '[$this->%s->format(\DateTime::RFC3339)]';
+                $returnValText = '[$this->%s->format(\''.$this->config->datetimeFormat.'\')]';
             } elseif (! Utils::isBuiltInType($bodyType)) {
                 $returnValText = '$this->%s->toArray()';
             } else {
@@ -226,7 +226,13 @@ class RequestGenerator extends BaseRequestGenerator
                 MethodGeneratorHelper::addParameterToMethod($constructor, $queryParam, promote: true);
             }
 
-            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);
+            MethodGeneratorHelper::generateArrayReturnMethod(
+                $classType,
+                'defaultQuery',
+                $queryParams,
+                $this->config->datetimeFormat,
+                withArrayFilterWrapper: true
+            );
         }
 
         return $constructor;

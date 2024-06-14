@@ -6,6 +6,7 @@ namespace Crescat\SaloonSdkGenerator\Generators;
 
 use Composer\InstalledVersions;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
+use Crescat\SaloonSdkGenerator\Data\Generator\Config;
 use Crescat\SaloonSdkGenerator\Enums\SupportingFile;
 use Crescat\SaloonSdkGenerator\Generator;
 use Exception;
@@ -51,6 +52,14 @@ class SupportingFilesGenerator extends Generator
                 "{$this->config->getSupportingFilesNamespace()}\\",
                 file_get_contents($filePath),
             );
+
+            if ($this->config->datetimeFormat !== Config::DEFAULT_OPTIONS['datetimeFormat']) {
+                $content = str_replace(
+                    Config::DEFAULT_OPTIONS['datetimeFormat'],
+                    $this->config->datetimeFormat,
+                    $content
+                );
+            }
 
             if ($content === false) {
                 throw new Exception("Failed to read file: {$filePath}");

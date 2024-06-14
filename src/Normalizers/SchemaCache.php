@@ -36,6 +36,11 @@ final class SchemaCache
         $this->normalizedSchemas[$name] = $schema;
     }
 
+    public function has(string $name): bool
+    {
+        return $this->normalizedSchemas->has($name);
+    }
+
     public function reset(): void
     {
         $this->normalizedSchemas = collect([]);
@@ -48,7 +53,7 @@ final class SchemaCache
     {
         $name = $this->getName($schema, $name);
 
-        if (! $this->normalizedSchemas->has($name)) {
+        if (! $this->has($name ?? '')) {
             return null;
         }
 

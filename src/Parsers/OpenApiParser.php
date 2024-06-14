@@ -117,7 +117,10 @@ class OpenApiParser implements Parser
         foreach ($schemas as $name => $schema) {
             $_parent = $parent;
             while ($_parent !== null) {
-                if ($_parent->rawName === $name && $_parent->description === $schema->description) {
+                // We should only ever get circular schema refs from a schema property, so we need
+                // to check that the parent's rawName (which would be a property name) matches the
+                // name of the schema we're currently iterating over
+                if ($_parent->rawName === $name && $_parent->equalsOpenApiSchema($schema)) {
                     continue 2;
                 }
                 $_parent = $_parent->parent;
@@ -172,6 +175,14 @@ class OpenApiParser implements Parser
                     parent: $parent,
                 );
             } else {
+                // This is just so that, in the recursive parseSchema call below where we determine the actual
+                // item schema, we know the item type of this array
+                $tempItemSchema = new Schema(
+                    name: $name,
+                    type: 'array',
+                    description: $schema->description,
+                );
+                $parsedSchema->items = $tempItemSchema;
                 $parsedSchema->items = $this->parseSchema($schema->items, $parsedSchema);
                 // TODO: update this once TODO in mapResponses is addressed
                 $parsedSchema->isResponse = in_array("{$parsedSchema->items->type}[]", $this->responseSchemaTypes);
@@ -182,6 +193,13 @@ class OpenApiParser implements Parser
                 $required = [];
             }
 
+            // This is a temporary placeholder value that is used until the schema's properties
+            // are parsed. It allows child schemas who are passed this as a parent to know
+            // which properties its parent has, which is useful in recursive schemas
+            $tempProperties = array_combine(
+                array_keys($schema->properties),
+                array_fill(0, count($schema->properties), null)
+            );
             $parsedSchema = new Schema(
                 name: $schema->title ?? $parentPropName,
                 rawName: $parentPropName,
@@ -190,6 +208,7 @@ class OpenApiParser implements Parser
                 // type name from the schema file
                 type: $schema->title ?? 'object',
                 description: $schema->description,
+                properties: $tempProperties,
                 required: $required,
                 parent: $parent,
             );

@@ -237,7 +237,33 @@ final class OpenApiNormalizer
             if ($matchingRef) {
                 $schema = $matchingRef;
             } else {
-                $schema = $this->addSchema($schema, $name);
+                if ($this->schemaCache->has($name)) {
+                    $existingSchema = $this->schemaCache->getSchema($schema, $name, $this->context);
+                    // If the name is in the cache but the schema is different, we need a new name,
+                    // because this is an inline schema with the same name but a different definition
+                    if (! $existingSchema) {
+                        $newName = $name;
+                        $i = 2;
+                        do {
+                            $newName = $name.$i;
+                            $i++;
+                        } while ($this->schemaCache->has($newName));
+
+                        $schema->title = $newName;
+                        $schema = $this->addSchema($schema, $newName);
+                    } else {
+                        if ($existingSchema instanceof Reference) {
+                            $refText = $existingSchema->getSerializableData()['$ref'];
+                        } else {
+                            $refText = "#/components/schemas/$name";
+                        }
+                        $destinationRef = new Reference(['$ref' => $refText], Schema::class);
+                        $destinationRef->setDocumentContext($this->spec, new JsonPointer(''));
+                        $schema = $destinationRef;
+                    }
+                } else {
+                    $schema = $this->addSchema($schema, $name);
+                }
             }
         }
 

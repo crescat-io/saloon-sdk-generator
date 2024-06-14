@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Data\Generator;
 
+use cebe\openapi\spec\Schema as OpenApiSchema;
 use Crescat\SaloonSdkGenerator\Enums\SimpleType;
 use InvalidArgumentException;
 
@@ -70,5 +71,41 @@ class Schema extends Parameter
         }
 
         return $this->nullable;
+    }
+
+    public function equalsOpenApiSchema(OpenApiSchema $other): bool
+    {
+        if ($this->properties) {
+            $propNames = array_keys($this->properties);
+            $otherPropNames = array_keys($other->properties);
+            sort($propNames);
+            sort($otherPropNames);
+
+            if ($propNames !== $otherPropNames) {
+                return false;
+            }
+
+            // We don't recursively run equalsOpenApiSchema on the schema's properties,
+            // because sometimes this check is being run on a schema while its properties
+            // are still being parsed
+
+            $reqs = $this->required;
+            $otherReqs = $other->required;
+            sort($reqs);
+            sort($otherReqs);
+            if ($reqs !== $otherReqs) {
+                return false;
+            }
+        } elseif ($this->items) {
+            $sameItems = $this->items->type === $other->items->title;
+            if (! $sameItems) {
+                return false;
+            }
+        }
+
+        $baseConditions = $this->description === $other->description
+            && $this->nullable === $other->nullable;
+
+        return $baseConditions;
     }
 }

@@ -356,13 +356,14 @@ class ConnectorGenerator extends Generator
 
         // If there are multiple authenticators, we need to use the MultiAuthenticator.
         if (count($authenticators) > 1) {
+            $namespace->addUse(MultiAuthenticator::class);
             $classType->addMethod('getAuthenticator')
                 ->setReturnType(MultiAuthenticator::class)
                 ->setBody(
                     new Literal(
                         sprintf(
-                            'return new MultiAuthenticator([%s]);',
-                            implode(', ', $authenticators)
+                            "return new MultiAuthenticator(\n\t%s\n);",
+                            implode(",\n\t", $authenticators)
                         )
                     )
                 );

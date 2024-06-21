@@ -163,16 +163,8 @@ class RequestGenerator extends BaseRequestGenerator
             ->setType(Response::class);
 
         if ($endpoint->bodySchema) {
-            $bodyType = $endpoint->bodySchema->type;
-            if (SimpleType::isScalar($bodyType)) {
-                $returnValText = '[$this->%s]';
-            } elseif ($bodyType === 'DateTime') {
-                $returnValText = '[$this->%s->format(\''.$this->config->datetimeFormat.'\')]';
-            } elseif (! Utils::isBuiltInType($bodyType)) {
-                $returnValText = '$this->%s->toArray()';
-            } else {
-                $returnValText = '$this->%s';
-            }
+            $returnValText = $this->generateDefaultBody($endpoint->bodySchema);
+
             $classType
                 ->addMethod('defaultBody')
                 ->setReturnType('array')
@@ -237,6 +229,31 @@ class RequestGenerator extends BaseRequestGenerator
 
         return $constructor;
     }
+
+    protected function generateDefaultBody(Schema $body): string
+    {
+        $bodyType = $body->type;
+
+        if (SimpleType::isScalar($bodyType)) {
+            $returnValText = '[$this->%s]';
+        } elseif ($bodyType === 'DateTime') {
+            $returnValText = '[$this->%s->format(\''.$this->config->datetimeFormat.'\')]';
+        } elseif (! Utils::isBuiltinType($bodyType)) {
+            $returnValText = '$this->%s->toArray()';
+        } elseif ($bodyType === 'array') {
+            $hasProperties = $body->items->properties;
+            if ($hasProperties) {
+                $returnValText = 'array_map(fn ($item) => $item->toArray(), $this->%s)';
+            } else {
+                $returnValText = '$this->%s';
+            }
+        } else {
+            $returnValText = '$this->%s';
+        }
+
+        return $returnValText;
+    }
+
 
     protected function bodyFQN(Schema $body): string
     {

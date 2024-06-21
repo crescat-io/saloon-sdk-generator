@@ -89,8 +89,8 @@ class Schema extends Parameter
             // because sometimes this check is being run on a schema while its properties
             // are still being parsed
 
-            $reqs = $this->required;
-            $otherReqs = $other->required;
+            $reqs = $this->required ?? [];
+            $otherReqs = $other->required ?? [];
             sort($reqs);
             sort($otherReqs);
             if ($reqs !== $otherReqs) {

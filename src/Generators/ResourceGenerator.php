@@ -105,7 +105,7 @@ class ResourceGenerator extends BaseResourceGenerator
             }
 
             foreach ($endpoint->queryParameters as $parameter) {
-                if (in_array($parameter->name, $this->config->ignoredQueryParams)) {
+                if (in_array($parameter->rawName, $this->config->ignoredParams['query'])) {
                     continue;
                 }
                 MethodGeneratorHelper::addParameterToMethod($method, $parameter);

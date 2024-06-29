@@ -17,7 +17,7 @@ class Config
     const CONFIG_OPTS = [
         'connectorName', 'namespace', 'namespaceSuffixes', 'baseFilesNamespace', 'fallbackResourceName',
         'type', 'outputDir', 'force',
-        'ignoredQueryParams', 'ignoredBodyParams', 'datetimeFormat', 'extra',
+        'ignoredParams', 'datetimeFormat', 'extra',
     ];
 
     const REQUIRED_OPTS = ['connectorName', 'namespace'];
@@ -34,8 +34,11 @@ class Config
         'type' => 'postman',
         'outputDir' => './build',
         'force' => false,
-        'ignoredQueryParams' => [],
-        'ignoredBodyParams' => [],
+        'ignoredParams' => [
+            'query' => [],
+            'body' => [],
+            'header' => [],
+        ],
         'datetimeFormat' => DateTime::RFC3339,
         'extra' => [],
     ];
@@ -43,6 +46,9 @@ class Config
     public readonly array $namespaceSuffixes;
 
     public readonly string $baseFilesNamespace;
+
+    /** @var array{query: array<string>, body: array<string>, header: array<string>} */
+    public readonly array $ignoredParams;
 
     /**
      * @param  string|null  $connectorName  The name of the connector class.
@@ -53,8 +59,8 @@ class Config
      * @param  string|null  $type  The type of API specification to parse.
      * @param  string|null  $outputDir  The output directory where the generated code will be saved.
      * @param  bool|null  $force  Whether to overwrite existing files.
-     * @param  array  $ignoredQueryParams  List of query parameters that should be ignored.
-     * @param  array  $ignoredBodyParams  List of body parameters that should be ignored.
+     * @param  array{query: array<string>, body: array<string>, header: array<string>}  $ignoredParams
+     *                                                                                                  Associative list of query, body and header parameters that should be ignored.
      * @param  string  $datetimeFormat  The format to use for date and datetime parameters.
      * @param  array  $extra  Additional configuration for custom code generators.
      */
@@ -69,8 +75,7 @@ class Config
         public readonly ?string $outputDir = self::DEFAULT_OPTIONS['outputDir'],
         public readonly ?bool $force = self::DEFAULT_OPTIONS['force'],
 
-        public readonly array $ignoredQueryParams = self::DEFAULT_OPTIONS['ignoredQueryParams'],
-        public readonly array $ignoredBodyParams = self::DEFAULT_OPTIONS['ignoredBodyParams'],
+        array $ignoredParams = self::DEFAULT_OPTIONS['ignoredParams'],
         public readonly string $datetimeFormat = self::DEFAULT_OPTIONS['datetimeFormat'],
         public readonly array $extra = self::DEFAULT_OPTIONS['extra'],
     ) {
@@ -83,6 +88,7 @@ class Config
         } else {
             $this->baseFilesNamespace = $baseFilesNamespace;
         }
+        $this->ignoredParams = array_merge(self::DEFAULT_OPTIONS['ignoredParams'], $ignoredParams);
     }
 
     public function baseFilesNamespace(): string
@@ -184,8 +190,7 @@ class Config
             outputDir: trim($outputDir, '/'),
             force: $getOpt('force'),
 
-            ignoredQueryParams: $getOpt('ignoredQueryParams'),
-            ignoredBodyParams: $getOpt('ignoredBodyParams'),
+            ignoredParams: $getOpt('ignoredParams'),
             datetimeFormat: $getOpt('datetimeFormat'),
             extra: $getOpt('extra'),
         );

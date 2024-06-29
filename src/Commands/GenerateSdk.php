@@ -49,10 +49,12 @@ class GenerateSdk extends Command
             config: new Config(
                 connectorName: $this->option('name'),
                 namespace: $this->option('namespace'),
-                ignoredQueryParams: [
-                    'after',
-                    'order_by',
-                    'per_page',
+                ignoredParams: [
+                    'query' => [
+                        'after',
+                        'order_by',
+                        'per_page',
+                    ],
                 ]
             )
         );

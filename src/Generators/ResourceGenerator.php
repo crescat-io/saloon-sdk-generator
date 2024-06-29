@@ -112,6 +112,14 @@ class ResourceGenerator extends BaseResourceGenerator
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
             }
 
+            foreach ($endpoint->headerParameters as $parameter) {
+                if (in_array($parameter->name, $this->config->ignoredParams['header'])) {
+                    continue;
+                }
+                MethodGeneratorHelper::addParameterToMethod($method, $parameter);
+                $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
+            }
+
             $method->setBody(
                 sprintf(
                     'return $this->connector->send(new %s(%s));',

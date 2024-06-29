@@ -21,6 +21,7 @@ class Endpoint
         public ?string $description = null,
 
         public array $queryParameters = [],
+        public array $headerParameters = [],
         public array $pathParameters = [],
         public ?Schema $bodySchema = null,
     ) {
@@ -34,6 +35,7 @@ class Endpoint
         return [
             ...$this->pathParameters,
             ...$this->queryParameters,
+            ...$this->headerParameters,
         ];
     }
 

@@ -33,11 +33,25 @@ use Saloon\Traits\Body\HasXmlBody;
 
 class RequestGenerator extends BaseRequestGenerator
 {
+    protected array $queryParams;
+
+    protected array $headerParams;
+
     public function generate(ApiSpecification $specification): PhpFile|array
     {
         $classes = [];
 
         foreach ($specification->endpoints as $endpoint) {
+            $this->queryParams = collect($endpoint->queryParameters)
+                ->reject(fn (Parameter $parameter) => in_array($parameter->rawName, $this->config->ignoredParams['query']))
+                ->values()
+                ->toArray();
+
+            $this->headerParams = collect($endpoint->headerParameters)
+                ->reject(fn (Parameter $parameter) => in_array($parameter->rawName, $this->config->ignoredParams['header']))
+                ->values()
+                ->toArray();
+
             $classes[] = $this->generateRequestClass($endpoint);
         }
 
@@ -46,6 +60,8 @@ class RequestGenerator extends BaseRequestGenerator
 
     protected function generateRequestClass(Endpoint $endpoint): PhpFile
     {
+        $methods = [];
+
         $resourceName = NameHelper::resourceClassName($endpoint->collection ?: $this->config->fallbackResourceName);
         $className = NameHelper::requestClassName($endpoint->name);
 
@@ -94,9 +110,9 @@ class RequestGenerator extends BaseRequestGenerator
                 )
             );
 
-        $this->generateConstructor($endpoint, $classType);
+        $methods['__construct'] = $this->generateConstructor($endpoint, $classType);
 
-        $classType->addMethod('resolveEndpoint')
+        $methods['resolveEndpoint'] = $classType->addMethod('resolveEndpoint')
             ->setPublic()
             ->setReturnType('string')
             ->addBody(
@@ -161,12 +177,12 @@ class RequestGenerator extends BaseRequestGenerator
         $createDtoMethod
             ->addParameter('response')
             ->setType(Response::class);
+        $methods['createDtoFromResponse'] = $createDtoMethod;
 
         if ($endpoint->bodySchema) {
             $returnValText = $this->generateDefaultBody($endpoint->bodySchema);
 
-            $classType
-                ->addMethod('defaultBody')
+            $methods['defaultBody'] = $classType->addMethod('defaultBody')
                 ->setReturnType('array')
                 ->addBody(
                     sprintf("return {$returnValText};", NameHelper::safeVariableName($endpoint->bodySchema->name))
@@ -176,6 +192,30 @@ class RequestGenerator extends BaseRequestGenerator
             $bodyFQN = "{$this->config->dtoNamespace()}\\{$safeName}";
             $namespace->addUse($bodyFQN);
         }
+
+        if ($endpoint->queryParameters) {
+            $methods['defaultQuery'] = MethodGeneratorHelper::generateArrayReturnMethod(
+                $classType,
+                'defaultQuery',
+                $this->queryParams,
+                $this->config->datetimeFormat,
+                withArrayFilterWrapper: true
+            );
+        }
+
+        if ($endpoint->headerParameters) {
+            $methods['defaultHeaders'] = MethodGeneratorHelper::generateArrayReturnMethod(
+                $classType,
+                'defaultHeaders',
+                $this->headerParams,
+                $this->config->datetimeFormat,
+                withArrayFilterWrapper: true
+            );
+        }
+
+        // By explicitly setting the list of methods here, we control the order they are rendered in the class.
+        // Without this, they would be rendered in whatever order they were created.
+        $classType->setMethods($methods);
 
         $namespace
             ->addUse(SaloonHttpMethod::class)
@@ -208,23 +248,17 @@ class RequestGenerator extends BaseRequestGenerator
         }
 
         // Priority 3. - Query Parameters
-        if (! empty($endpoint->queryParameters)) {
-            $queryParams = collect($endpoint->queryParameters)
-                ->reject(fn (Parameter $parameter) => in_array($parameter->name, $this->config->ignoredQueryParams))
-                ->values()
-                ->toArray();
-
-            foreach ($queryParams as $queryParam) {
+        if ($this->queryParams) {
+            foreach ($this->queryParams as $queryParam) {
                 MethodGeneratorHelper::addParameterToMethod($constructor, $queryParam, promote: true);
             }
+        }
 
-            MethodGeneratorHelper::generateArrayReturnMethod(
-                $classType,
-                'defaultQuery',
-                $queryParams,
-                $this->config->datetimeFormat,
-                withArrayFilterWrapper: true
-            );
+        // Priority 4. - Header Parameters
+        if ($this->headerParams) {
+            foreach ($this->headerParams as $headerParam) {
+                MethodGeneratorHelper::addParameterToMethod($constructor, $headerParam, promote: true);
+            }
         }
 
         return $constructor;
@@ -253,7 +287,6 @@ class RequestGenerator extends BaseRequestGenerator
 
         return $returnValText;
     }
-
 
     protected function bodyFQN(Schema $body): string
     {

@@ -101,6 +101,7 @@ class OpenApiParser implements Parser
             responses: $this->mapResponses($operation->responses),
             description: $operation->description,
             queryParameters: $this->mapParams($operation->parameters, 'query'),
+            headerParameters: $this->mapParams($operation->parameters, 'header'),
             // TODO: Check if this differs between spec versions
             pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
             bodySchema: $this->parseBody($operation->requestBody),

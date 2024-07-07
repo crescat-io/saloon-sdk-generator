@@ -91,11 +91,9 @@ trait Deserializes
 
             return $type::deserialize($value);
         } elseif (is_array($type)) {
-            $typeLen = count($type);
-            if ($typeLen !== 1) {
-                throw new InvalidAttributeTypeException(
-                    "Complex array type must have a single value (the type of the array items), $typeLen given"
-                );
+            // Handle optional complex array types
+            if ($value === null) {
+                return null;
             }
 
             $deserialized = [];

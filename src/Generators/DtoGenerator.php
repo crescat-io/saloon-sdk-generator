@@ -137,7 +137,7 @@ class DtoGenerator extends BaseDtoGenerator
 
                 $literalType = new Literal(sprintf('%s::class', $safeType));
                 $safeName = NameHelper::safeVariableName($name);
-                $complexArrayTypes[$safeName] = [$literalType];
+                $complexArrayTypes[$safeName] = $literalType;
             }
             $classType->addProperty('complexArrayTypes', $complexArrayTypes)
                 ->setStatic()

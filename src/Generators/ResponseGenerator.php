@@ -49,10 +49,10 @@ class ResponseGenerator extends BaseResponseGenerator
             MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
                 $schema,
-                namespace: $dtoNamespace,
                 promote: true,
                 visibility: 'public',
                 readonly: true,
+                namespace: $dtoNamespace,
             );
 
             if ($schema->name !== $schema->rawName) {
@@ -75,10 +75,10 @@ class ResponseGenerator extends BaseResponseGenerator
                 MethodGeneratorHelper::addParameterToMethod(
                     $classConstructor,
                     $param,
-                    namespace: $dtoNamespace,
                     promote: true,
                     visibility: 'public',
                     readonly: true,
+                    namespace: $dtoNamespace,
                 );
 
                 $type = $property->type;

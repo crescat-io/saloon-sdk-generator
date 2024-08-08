@@ -239,7 +239,7 @@ class RequestGenerator extends BaseRequestGenerator
             $namespace->addUse($bodyFQN);
         }
 
-        if ($endpoint->queryParameters) {
+        if ($this->queryParams) {
             $methods['defaultQuery'] = MethodGeneratorHelper::generateArrayReturnMethod(
                 $classType,
                 'defaultQuery',
@@ -249,7 +249,7 @@ class RequestGenerator extends BaseRequestGenerator
             );
         }
 
-        if ($endpoint->headerParameters) {
+        if ($this->headerParams) {
             $methods['defaultHeaders'] = MethodGeneratorHelper::generateArrayReturnMethod(
                 $classType,
                 'defaultHeaders',

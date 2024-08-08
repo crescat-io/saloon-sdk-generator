@@ -97,6 +97,10 @@ class Schema extends Parameter
                 return false;
             }
         } elseif ($this->items) {
+            if (! $other->items) {
+                return false;
+            }
+
             $sameItems = $this->items->type === $other->items->title;
             if (! $sameItems) {
                 return false;

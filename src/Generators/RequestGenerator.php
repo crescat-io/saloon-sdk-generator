@@ -41,6 +41,11 @@ class RequestGenerator extends BaseRequestGenerator
     {
         $classes = [];
 
+        // Headers are not case sensitive
+        $lcHeaders = array_map(
+            fn ($header) => strtolower($header),
+            $this->config->ignoredParams['header'],
+        );
         foreach ($specification->endpoints as $endpoint) {
             $this->queryParams = collect($endpoint->queryParameters)
                 ->reject(fn (Parameter $parameter) => in_array($parameter->rawName, $this->config->ignoredParams['query']))
@@ -48,7 +53,7 @@ class RequestGenerator extends BaseRequestGenerator
                 ->toArray();
 
             $this->headerParams = collect($endpoint->headerParameters)
-                ->reject(fn (Parameter $parameter) => in_array($parameter->rawName, $this->config->ignoredParams['header']))
+                ->reject(fn (Parameter $parameter) => in_array(strtolower($parameter->rawName), $lcHeaders))
                 ->values()
                 ->toArray();
 

@@ -59,10 +59,9 @@ class DtoGenerator extends BaseDtoGenerator
             MethodGeneratorHelper::addParameterToMethod(
                 $classConstructor,
                 $property,
-                namespace: $property->isResponse ? $responseNamespace : $dtoNamespace,
                 promote: true,
                 visibility: 'public',
-                readonly: true,
+                namespace: $property->isResponse ? $responseNamespace : $dtoNamespace,
             );
 
             if ($property->rawName && $property->rawName !== $safeName) {
@@ -91,7 +90,6 @@ class DtoGenerator extends BaseDtoGenerator
                 $classConstructor,
                 $additionalProperties,
                 namespace: $additionalProperties->isResponse ? $responseNamespace : $dtoNamespace,
-                promote: false,
             );
 
             $safeType = Utils::isBuiltinType($additionalProperties->type)

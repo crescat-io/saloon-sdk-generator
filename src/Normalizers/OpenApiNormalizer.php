@@ -145,7 +145,7 @@ final class OpenApiNormalizer
         $this->mapOperations(function (Operation &$operation) {
             $responses = [];
             foreach ($operation->responses->getResponses() as $httpCode => $response) {
-                if (! $response->content) {
+                if (! $response->content || $httpCode === 204) {
                     $responses[$httpCode] = $response;
 
                     continue;

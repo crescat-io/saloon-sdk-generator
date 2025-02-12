@@ -48,6 +48,7 @@ class BaseResponseGenerator extends Generator
             ->add($emptyClassType)
             ->addUse($baseClassFqn);
 
+        $emptyClassType->addMethod('__construct');
         $emptyClassType->setExtends($baseClassFqn);
 
         return [$baseClassFile, $emptyClassFile];

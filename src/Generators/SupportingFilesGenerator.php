@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Crescat\SaloonSdkGenerator\Generators;
 
+use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Crescat\SaloonSdkGenerator\Data\Generator\ApiSpecification;
 use Crescat\SaloonSdkGenerator\Data\Generator\Config;
@@ -11,6 +12,7 @@ use Crescat\SaloonSdkGenerator\Enums\SupportingFile;
 use Crescat\SaloonSdkGenerator\Generator;
 use Exception;
 use Nette\PhpGenerator\PhpFile;
+use ReflectionClass;
 
 class SupportingFilesGenerator extends Generator
 {
@@ -21,6 +23,12 @@ class SupportingFilesGenerator extends Generator
         SupportingFile::CONTRACT->value => ['Deserializable'],
         SupportingFile::EXCEPTION->value => ['InvalidAttributeTypeException'],
         SupportingFile::TRAIT->value => ['Deserializes', 'HasArrayableAttributes', 'HasComplexArrayTypes'],
+    ];
+
+    public static array $overrides = [
+        SupportingFile::CONTRACT->value => [],
+        SupportingFile::EXCEPTION->value => [],
+        SupportingFile::TRAIT->value => [],
     ];
 
     public function generate(ApiSpecification $specification): PhpFile|array
@@ -77,7 +85,18 @@ class SupportingFilesGenerator extends Generator
 
     protected function getFiles(SupportingFile $type, array $classes): array
     {
-        $files = glob("{$this->getInstallPath()}/src/{$type->value}/*.php");
+        $originalFiles = glob("{$this->getInstallPath()}/src/{$type->value}/*.php");
+        $files = [];
+        foreach ($originalFiles as $file) {
+            if (! in_array(basename($file, '.php'), static::$overrides[$type->value])) {
+                $files[] = $file;
+            } else {
+                $composerReflection = new ReflectionClass(ClassLoader::class);
+                $rootDir = dirname($composerReflection->getFileName(), 3);
+                $overwrittenFile = "{$rootDir}/src/{$type->value}/".basename($file);
+                $files[] = $overwrittenFile;
+            }
+        }
 
         return array_filter(
             $files,

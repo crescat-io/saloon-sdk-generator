@@ -43,12 +43,13 @@
         }
     },
     "scripts": {
-        "build": "php ./codegen app:build sdkgenerator --build-version=1.2.0",
+        "build": "php ./codegen app:build sdkgenerator --build-version=1.3.0",
         "clean": "rm -rf ./tests/Output/*",
         "generate:fiken": "./codegen generate:sdk --force --namespace=Crescat\\\\Fiken --type=openapi --name=Fiken tests/Samples/fiken.yml --output tests/Output/Fiken",
         "generate:gocardless": "./codegen generate:sdk --force --namespace=Crescat\\\\GoCardless --type=openapi --name=GoCardless tests/Samples/gocardless.json --output tests/Output/GoCardless",
         "generate:openai": "./codegen generate:sdk --force --namespace=Crescat\\\\OpenAI --type=postman --name=OpenAI tests/Samples/openai.json --output tests/Output/Openai",
         "generate:paddle": "./codegen generate:sdk --force --namespace=Crescat\\\\Paddle --type=postman --name=Paddle tests/Samples/paddle.json --output tests/Output/Paddle",
+        "generate:paddle-billing": "./codegen generate:sdk --force --namespace=Crescat\\\\Paddle --type=openapi --name=Paddle tests/Samples/paddle-billing.yaml --output tests/Output/PaddleBilling",
         "generate:stripe": "./codegen generate:sdk --force --namespace=Crescat\\\\Stripe --type=postman --name=Stripe tests/Samples/stripe.json --output tests/Output/Stripe",
         "generate:tableau": "./codegen generate:sdk --force --namespace=Crescat\\\\Tableau --type=postman --name=Tableau tests/Samples/tableau.json --output tests/Output/Tableau",
         "generate:tripletex": "./codegen generate:sdk --force --namespace=Crescat\\\\Tripletex --type=openapi --name=Tripletex tests/Samples/tripletex.converted.json --output tests/Output/Tripletex",
@@ -66,6 +67,7 @@
             "@generate:gocardless",
             "@generate:openai",
             "@generate:paddle",
+            "@generate:paddle-billing",
             "@generate:tableau",
             "@generate:tripletex",
             "@generate:stripe",

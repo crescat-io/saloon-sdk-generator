@@ -13,6 +13,7 @@ class Config
      * @param  string|null  $fallbackResourceName The default name to use for resources if none could be inferred from the specification.
      * @param  array  $ignoredQueryParams List of query parameters that should be ignored.
      * @param  array  $ignoredBodyParams List of body parameters that should be ignored.
+     * @param  array  $ignoredHeaderParams List of header parameters that should be ignored.
      * @param  array  $extra Additional configuration for custom code generators.
      */
     public function __construct(
@@ -24,6 +25,7 @@ class Config
         public readonly ?string $fallbackResourceName = 'Misc',
         public readonly array $ignoredQueryParams = [],
         public readonly array $ignoredBodyParams = [],
+        public readonly array $ignoredHeaderParams = ['Authorization', 'Content-Type', 'Accept', 'Accept-Language', 'User-Agent'],
         public readonly array $extra = [],
 
     ) {

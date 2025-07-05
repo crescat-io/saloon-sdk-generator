@@ -79,15 +79,15 @@ it('generates postman collection code with headers correctly', function () {
     
     $generatedCode = (string) $trackEventFile;
     
-    // Check that all headers are in the constructor
-    expect($generatedCode)->toContain('protected ?string $authorization');
+    // Check that all headers are in the constructor (Authorization is filtered out by default)
+    expect($generatedCode)->not->toContain('protected ?string $authorization');
     expect($generatedCode)->toContain('protected ?string $xClientVersion');
     expect($generatedCode)->toContain('protected ?string $xDeviceId');
     expect($generatedCode)->toContain('protected ?string $xSessionId');
     
     // Check defaultHeaders method
     expect($generatedCode)->toContain('public function defaultHeaders(): array');
-    expect($generatedCode)->toContain("'Authorization' => \$this->authorization");
+    expect($generatedCode)->not->toContain("'Authorization' => \$this->authorization");
     expect($generatedCode)->toContain("'X-Client-Version' => \$this->xClientVersion");
     expect($generatedCode)->toContain("'X-Device-ID' => \$this->xDeviceId");
     expect($generatedCode)->toContain("'X-Session-ID' => \$this->xSessionId");

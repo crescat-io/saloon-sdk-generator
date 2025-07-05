@@ -53,16 +53,16 @@ it('generates request with headers', function () {
     
     $generatedRequest = (string) $requestFile;
     
-    // Check that headers are in constructor
-    expect($generatedRequest)->toContain('protected string $authorization');
+    // Check that headers are in constructor (Authorization and Accept-Language are filtered out by default)
+    expect($generatedRequest)->not->toContain('protected string $authorization');
     expect($generatedRequest)->toContain('protected ?string $xRequestId');
-    expect($generatedRequest)->toContain('protected ?string $acceptLanguage');
+    expect($generatedRequest)->not->toContain('protected ?string $acceptLanguage');
     
     // Check that defaultHeaders method is generated
     expect($generatedRequest)->toContain('public function defaultHeaders(): array');
-    expect($generatedRequest)->toContain("'Authorization' => \$this->authorization");
+    expect($generatedRequest)->not->toContain("'Authorization' => \$this->authorization");
     expect($generatedRequest)->toContain("'X-Request-ID' => \$this->xRequestId");
-    expect($generatedRequest)->toContain("'Accept-Language' => \$this->acceptLanguage");
+    expect($generatedRequest)->not->toContain("'Accept-Language' => \$this->acceptLanguage");
     expect($generatedRequest)->toContain('array_filter');
 
     // Test Resource Generation

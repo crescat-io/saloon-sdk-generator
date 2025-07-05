@@ -123,6 +123,7 @@ class RequestGenerator extends Generator
         // Priority 4. - Header Parameters
         if (! empty($endpoint->headerParameters)) {
             $headerParams = collect($endpoint->headerParameters)
+                ->reject(fn (Parameter $parameter) => in_array($parameter->name, $this->config->ignoredHeaderParams))
                 ->values()
                 ->toArray();
 

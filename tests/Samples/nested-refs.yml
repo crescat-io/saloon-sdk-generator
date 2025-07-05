@@ -1,0 +1,293 @@
+openapi: 3.0.3
+info:
+  title: Nested References Test API
+  version: 1.0.0
+  description: Test API for verifying nested $ref resolution in DTO generation
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /users/{id}:
+    get:
+      operationId: get-user
+      summary: Get a user by ID
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /products/{id}:
+    get:
+      operationId: get-product
+      summary: Get a product by ID
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: The user's unique identifier
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: The product's unique identifier
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    ProductResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Product'
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - profile
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+        createdAt:
+          type: string
+          format: date-time
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          $ref: '#/components/schemas/Money'
+        dimensions:
+          $ref: '#/components/schemas/Dimensions'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+    Category:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        parent:
+          $ref: '#/components/schemas/Category'
+    Review:
+      type: object
+      required:
+        - id
+        - rating
+      properties:
+        id:
+          type: string
+          format: uuid
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        author:
+          $ref: '#/components/schemas/ReviewAuthor'
+    ReviewAuthor:
+      type: object
+      properties:
+        name:
+          type: string
+        verified:
+          type: boolean
+    UserProfile:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+    Money:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+    Dimensions:
+      type: object
+      properties:
+        width:
+          type: number
+        height:
+          type: number
+        depth:
+          type: number
+        unit:
+          type: string
+          enum: ['cm', 'inch']
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+        coordinates:
+          $ref: '#/components/schemas/GeoCoordinates'
+    GeoCoordinates:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        altitude:
+          type: number
+          format: double
+          description: Altitude in meters above sea level
+        accuracy:
+          $ref: '#/components/schemas/LocationAccuracy'
+    LocationAccuracy:
+      type: object
+      properties:
+        horizontal:
+          type: number
+          format: double
+          description: Horizontal accuracy in meters
+        vertical:
+          type: number
+          format: double
+          description: Vertical accuracy in meters
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence level between 0 and 1
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - metadata
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetails'
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+    ErrorDetails:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    ValidationError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        rule:
+          type: string
+        value:
+          type: string
+    ResponseMetadata:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string

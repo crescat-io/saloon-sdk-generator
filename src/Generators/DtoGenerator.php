@@ -34,7 +34,6 @@ class DtoGenerator extends Generator
 
     protected function generateDtoClass($className, Schema $schema)
     {
-
         /** @var Schema[] $properties */
         $properties = $schema->properties ?? [];
 
@@ -53,10 +52,24 @@ class DtoGenerator extends Generator
         $classConstructor = $classType->addMethod('__construct');
 
         $generatedMappings = false;
+        $referencedDtos = [];
 
         foreach ($properties as $propertyName => $propertySpec) {
-
             $type = $this->convertOpenApiTypeToPhp($propertySpec);
+            
+            // Check if this is a reference to another schema
+            if ($propertySpec instanceof Reference) {
+                // For references, we need to use the DTO class name
+                // The schema name from the reference is already the base name (e.g., "User")
+                // We need to apply the same transformation as we do for the DTO class names
+                $schemaName = $type;
+                $dtoClassName = NameHelper::dtoClassName($schemaName);
+                // Use the FQN for the type
+                $type = "{$this->config->namespace}\\{$this->config->dtoNamespaceSuffix}\\{$dtoClassName}";
+                // Track referenced DTOs
+                $referencedDtos[] = $dtoClassName;
+            }
+            
             $sub = NameHelper::dtoClassName($type);
 
             if ($type === 'object' || $type == 'array') {
@@ -69,9 +82,11 @@ class DtoGenerator extends Generator
             $name = NameHelper::safeVariableName($propertyName);
 
             $property = $classConstructor->addPromotedParameter($name)
-                ->setType($propertySpec instanceof Reference ? $namespace->resolveName($sub) : $type)
                 ->setPublic()
                 ->setDefaultValue(null);
+            
+            // Set the property type
+            $property->setType($type);
 
             if ($name != $propertyName) {
                 $property->addAttribute(MapName::class, [$propertyName]);
@@ -79,11 +94,14 @@ class DtoGenerator extends Generator
             }
         }
 
-        $namespace->addUse(Data::class, alias: 'SpatieData')->add($classType);
+        $namespace->addUse(Data::class, alias: 'SpatieData');
 
         if ($generatedMappings) {
             $namespace->addUse(MapName::class);
         }
+        
+        
+        $namespace->add($classType);
 
         $this->generated[$dtoName] = $classFile;
 

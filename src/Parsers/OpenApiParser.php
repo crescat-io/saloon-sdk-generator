@@ -10,6 +10,7 @@ use cebe\openapi\spec\Operation;
 use cebe\openapi\spec\Parameter as OpenApiParameter;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
+use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\SecurityRequirement;
 use cebe\openapi\spec\Server;
 use cebe\openapi\spec\Type;
@@ -171,21 +172,49 @@ class OpenApiParser implements Parser
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
             response: null, // TODO: implement "definition" parsing
             description: $operation->description,
-            queryParameters: $this->mapParams($operation->parameters, 'query'),
+            queryParameters: $this->mapParams($operation->parameters ?? [], 'query'),
             // TODO: Check if this differs between spec versions
-            pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
+            pathParameters: $pathParams + $this->mapParams($operation->parameters ?? [], 'path'),
             bodyParameters: [], // TODO: implement "definition" parsing
-            headerParameters: $this->mapParams($operation->parameters, 'header'),
+            headerParameters: $this->mapParams($operation->parameters ?? [], 'header'),
         );
     }
 
     /**
-     * @param  OpenApiParameter[]  $parameters
+     * @param  array  $parameters  Array of OpenApiParameter or Reference objects
      * @return Parameter[] array
      */
     protected function mapParams(array $parameters, string $in): array
     {
         return collect($parameters)
+            ->map(function ($parameter) {
+                // Resolve Reference objects to their actual Parameter objects
+                if ($parameter instanceof Reference) {
+                    // When using RESOLVE_MODE_INLINE, we need to manually resolve the reference
+                    $refPath = $parameter->getReference();
+                    
+                    // Parse the reference path (e.g., "#/components/parameters/PathAlbumId")
+                    if (str_starts_with($refPath, '#/components/parameters/')) {
+                        $paramName = str_replace('#/components/parameters/', '', $refPath);
+                        
+                        // Check if the parameter exists in components
+                        if (isset($this->openApi->components->parameters[$paramName])) {
+                            $resolvedParam = $this->openApi->components->parameters[$paramName];
+                            
+                            // The resolved parameter might itself be a Reference in some cases
+                            if ($resolvedParam instanceof Reference) {
+                                return null;
+                            }
+                            
+                            return $resolvedParam;
+                        }
+                    }
+                    
+                    return null;
+                }
+                return $parameter;
+            })
+            ->filter() // Remove any nulls from failed resolutions
             ->whereInstanceOf(OpenApiParameter::class)
             ->filter(fn (OpenApiParameter $parameter) => $parameter->in == $in)
             ->map(fn (OpenApiParameter $parameter) => new Parameter(
@@ -194,6 +223,7 @@ class OpenApiParser implements Parser
                 name: $parameter->name,
                 description: $parameter->description,
             ))
+            ->values() // Reset array keys
             ->all();
     }
 

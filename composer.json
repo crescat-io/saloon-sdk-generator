@@ -60,6 +60,7 @@
         "generate:vegvesen": "./codegen generate:sdk --force --namespace=Vegvesen\\\\Sdk --type=openapi --name=Vegvesen tests/samples/vegvesen.json --output tests/Output/Vegvesen",
         "generate:spotify": "./codegen generate:sdk --force --namespace=Spotify\\\\Sdk --type=openapi --name=Spotify tests/samples/spotify.yml --output tests/Output/Spotify",
         "generate:headers-test": "./codegen generate:sdk --force --namespace=HeadersTest\\\\Sdk --type=openapi --name=HeadersTest tests/Samples/test-headers-api.yml --output tests/Output/HeadersTest",
+        "generate:nested-refs": "./codegen generate:sdk --force --namespace=NestedRefs\\\\Sdk --type=openapi --name=NestedRefs tests/Samples/nested-refs.yml --output tests/Output/NestedRefs",
         "generate:all": [
             "@generate:fiken",
             "@generate:gocardless",
@@ -72,7 +73,8 @@
             "@generate:kassalapp",
             "@generate:crescat",
             "@generate:bigcommerce",
-            "@generate:headers-test"
+            "@generate:headers-test",
+            "@generate:nested-refs"
         ],
         "test": "vendor/bin/pest tests",
         "test-coverage": "vendor/bin/pest --coverage",

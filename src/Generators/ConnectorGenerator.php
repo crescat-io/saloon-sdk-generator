@@ -252,11 +252,11 @@ class ConnectorGenerator extends Generator
                 $name = NameHelper::safeVariableName(preg_replace('/^X-/', '', $securityScheme->name));
                 switch ($securityScheme->in) {
                     case ApiKeyLocation::query:
-                        $authenticators[] = new Literal(sprintf('return new QueryAuthenticator("%s", $this->%s);', $securityScheme->name, $name));
+                        $authenticators[] = new Literal(sprintf('new QueryAuthenticator("%s", $this->%s)', $securityScheme->name, $name));
                         $namespace->addUse(QueryAuthenticator::class);
                         break;
                     case ApiKeyLocation::header:
-                        $authenticators[] = new Literal(sprintf('return new HeaderAuthenticator($this->%s, "%s");', $name, $securityScheme->name));
+                        $authenticators[] = new Literal(sprintf('new HeaderAuthenticator($this->%s, "%s")', $name, $securityScheme->name));
                         $namespace->addUse(HeaderAuthenticator::class);
                         break;
                     default:
@@ -268,27 +268,27 @@ class ConnectorGenerator extends Generator
             if ($securityScheme->type === SecuritySchemeType::http) {
                 switch ($securityScheme->scheme) {
                     case 'bearer':
-                        $authenticators[] = new Literal('return new TokenAuthenticator($this->bearerToken, "Bearer");');
+                        $authenticators[] = new Literal('new TokenAuthenticator($this->bearerToken, "Bearer")');
                         $namespace->addUse(TokenAuthenticator::class);
                         break;
                     case 'basic':
-                        $authenticators[] = new Literal('return new BasicAuthenticator($this->username, $this->password);');
+                        $authenticators[] = new Literal('new BasicAuthenticator($this->username, $this->password)');
                         $namespace->addUse(BasicAuthenticator::class);
                         break;
                     case 'digest':
                         // TODO: does this require you to provide a "digest" as well?
-                        $authenticators[] = new Literal('return new DigestAuthenticator($this->username, $this->password, "digest");');
+                        $authenticators[] = new Literal('new DigestAuthenticator($this->username, $this->password, "digest")');
                         $namespace->addUse(DigestAuthenticator::class);
                         break;
                     default:
-                        $authenticators[] = new Literal('return new TokenAuthenticator($this->token);');
+                        $authenticators[] = new Literal('new TokenAuthenticator($this->token)');
                         $namespace->addUse(TokenAuthenticator::class);
                         break;
                 }
             }
 
             if ($securityScheme->type === SecuritySchemeType::mutualTLS) {
-                $authenticators[] = new Literal('return new CertificateAuthenticator($this->certPath, $this->certPassword);');
+                $authenticators[] = new Literal('new CertificateAuthenticator($this->certPath, $this->certPassword)');
                 $namespace->addUse(CertificateAuthenticator::class);
             }
 
@@ -350,19 +350,20 @@ class ConnectorGenerator extends Generator
 
         // If there is only one authenticator, we can use it as the defaultAuth method.
         if (count($authenticators) === 1) {
-            $classType->addMethod('defaultAuth')->setReturnType(Authenticator::class)->setBody($authenticators[0]);
+            $classType->addMethod('defaultAuth')->setReturnType(Authenticator::class)->setBody(sprintf('return %s;', $authenticators[0]));
             $namespace->addUse(Authenticator::class);
         }
 
         // If there are multiple authenticators, we need to use the MultiAuthenticator.
         if (count($authenticators) > 1) {
+            $namespace->addUse(MultiAuthenticator::class);
             $classType->addMethod('getAuthenticator')
                 ->setReturnType(MultiAuthenticator::class)
                 ->setBody(
                     new Literal(
                         sprintf(
-                            'return new MultiAuthenticator([%s]);',
-                            implode(', ', $authenticators)
+                            "return new MultiAuthenticator(\n\t%s\n);",
+                            implode(",\n\t", $authenticators)
                         )
                     )
                 );

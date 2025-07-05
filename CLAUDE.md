@@ -19,7 +19,7 @@ The Saloon SDK Generator is a Laravel Zero CLI application that generates PHP SD
 
 ### Build & Testing
 ```bash
-# Build the Phar binary (current version: 1.3.0)
+# Build the Phar binary (current version: 1.3.1)
 composer build
 
 # Run tests
@@ -35,6 +35,65 @@ composer clean
 # Generate all sample SDKs
 composer generate:all
 ```
+
+### Release Process
+
+When preparing a new release:
+
+1. **Update version numbers**:
+   - Update `build-version` in `composer.json` scripts section
+   - Build the new binary: `composer build`
+
+2. **Update documentation**:
+   - Add new version section to `CHANGELOG.md` with:
+     - Version number and date
+     - Added/Fixed/Changed sections
+     - Credits to contributors
+   - Update this file with the new version number
+
+3. **Create git tag and release**:
+   ```bash
+   # Commit all changes
+   git add composer.json composer.lock CHANGELOG.md builds/sdkgenerator
+   git commit -m "Release vX.Y.Z: Brief description"
+   
+   # Create tag
+   git tag vX.Y.Z
+   
+   # Push changes and tag
+   git push origin master
+   git push origin vX.Y.Z
+   
+   # Create GitHub release
+   gh release create vX.Y.Z --title "vX.Y.Z: Brief title" --notes "Release notes..."
+   ```
+
+4. **Release notes format**:
+   ```markdown
+   ## What's Changed
+   
+   Brief description of the release.
+   
+   ### Added
+   - New features
+   
+   ### Fixed
+   - Bug fixes
+   
+   ### Changed
+   - Breaking changes or improvements
+   
+   ### Credits
+   - Thanks to @contributor for PR #XX
+   
+   ## Installation
+   
+   ```bash
+   composer global require crescat-io/saloon-sdk-generator
+   ```
+   
+   **Full Changelog**: https://github.com/crescat-io/saloon-sdk-generator/compare/vX.Y.Y...vX.Y.Z
+   ```
 
 ## Architecture
 
@@ -84,8 +143,12 @@ composer generate:all
 - Nette PHP Generator for code generation
 - Built binary distributed via Packagist as `builds/sdkgenerator`
 
-## Recent Changes (v1.3.0)
+## Recent Changes (v1.3.1)
 
+- **Dependency Compatibility**: Updated Laravel and termwind constraints to support newer versions
+- **Global Installation**: Fixed conflicts when installing globally with composer
+
+### v1.3.0 Changes
 - **OpenAPI $ref Resolution**: Fixed issues with parameter and schema references not being resolved
 - **Header Filtering**: Added configurable header filtering with defaults for Saloon-managed headers
 - **Nullable Parameters**: Resource methods now have default values for nullable parameters

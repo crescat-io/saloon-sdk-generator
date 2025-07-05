@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2025-01-05
+
+### Fixed
+- Updated dependency constraints to support Laravel 11 and newer termwind versions
+- Resolved global installation conflicts with illuminate/http and nunomaduro/termwind
+
+### Changed
+- illuminate/http version constraint updated from `^10.0` to `^10.0|^11.0`
+- nunomaduro/termwind version constraint updated from `^1.15.1` to `^1.15.1|^2.0`
+
 ## [1.3.0] - 2025-01-05
 
 ### Added

@@ -47,7 +47,7 @@ class OpenApiParser implements Parser
             name: $this->openApi->info->title,
             description: $this->openApi->info->description,
             baseUrl: $this->parseBaseUrl($this->openApi->servers),
-            securityRequirements: $this->parseSecurityRequirements($this->openApi->security),
+            securityRequirements: $this->openApi->security !== null ? $this->parseSecurityRequirements($this->openApi->security->getSerializableData()) : [],
             components: $this->parseComponents($this->openApi->components),
             endpoints: $this->parseItems($this->openApi->paths)
         );
@@ -97,7 +97,7 @@ class OpenApiParser implements Parser
     }
 
     /**
-     * @param  SecurityRequirement[]  $security
+     * @param  array  $security
      * @return \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement[]
      */
     protected function parseSecurityRequirements(array $security): array
@@ -105,6 +105,18 @@ class OpenApiParser implements Parser
         $securityRequirements = [];
 
         foreach ($security as $key => $securityOption) {
+            // Handle case where it's already an array (from SecurityRequirements->getSerializableData())
+            if (is_array($securityOption)) {
+                foreach ($securityOption as $name => $scopes) {
+                    $securityRequirements[] = new \Crescat\SaloonSdkGenerator\Data\Generator\SecurityRequirement(
+                        $name,
+                        $scopes
+                    );
+                }
+                continue;
+            }
+            
+            // Handle case where it's a SecurityRequirement object
             $data = $securityOption->getSerializableData();
             if (gettype($data) !== 'object') {
                 continue;

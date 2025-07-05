@@ -86,7 +86,7 @@ class PostmanCollectionParser implements Parser
             queryParameters: $this->parseQueryParameters($item),
             pathParameters: $this->parsePathParameters($item),
             bodyParameters: $this->parseBodyParameters($item),
-
+            headerParameters: $this->parseHeaderParameters($item),
         );
     }
 
@@ -155,6 +155,26 @@ class PostmanCollectionParser implements Parser
                     name: $param,
                 );
             })
+            ->toArray();
+    }
+
+    protected function parseHeaderParameters(Item $item): array
+    {
+        if (! $item->request->header) {
+            return [];
+        }
+
+        return collect($item->request->header)
+            ->filter(fn ($header) => Arr::get($header, 'key'))
+            ->map(function ($header) {
+                return new Parameter(
+                    type: 'string',
+                    nullable: true,
+                    name: Arr::get($header, 'key'),
+                    description: Arr::get($header, 'description', '')
+                );
+            })
+            ->values()
             ->toArray();
     }
 }

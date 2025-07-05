@@ -120,6 +120,19 @@ class RequestGenerator extends Generator
             MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultQuery', $queryParams, withArrayFilterWrapper: true);
         }
 
+        // Priority 4. - Header Parameters
+        if (! empty($endpoint->headerParameters)) {
+            $headerParams = collect($endpoint->headerParameters)
+                ->values()
+                ->toArray();
+
+            foreach ($headerParams as $headerParam) {
+                MethodGeneratorHelper::addParameterAsPromotedProperty($classConstructor, $headerParam);
+            }
+
+            MethodGeneratorHelper::generateArrayReturnMethod($classType, 'defaultHeaders', $headerParams, withArrayFilterWrapper: true);
+        }
+
         $namespace
             ->addUse(SaloonHttpMethod::class)
             ->addUse(DateTime::class)

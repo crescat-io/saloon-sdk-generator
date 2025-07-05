@@ -1,0 +1,132 @@
+openapi: 3.0.0
+info:
+  title: Test Headers API
+  version: 1.0.0
+  description: API to test header parameter generation
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      summary: List all users
+      parameters:
+        - name: X-API-Key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: API Key for authentication
+        - name: X-Tenant-ID
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Tenant identifier for multi-tenant system
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Optional request ID for tracing
+        - name: X-Include-Deleted
+          in: header
+          required: false
+          schema:
+            type: boolean
+          description: Include soft-deleted users in response
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Page number for pagination
+      responses:
+        '200':
+          description: List of users
+  /users/{userId}/posts:
+    get:
+      operationId: getUserPosts
+      summary: Get posts for a specific user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+        - name: X-API-Key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: API Key for authentication
+        - name: X-Language
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Preferred language for post content
+        - name: X-Filter-NSFW
+          in: header
+          required: false
+          schema:
+            type: boolean
+          description: Filter out NSFW content
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Maximum number of posts to return
+      responses:
+        '200':
+          description: List of user posts
+  /analytics/events:
+    post:
+      operationId: trackEvent
+      summary: Track an analytics event
+      parameters:
+        - name: X-API-Key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: API Key for authentication
+        - name: X-Client-Version
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Client application version
+        - name: X-Session-ID
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User session identifier
+        - name: X-Debug-Mode
+          in: header
+          required: false
+          schema:
+            type: boolean
+          description: Enable debug mode for this request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                properties:
+                  type: object
+      responses:
+        '201':
+          description: Event tracked successfully
+tags:
+  - name: Users
+    description: User operations
+  - name: Analytics
+    description: Analytics operations

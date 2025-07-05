@@ -1,0 +1,206 @@
+{
+    "info": {
+        "name": "Test Headers API",
+        "description": "API collection to test header parameter generation",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "List Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{apiKey}}",
+                                "description": "API Key for authentication"
+                            },
+                            {
+                                "key": "X-Tenant-ID",
+                                "value": "{{tenantId}}",
+                                "description": "Tenant identifier for multi-tenant access"
+                            },
+                            {
+                                "key": "X-Request-ID",
+                                "value": "{{requestId}}",
+                                "description": "Unique request identifier for tracking"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Number of items per page"
+                                }
+                            ]
+                        },
+                        "description": "Get a list of users"
+                    }
+                },
+                {
+                    "name": "Get User",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-API-Key",
+                                "value": "{{apiKey}}",
+                                "description": "API Key for authentication"
+                            },
+                            {
+                                "key": "Accept-Language",
+                                "value": "en-US",
+                                "description": "Preferred language for response"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/users/:userId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users", ":userId"],
+                            "variable": [
+                                {
+                                    "key": "userId",
+                                    "value": "123",
+                                    "description": "User ID"
+                                }
+                            ]
+                        },
+                        "description": "Get a specific user by ID"
+                    }
+                },
+                {
+                    "name": "Create User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "description": "Bearer token for authentication"
+                            },
+                            {
+                                "key": "X-Idempotency-Key",
+                                "value": "{{idempotencyKey}}",
+                                "description": "Idempotency key to prevent duplicate requests"
+                            },
+                            {
+                                "key": "X-Debug-Mode",
+                                "value": "true",
+                                "disabled": true,
+                                "description": "Enable debug mode (disabled by default)"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["users"]
+                        },
+                        "description": "Create a new user"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Analytics",
+            "item": [
+                {
+                    "name": "Track Event",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "description": "Bearer token for authentication"
+                            },
+                            {
+                                "key": "X-Client-Version",
+                                "value": "1.0.0",
+                                "description": "Client application version"
+                            },
+                            {
+                                "key": "X-Device-ID",
+                                "value": "{{deviceId}}",
+                                "description": "Unique device identifier"
+                            },
+                            {
+                                "key": "X-Session-ID",
+                                "value": "{{sessionId}}",
+                                "description": "Session identifier for tracking"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"event\": \"page_view\",\n  \"properties\": {}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/analytics/events",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["analytics", "events"]
+                        },
+                        "description": "Track an analytics event"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Status",
+            "item": [
+                {
+                    "name": "Get Status",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/status",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["status"]
+                        },
+                        "description": "Get API status (no headers required)"
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "https://api.example.com",
+            "type": "string"
+        },
+        {
+            "key": "apiKey",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "tenantId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

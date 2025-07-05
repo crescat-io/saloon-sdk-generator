@@ -8,6 +8,7 @@ class Endpoint
      * @param  Parameter[]  $queryParameters
      * @param  Parameter[]  $pathParameters
      * @param  Parameter[]  $bodyParameters
+     * @param  Parameter[]  $headerParameters
      */
     public function __construct(
         public string $name,
@@ -22,6 +23,7 @@ class Endpoint
         public array $queryParameters = [],
         public array $pathParameters = [],
         public array $bodyParameters = [],
+        public array $headerParameters = [],
     ) {
     }
 
@@ -34,6 +36,7 @@ class Endpoint
             ...$this->pathParameters,
             ...$this->bodyParameters,
             ...$this->queryParameters,
+            ...$this->headerParameters,
         ];
     }
 

@@ -175,6 +175,7 @@ class OpenApiParser implements Parser
             // TODO: Check if this differs between spec versions
             pathParameters: $pathParams + $this->mapParams($operation->parameters, 'path'),
             bodyParameters: [], // TODO: implement "definition" parsing
+            headerParameters: $this->mapParams($operation->parameters, 'header'),
         );
     }
 

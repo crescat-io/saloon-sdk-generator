@@ -59,6 +59,7 @@
         "generate:bigcommerce": "./codegen generate:sdk --force --namespace=BigCommerce\\\\Sdk --type=openapi --name=BigCommerce tests/samples/bigcommerce_abandoned_carts.v3.yml --output tests/Output/BigCommerce",
         "generate:vegvesen": "./codegen generate:sdk --force --namespace=Vegvesen\\\\Sdk --type=openapi --name=Vegvesen tests/samples/vegvesen.json --output tests/Output/Vegvesen",
         "generate:spotify": "./codegen generate:sdk --force --namespace=Spotify\\\\Sdk --type=openapi --name=Spotify tests/samples/spotify.yml --output tests/Output/Spotify",
+        "generate:headers-test": "./codegen generate:sdk --force --namespace=HeadersTest\\\\Sdk --type=openapi --name=HeadersTest tests/Samples/test-headers-api.yml --output tests/Output/HeadersTest",
         "generate:all": [
             "@generate:fiken",
             "@generate:gocardless",
@@ -70,7 +71,8 @@
             "@generate:checkmango",
             "@generate:kassalapp",
             "@generate:crescat",
-            "@generate:bigcommerce"
+            "@generate:bigcommerce",
+            "@generate:headers-test"
         ],
         "test": "vendor/bin/pest tests",
         "test-coverage": "vendor/bin/pest --coverage",

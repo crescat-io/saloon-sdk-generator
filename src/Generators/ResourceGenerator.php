@@ -31,7 +31,11 @@ class ResourceGenerator extends Generator
     {
         $classes = [];
 
-        $groupedByCollection = collect($specification->endpoints)->groupBy(function (Endpoint $endpoint) {
+        // Hook: Filter endpoints before grouping
+        $filteredEndpoints = collect($specification->endpoints)
+            ->filter(fn (Endpoint $endpoint) => $this->shouldIncludeEndpoint($endpoint));
+
+        $groupedByCollection = $filteredEndpoints->groupBy(function (Endpoint $endpoint) {
             return NameHelper::resourceClassName(
                 $endpoint->collection ?: $this->config->fallbackResourceName
             );
@@ -63,8 +67,10 @@ class ResourceGenerator extends Generator
         foreach ($endpoints as $endpoint) {
 
             $pathBasedName = NameHelper::pathBasedName($endpoint);
-            $requestClassName = NameHelper::resourceClassName($endpoint->name ?: $pathBasedName);
-            $methodName = NameHelper::safeVariableName($requestClassName);
+            // Hook: Allow customization of request class name
+            $requestClassName = $this->getRequestClassName($endpoint);
+            // Hook: Allow customization of method name
+            $methodName = $this->getMethodName($endpoint, $requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";
 
@@ -96,8 +102,10 @@ class ResourceGenerator extends Generator
             $args = [];
 
             foreach ($endpoint->pathParameters as $parameter) {
-                $this->addPropertyToMethod($method, $parameter);
-                $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
+                // Hook: Transform path parameter names
+                $transformedParam = $this->transformParameter($parameter, true);
+                $this->addPropertyToMethod($method, $transformedParam);
+                $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($transformedParam->name)));
             }
 
             foreach ($endpoint->bodyParameters as $parameter) {
@@ -125,9 +133,15 @@ class ResourceGenerator extends Generator
                 $args[] = new Literal(sprintf('$%s', NameHelper::safeVariableName($parameter->name)));
             }
 
+            // Hook: Customize resource method (add custom parameters, modify arguments)
+            $this->customizeResourceMethod($method, $namespace, $args, $endpoint);
+
             $method->setBody(
                 new Literal(sprintf('return $this->connector->send(new %s(%s));', $requestClassNameAlias ?? $requestClassName, implode(', ', $args)))
             );
+
+            // Hook: Allow post-processing of generated method
+            $this->afterMethodGenerated($method, $endpoint, $requestClassName);
 
         }
 
@@ -165,5 +179,112 @@ class ResourceGenerator extends Generator
     protected function recordDuplicatedRequestName(string $requestClassName, string $deduplicatedMethodName): void
     {
         $this->duplicateRequests[$requestClassName][] = $deduplicatedMethodName;
+    }
+
+    /**
+     * Hook: Filter endpoints to include in generation
+     */
+    protected function shouldIncludeEndpoint(Endpoint $endpoint): bool
+    {
+        return true;
+    }
+
+    /**
+     * Hook: Customize request class name
+     */
+    protected function getRequestClassName(Endpoint $endpoint): string
+    {
+        $pathBasedName = NameHelper::pathBasedName($endpoint);
+
+        return NameHelper::resourceClassName($endpoint->name ?: $pathBasedName);
+    }
+
+    /**
+     * Hook: Customize method name in Resource class
+     *
+     * @param  Endpoint  $endpoint  The endpoint
+     * @param  string  $requestClassName  The request class name
+     */
+    protected function getMethodName(Endpoint $endpoint, string $requestClassName): string
+    {
+        return NameHelper::safeVariableName($requestClassName);
+    }
+
+    /**
+     * Hook: Transform parameter before adding to method
+     *
+     * @param  Parameter  $parameter  The parameter to transform
+     * @param  bool  $isPathParam  Whether this is a path parameter
+     */
+    protected function transformParameter(Parameter $parameter, bool $isPathParam): Parameter
+    {
+        // Hook: Allow customization of parameter name
+        $newName = $this->getResourceParameterName($parameter, $isPathParam);
+
+        if ($newName !== $parameter->name) {
+            return new Parameter(
+                type: $parameter->type,
+                nullable: $parameter->nullable,
+                name: $newName,
+                description: $parameter->description,
+            );
+        }
+
+        return $parameter;
+    }
+
+    /**
+     * Hook: Get parameter name for resource method
+     *
+     * @param  Parameter  $parameter  The parameter to get the name for
+     * @param  bool  $isPathParam  Whether this is a path parameter
+     */
+    protected function getResourceParameterName(Parameter $parameter, bool $isPathParam): string
+    {
+        return $parameter->name;
+    }
+
+    /**
+     * Hook: Customize resource method after standard parameters
+     *
+     * Called after all standard parameters have been added but before method body generation.
+     * Use this to add custom parameters and modify the arguments array.
+     *
+     * Example implementation:
+     * <code>
+     * // Add Model data parameter for mutation requests
+     * if ($endpoint->method->isPost() || $endpoint->method->isPatch()) {
+     *     $namespace->addUse(Model::class);
+     *     $dataParam = new Parameter(
+     *         type: 'Model|array|null',
+     *         nullable: true,
+     *         name: 'data',
+     *         description: 'Request data',
+     *     );
+     *     $this->addPropertyToMethod($method, $dataParam);
+     *     $args[] = new Literal('$data');
+     * }
+     * </code>
+     *
+     * @param  Method  $method  The resource method being generated
+     * @param  \Nette\PhpGenerator\PhpNamespace  $namespace  The namespace to add imports to
+     * @param  array  $args  The method arguments array (pass by reference to modify)
+     * @param  Endpoint  $endpoint  The endpoint being generated
+     */
+    protected function customizeResourceMethod(Method $method, $namespace, array &$args, Endpoint $endpoint): void
+    {
+        // Default: no customization
+    }
+
+    /**
+     * Hook: Post-process generated method
+     *
+     * @param  Method  $method  The generated method
+     * @param  Endpoint  $endpoint  The endpoint
+     * @param  string  $requestClassName  The request class name
+     */
+    protected function afterMethodGenerated(Method $method, Endpoint $endpoint, string $requestClassName): void
+    {
+        // Default: no modifications
     }
 }

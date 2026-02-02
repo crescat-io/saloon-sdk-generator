@@ -24,7 +24,7 @@
         "nunomaduro/termwind": "^1.15.1|^2.0",
         "saloonphp/laravel-plugin": "^3.2",
         "saloonphp/saloon": "^3.0",
-        "spatie/laravel-data": "^3.10"
+        "spatie/laravel-data": "^3.10|^4.0"
     },
     "require-dev": {
         "laravel-zero/framework": "^10.3.0",

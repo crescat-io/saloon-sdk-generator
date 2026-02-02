@@ -171,7 +171,7 @@ class OpenApiParser implements Parser
             method: Method::parse($method),
             pathSegments: Str::of($path)->replace('{', ':')->remove('}')->trim('/')->explode('/')->toArray(),
             collection: $operation->tags[0] ?? null, // In the real-world, people USUALLY only use one tag...
-            response: null, // TODO: implement "definition" parsing
+            response: $this->parseResponseSchema($operation),
             description: $operation->description,
             queryParameters: $this->mapParams($operation->parameters ?? [], 'query'),
             // TODO: Check if this differs between spec versions
@@ -179,6 +179,65 @@ class OpenApiParser implements Parser
             bodyParameters: [], // TODO: implement "definition" parsing
             headerParameters: $this->mapParams($operation->parameters ?? [], 'header'),
         );
+    }
+
+    /**
+     * Extract the response schema name from the operation's responses.
+     *
+     * @return array{schema: string}|null
+     */
+    protected function parseResponseSchema(Operation $operation): ?array
+    {
+        if (! $operation->responses) {
+            return null;
+        }
+
+        // Look for success responses (200, 201, 204, or 'default')
+        $successCodes = ['200', '201', '204', 'default'];
+
+        foreach ($successCodes as $code) {
+            $response = $operation->responses->getResponse($code);
+
+            if (! $response || $response instanceof Reference) {
+                continue;
+            }
+
+            // Get content from the response
+            $content = $response->content['application/json'] ?? null;
+
+            if (! $content || ! $content->schema) {
+                continue;
+            }
+
+            $schema = $content->schema;
+
+            // If schema is a Reference, extract the schema name from the $ref
+            if ($schema instanceof Reference) {
+                $ref = $schema->getReference();
+                // e.g., "#/components/schemas/AccountDto" -> "AccountDto"
+                if (Str::startsWith($ref, '#/components/schemas/')) {
+                    return ['schema' => Str::afterLast($ref, '/')];
+                }
+            }
+
+            // Handle array responses: { "type": "array", "items": { "$ref": "..." } }
+            if (isset($schema->type) && $schema->type === 'array' && isset($schema->items)) {
+                $items = $schema->items;
+                if ($items instanceof Reference) {
+                    $ref = $items->getReference();
+                    if (Str::startsWith($ref, '#/components/schemas/')) {
+                        return ['schema' => Str::afterLast($ref, '/')];
+                    }
+                }
+            }
+
+            // If schema has a title, use that
+            if (isset($schema->title)) {
+                return ['schema' => $schema->title];
+            }
+        }
+
+        return null;
     }
 
     protected function parseRequestBody(RequestBody|Reference|null $requestBody): ?array

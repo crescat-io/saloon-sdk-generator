@@ -10,7 +10,9 @@ use Crescat\SaloonSdkGenerator\Helpers\NameHelper;
 use Crescat\SaloonSdkGenerator\Helpers\Utils;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
+use Nette\PhpGenerator\PhpNamespace;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
 
@@ -18,10 +20,19 @@ class DtoGenerator extends Generator
 {
     protected array $generated = [];
 
+    protected ApiSpecification $specification;
+
     public function generate(ApiSpecification $specification): PhpFile|array
     {
+        $this->specification = $specification;
+
         if ($specification->components) {
             foreach ($specification->components->schemas as $className => $schema) {
+                // Allow subclasses to skip certain schemas
+                if (! $this->shouldIncludeSchema($className, $schema)) {
+                    continue;
+                }
+
                 $this->generateDtoClass(NameHelper::safeClassName($className), $schema);
             }
         }
@@ -29,10 +40,38 @@ class DtoGenerator extends Generator
         return $this->generated;
     }
 
-    protected function generateDtoClass($className, Schema $schema)
+    /**
+     * Determine if a schema should be included in generation.
+     */
+    protected function shouldIncludeSchema(string $className, Schema $schema): bool
+    {
+        return true;
+    }
+
+    /**
+     * Extract properties from the schema.
+     *
+     * @return Schema[]
+     */
+    protected function extractProperties(Schema $schema): array
+    {
+        return $schema->properties ?? [];
+    }
+
+    /**
+     * Get list of property names to skip during DTO generation.
+     *
+     * @return string[]
+     */
+    protected function getPropertiesToSkip(): array
+    {
+        return [];
+    }
+
+    protected function generateDtoClass(string $className, Schema $schema): PhpFile
     {
         /** @var Schema[] $properties */
-        $properties = $schema->properties ?? [];
+        $properties = $this->extractProperties($schema);
 
         $dtoName = NameHelper::dtoClassName($className ?: $this->config->fallbackResourceName);
 
@@ -52,6 +91,10 @@ class DtoGenerator extends Generator
         $referencedDtos = [];
 
         foreach ($properties as $propertyName => $propertySpec) {
+            if (in_array($propertyName, $this->getPropertiesToSkip(), true)) {
+                continue;
+            }
+
             $type = $this->convertOpenApiTypeToPhp($propertySpec);
 
             // Check if this is a reference to another schema
@@ -76,17 +119,16 @@ class DtoGenerator extends Generator
                 }
             }
 
-            $name = NameHelper::safeVariableName($propertyName);
+            $mappingGenerated = $this->addPropertyToClass(
+                $classType,
+                $namespace,
+                $propertyName,
+                $propertySpec,
+                $type,
+                $classConstructor
+            );
 
-            $property = $classConstructor->addPromotedParameter($name)
-                ->setPublic()
-                ->setDefaultValue(null);
-
-            // Set the property type
-            $property->setType($type);
-
-            if ($name != $propertyName) {
-                $property->addAttribute(MapName::class, [$propertyName]);
+            if ($mappingGenerated) {
                 $generatedMappings = true;
             }
         }
@@ -99,12 +141,52 @@ class DtoGenerator extends Generator
 
         $namespace->add($classType);
 
+        $this->afterDtoClassGenerated($classType, $namespace, $schema);
+
         $this->generated[$dtoName] = $classFile;
 
         return $classFile;
     }
 
-    protected function convertOpenApiTypeToPhp(Schema|Reference $schema)
+    /**
+     * Add a property to the DTO class.
+     *
+     * @return bool Whether a name mapping was generated.
+     */
+    protected function addPropertyToClass(
+        ClassType $classType,
+        PhpNamespace $namespace,
+        string $propertyName,
+        Schema|Reference $propertySpec,
+        string $type,
+        Method $classConstructor,
+    ): bool {
+        $name = NameHelper::safeVariableName($propertyName);
+
+        $property = $classConstructor->addPromotedParameter($name)
+            ->setPublic()
+            ->setDefaultValue(null);
+
+        $property->setType($type);
+
+        if ($name !== $propertyName) {
+            $property->addAttribute(MapName::class, [$propertyName]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Post-process the generated DTO class.
+     */
+    protected function afterDtoClassGenerated(ClassType $classType, PhpNamespace $namespace, Schema $schema): void
+    {
+        //
+    }
+
+    protected function convertOpenApiTypeToPhp(Schema|Reference $schema): string
     {
         if ($schema instanceof Reference) {
             return Str::afterLast($schema->getReference(), '/');

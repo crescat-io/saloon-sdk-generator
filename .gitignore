@@ -6,3 +6,4 @@
 tests/Output/*
 !tests/Output/.gitkeep
 .aider*
+.claude/settings.local.json

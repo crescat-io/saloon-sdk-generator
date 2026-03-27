@@ -10,6 +10,7 @@ class Config
      * @param  string|null  $resourceNamespaceSuffix  The suffix for the resource namespace.
      * @param  string|null  $requestNamespaceSuffix  The suffix for the request namespace.
      * @param  string|null  $dtoNamespaceSuffix  The suffix for the DTO namespace.
+     * @param  string|null  $factoryNamespaceSuffix  The suffix for the Factory namespace.
      * @param  string|null  $fallbackResourceName  The default name to use for resources if none could be inferred from the specification.
      * @param  array  $ignoredQueryParams  List of query parameters that should be ignored.
      * @param  array  $ignoredBodyParams  List of body parameters that should be ignored.
@@ -22,6 +23,7 @@ class Config
         public readonly ?string $resourceNamespaceSuffix = 'Resource',
         public readonly ?string $requestNamespaceSuffix = 'Requests',
         public readonly ?string $dtoNamespaceSuffix = 'Dto',
+        public readonly ?string $factoryNamespaceSuffix = 'Factories',
         public readonly ?string $fallbackResourceName = 'Misc',
         public readonly array $ignoredQueryParams = [],
         public readonly array $ignoredBodyParams = [],

@@ -39,6 +39,11 @@ class RequestGenerator extends Generator
         $resourceName = NameHelper::resourceClassName($endpoint->collection ?: $this->config->fallbackResourceName);
         $className = NameHelper::requestClassName($endpoint->name ?: $pathBasedName);
 
+        // Optionally append "Request" suffix if configured
+        if ($this->config->suffixRequestClasses && ! str_ends_with($className, 'Request')) {
+            $className .= 'Request';
+        }
+
         $classType = new ClassType($className);
 
         $classFile = new PhpFile;

@@ -64,6 +64,12 @@ class ResourceGenerator extends Generator
 
             $pathBasedName = NameHelper::pathBasedName($endpoint);
             $requestClassName = NameHelper::resourceClassName($endpoint->name ?: $pathBasedName);
+
+            // Optionally append "Request" suffix if configured
+            if ($this->config->suffixRequestClasses && ! str_ends_with($requestClassName, 'Request')) {
+                $requestClassName .= 'Request';
+            }
+
             $methodName = NameHelper::safeVariableName($requestClassName);
             $requestClassNameAlias = $requestClassName == $resourceName ? "{$requestClassName}Request" : null;
             $requestClassFQN = "{$this->config->namespace}\\{$this->config->requestNamespaceSuffix}\\{$resourceName}\\{$requestClassName}";

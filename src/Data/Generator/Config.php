@@ -11,6 +11,7 @@ class Config
      * @param  string|null  $requestNamespaceSuffix  The suffix for the request namespace.
      * @param  string|null  $dtoNamespaceSuffix  The suffix for the DTO namespace.
      * @param  string|null  $fallbackResourceName  The default name to use for resources if none could be inferred from the specification.
+     * @param  bool  $suffixRequestClasses  Whether to append "Request" suffix to request class names.
      * @param  array  $ignoredQueryParams  List of query parameters that should be ignored.
      * @param  array  $ignoredBodyParams  List of body parameters that should be ignored.
      * @param  array  $ignoredHeaderParams  List of header parameters that should be ignored.
@@ -23,6 +24,7 @@ class Config
         public readonly ?string $requestNamespaceSuffix = 'Requests',
         public readonly ?string $dtoNamespaceSuffix = 'Dto',
         public readonly ?string $fallbackResourceName = 'Misc',
+        public readonly bool $suffixRequestClasses = false,
         public readonly array $ignoredQueryParams = [],
         public readonly array $ignoredBodyParams = [],
         public readonly array $ignoredHeaderParams = ['Authorization', 'Content-Type', 'Accept', 'Accept-Language', 'User-Agent'],

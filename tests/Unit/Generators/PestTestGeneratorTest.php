@@ -10,7 +10,6 @@ use Crescat\SaloonSdkGenerator\Data\Generator\Method;
 use Crescat\SaloonSdkGenerator\Data\Generator\Parameter;
 use Crescat\SaloonSdkGenerator\Generators\ConnectorGenerator;
 use Crescat\SaloonSdkGenerator\Generators\PestTestGenerator;
-use Nette\PhpGenerator\PhpNamespace;
 
 it('generates test with DTO imports when endpoint has DTO parameters', function () {
     $config = new Config(
@@ -165,7 +164,7 @@ it('generates test without DTO imports when endpoint has no DTO parameters', fun
     $testContent = $usersTest->file;
 
     // Should not have a DTO imports section with content
-    $hasNoDto = !str_contains($testContent, 'use Acme\TestSDK\Dto\\');
+    $hasNoDto = ! str_contains($testContent, 'use Acme\TestSDK\Dto\\');
     expect($hasNoDto)->toBeTrue('Should not import any DTOs');
 });
 

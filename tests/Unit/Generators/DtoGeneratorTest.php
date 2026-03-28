@@ -32,14 +32,14 @@ beforeEach(function () {
             new Endpoint(
                 name: 'getUser',
                 method: Method::GET,
-                pathSegments: ['users', ':user_id'],
+                pathSegments: ['users', ':user'],
                 collection: 'Users',
                 response: null,
                 description: 'Get user',
                 queryParameters: [
                     new Parameter('int', true, 'channel_id', 'Channel ID to use for channel-level data.'),
                 ],
-                pathParameters: [new Parameter('int', false, 'user_id', 'ID of the user')],
+                pathParameters: [new Parameter('int', false, 'user', 'ID of the user')],
                 bodyParameters: []
             ),
         ]
@@ -78,7 +78,7 @@ test('Constructor', closure: function () {
         ->and($channelIdParam->getDefaultValue())->toBeNull()
         ->and($channelIdParam->isNullable())->toBeTrue();
 
-    /** @var \Nette\PhpGenerator\PromotedParameter $channelIdParam */
+    /** @var \Nette\PhpGenerator\PromotedParameter $userIdParam */
     $userIdParam = $constructor->getParameter('userId');
     expect($userIdParam->getName())->toBe('userId')
         ->and($userIdParam->getType())->toBe('int')

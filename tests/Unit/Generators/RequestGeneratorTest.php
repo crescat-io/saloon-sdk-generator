@@ -69,6 +69,13 @@ test('Constructor', closure: function () {
     expect($constructor)->toBeInstanceOf(\Nette\PhpGenerator\Method::class)
         ->and($constructor->getParameters())->toHaveCount(2);
 
+    /** @var \Nette\PhpGenerator\PromotedParameter $userIdIdParam */
+    $userIdIdParam = $constructor->getParameter('userIdId');
+    expect($userIdIdParam->getName())->toBe('userIdId')
+        ->and($userIdIdParam->getType())->toBe('int')
+        ->and($userIdIdParam->getVisibility())->toBe('protected')
+        ->and($userIdIdParam->isNullable())->toBeFalse();
+
     /** @var \Nette\PhpGenerator\PromotedParameter $channelIdParam */
     $channelIdParam = $constructor->getParameter('channelId');
     expect($channelIdParam->getName())->toBe('channelId')
@@ -77,13 +84,6 @@ test('Constructor', closure: function () {
         ->and($channelIdParam->hasDefaultValue())->toBeTrue()
         ->and($channelIdParam->getDefaultValue())->toBeNull()
         ->and($channelIdParam->isNullable())->toBeTrue();
-
-    /** @var \Nette\PhpGenerator\PromotedParameter $channelIdParam */
-    $userIdParam = $constructor->getParameter('userId');
-    expect($userIdParam->getName())->toBe('userId')
-        ->and($userIdParam->getType())->toBe('int')
-        ->and($userIdParam->getVisibility())->toBe('protected')
-        ->and($userIdParam->isNullable())->toBeFalse();
 });
 
 test('Resolve endpoint', function () {
@@ -94,7 +94,7 @@ test('Resolve endpoint', function () {
 
     expect($resolveEndpoint)->toBeInstanceOf(\Nette\PhpGenerator\Method::class)
         ->and($resolveEndpoint->getReturnType())->toBe('string')
-        ->and($resolveEndpoint->getBody())->toBe("return \"/users/{\$this->userId}\";\n");
+        ->and($resolveEndpoint->getBody())->toBe("return \"/users/{\$this->userIdId}\";\n");
 });
 
 test('Default Query', function () {

@@ -56,14 +56,8 @@ class DtoGenerator extends Generator
 
             // Check if this is a reference to another schema
             if ($propertySpec instanceof Reference) {
-                // For references, we need to use the DTO class name
-                // The schema name from the reference is already the base name (e.g., "User")
-                // We need to apply the same transformation as we do for the DTO class names
-                $schemaName = $type;
-                $dtoClassName = NameHelper::dtoClassName($schemaName);
-                // Use the FQN for the type
-                $type = "{$this->config->namespace}\\{$this->config->dtoNamespaceSuffix}\\{$dtoClassName}";
-                // Track referenced DTOs
+                $dtoClassName = NameHelper::dtoClassName($type);
+                $type = $this->buildDtoFqn($dtoClassName);
                 $referencedDtos[] = $dtoClassName;
             }
 
@@ -110,8 +104,22 @@ class DtoGenerator extends Generator
             return Str::afterLast($schema->getReference(), '/');
         }
 
+        // Handle anyOf, oneOf, allOf composite types
+        if (isset($schema->anyOf) && is_array($schema->anyOf)) {
+            return $this->handleCompositeType($schema->anyOf);
+        }
+
+        if (isset($schema->oneOf) && is_array($schema->oneOf)) {
+            return $this->handleCompositeType($schema->oneOf);
+        }
+
+        if (isset($schema->allOf) && is_array($schema->allOf)) {
+            return $this->handleCompositeType($schema->allOf);
+        }
+
+        // Handle array union types (e.g., type: ["string", "null"])
         if (is_array($schema->type)) {
-            return collect($schema->type)->map(fn ($type) => $this->mapType($type))->implode('|');
+            return collect($schema->type)->map(fn ($type) => $this->mapType($type, $schema->format ?? null))->implode('|');
         }
 
         if (is_string($schema->type)) {
@@ -119,6 +127,63 @@ class DtoGenerator extends Generator
         }
 
         return 'mixed';
+    }
+
+    /**
+     * Handle anyOf, oneOf, allOf composite types and return a PHP union type string.
+     *
+     * @param  array<Reference|Schema>  $types
+     */
+    protected function handleCompositeType(array $types): string
+    {
+        $phpTypes = [];
+
+        foreach ($types as $typeSchema) {
+            if ($typeSchema instanceof Reference) {
+                $schemaName = Str::afterLast($typeSchema->getReference(), '/');
+                $dtoClassName = NameHelper::dtoClassName($schemaName);
+                $phpTypes[] = $this->buildDtoFqn($dtoClassName);
+            } elseif ($typeSchema instanceof Schema) {
+                $phpTypes[] = $this->extractTypeFromSchema($typeSchema);
+            }
+        }
+
+        $uniqueTypes = collect($phpTypes)
+            ->flatten()
+            ->unique()
+            ->filter()
+            ->implode('|');
+
+        return $uniqueTypes ?: 'mixed';
+    }
+
+    /**
+     * Extract PHP type(s) from a Schema, handling nested unions.
+     *
+     * @return string|array<string>
+     */
+    protected function extractTypeFromSchema(Schema $schema): string|array
+    {
+        if ($schema->type === null) {
+            return 'mixed';
+        }
+
+        if (is_array($schema->type)) {
+            return array_map(
+                fn ($t) => $this->mapType($t, $schema->format ?? null),
+                $schema->type
+            );
+        }
+
+        return $this->mapType($schema->type, $schema->format ?? null);
+    }
+
+    /**
+     * Build the fully-qualified namespace for a DTO class.
+     */
+    protected function buildDtoFqn(string $dtoClassName): string
+    {
+        return "{$this->config->namespace}\\{$this->config->dtoNamespaceSuffix}\\{$dtoClassName}";
     }
 
     protected function mapType($type, $format = null): string
@@ -130,7 +195,7 @@ class DtoGenerator extends Generator
             'object' => 'object', // Recurse
             'number' => match ($format) {
                 'float' => 'float',
-                'int32', 'int64	' => 'int',
+                'int32', 'int64' => 'int',
                 default => 'int|float',
             },
             'array' => 'array',

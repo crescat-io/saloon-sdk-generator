@@ -200,3 +200,85 @@ YAML;
         unlink($tempFile);
     }
 });
+
+it('handles anyOf union types', function () {
+    $specContent = <<<'YAML'
+openapi: 3.0.3
+info:
+  title: Union Types Test
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /test:
+    get:
+      operationId: get-test
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestDto'
+components:
+  schemas:
+    TestDto:
+      type: object
+      properties:
+        id:
+          type: string
+        value:
+          anyOf:
+            - type: string
+            - type: integer
+            - type: "null"
+        reference:
+          anyOf:
+            - $ref: '#/components/schemas/OptionA'
+            - $ref: '#/components/schemas/OptionB'
+            - type: "null"
+    OptionA:
+      type: object
+      properties:
+        typeA:
+          type: string
+    OptionB:
+      type: object
+      properties:
+        typeB:
+          type: integer
+YAML;
+
+    $tempFile = tempnam(sys_get_temp_dir(), 'union-types').'.yml';
+    file_put_contents($tempFile, $specContent);
+
+    try {
+        $parser = OpenApiParser::build($tempFile);
+        $spec = $parser->parse();
+
+        $config = new Config(
+            connectorName: 'TestConnector',
+            namespace: 'TestNamespace'
+        );
+
+        $generator = new DtoGenerator($config);
+        $files = $generator->generate($spec);
+
+        expect($files)->toHaveKey('TestDto');
+
+        $testDto = $files['TestDto'];
+        $testDtoCode = (string) $testDto;
+
+        // Check that union type is generated correctly for primitive types
+        expect($testDtoCode)->toContain('string|int|null $value');
+
+        // Check that union type is generated correctly with DTO references
+        expect($testDtoCode)->toContain('OptionA|OptionB|null $reference');
+
+        // Verify the referenced DTOs were generated
+        expect($files)->toHaveKey('OptionA');
+        expect($files)->toHaveKey('OptionB');
+    } finally {
+        unlink($tempFile);
+    }
+});

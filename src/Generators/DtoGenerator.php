@@ -111,7 +111,7 @@ class DtoGenerator extends Generator
         }
 
         if (is_array($schema->type)) {
-            return collect($schema->type)->map(fn ($type) => $this->mapType($type))->implode('|');
+            return collect($schema->type)->map(fn ($type) => $this->mapType($type, $schema->format ?? null))->implode('|');
         }
 
         if (is_string($schema->type)) {
@@ -125,7 +125,10 @@ class DtoGenerator extends Generator
     {
         return match ($type) {
             'integer' => 'int',
-            'string' => 'string',
+            'string' => match ($format) {
+                'date-time' => '\\Carbon\\Carbon',
+                default => 'string',
+            },
             'boolean' => 'bool',
             'object' => 'object', // Recurse
             'number' => match ($format) {

@@ -205,7 +205,6 @@ class PestTestGenerator implements PostProcessor
      * Generate DTO import statements for endpoints
      *
      * @param  array|Endpoint[]  $endpoints
-     * @return array
      */
     protected function generateDtoImports(array $endpoints): array
     {
@@ -234,9 +233,6 @@ class PestTestGenerator implements PostProcessor
 
     /**
      * Check if a type is a DTO type (fully qualified class name in our DTO namespace)
-     *
-     * @param  string  $type
-     * @return bool
      */
     protected function isDtoType(string $type): bool
     {

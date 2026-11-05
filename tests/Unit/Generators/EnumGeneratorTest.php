@@ -38,7 +38,7 @@ test('generates valid enum case names from camelCase values', function () {
         ->and($result['className'])->toBe('DocumentTypeEnum');
 
     $phpFiles = $this->generator->generate($this->dummySpec);
-    $enumClass = $phpFiles['DocumentTypeEnum']->getNamespaces()['VendorName\Enums']->getClasses()['DocumentTypeEnum'];
+    $enumClass = $phpFiles[0]->file->getNamespaces()['VendorName\Enums']->getClasses()['DocumentTypeEnum'];
 
     $cases = $enumClass->getCases();
     expect($cases)->toHaveCount(3)
@@ -58,7 +58,7 @@ test('generates valid enum case names from numeric values', function () {
     );
 
     $phpFiles = $this->generator->generate($this->dummySpec);
-    $enumClass = $phpFiles['StatusCodeEnum']->getNamespaces()['VendorName\Enums']->getClasses()['StatusCodeEnum'];
+    $enumClass = $phpFiles[0]->file->getNamespaces()['VendorName\Enums']->getClasses()['StatusCodeEnum'];
 
     $cases = $enumClass->getCases();
     expect($cases)->toHaveCount(3)
@@ -110,7 +110,7 @@ test('cleans HTML entities in descriptions', function () {
     );
 
     $phpFiles = $this->generator->generate($this->dummySpec);
-    $enumClass = $phpFiles['StatusStatusEnum']->getNamespaces()['VendorName\Enums']->getClasses()['StatusStatusEnum'];
+    $enumClass = $phpFiles[0]->file->getNamespaces()['VendorName\Enums']->getClasses()['StatusStatusEnum'];
 
     $comment = $enumClass->getComment();
     expect($comment)->toContain('"Active"')

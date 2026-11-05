@@ -180,7 +180,7 @@ test('Hydration method has Collection return type for list requests', function (
 
     $method = $class->getMethod('createDtoFromResponse');
     expect($method->getReturnType())->toBe('Illuminate\Support\Collection')
-        ->and($method->getComment())->toContain('@return Collection<UserDto>');
+        ->and($method->getComment())->toContain('@return Collection<int, UserDto>');
 });
 
 test('No hydration method when response is not specified', function () {

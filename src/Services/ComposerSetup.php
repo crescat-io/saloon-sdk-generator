@@ -92,7 +92,7 @@ class ComposerSetup
         $defaults = [
             'autoload' => ['psr-4' => [
                 $ns => 'src/',
-                $ns.'Factories\\' => 'factories/',
+                $ns.'Factories\\' => 'Factories/',
             ]],
             'autoload-dev' => ['psr-4' => [$ns.'Tests\\' => 'tests/']],
             'scripts' => [

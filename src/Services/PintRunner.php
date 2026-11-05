@@ -18,7 +18,7 @@ class PintRunner
 
         $output->writeln('- Running Pint...');
 
-        $directories = collect(['src', 'tests', 'config', 'factories'])
+        $directories = collect(['src', 'tests', 'config', 'Factories'])
             ->map(fn ($dir) => "{$outputDir}/{$dir}")
             ->filter(fn ($dir) => is_dir($dir))
             ->implode(' ');

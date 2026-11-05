@@ -301,7 +301,7 @@ class GenerateSdk extends Command
         ];
 
         if ($generateFactories) {
-            $directories[] = "$outputDir/factories";
+            $directories[] = "$outputDir/{$config->factoryNamespaceSuffix}";
         }
 
         if ($generateTests) {

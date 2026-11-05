@@ -70,11 +70,11 @@ class ComposerSetup
 
         $requireDev = [
             'fakerphp/faker:^1.23',
-            'phpunit/phpunit:^10.0|^11.0',
-            'pestphp/pest:^2.0|^3.0',
+            'phpunit/phpunit:^11.0|^12.0',
+            'pestphp/pest:^3.0|^4.0',
             'laravel/pint:^1.0',
             'larastan/larastan:^3.0',
-            'orchestra/testbench:^8.0|^9.0|^10.0',
+            'orchestra/testbench:^9.0|^10.0|^11.0',
             'ergebnis/composer-normalize',
         ];
 

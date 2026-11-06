@@ -22,7 +22,7 @@ The Saloon SDK Generator is a Laravel Zero CLI application that generates PHP SD
 
 ### Build & Testing
 ```bash
-# Build the Phar binary (current version: 1.3.1)
+# Build the Phar binary (current version: 1.7.0)
 composer build
 
 # Run tests

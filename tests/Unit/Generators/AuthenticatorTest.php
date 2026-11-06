@@ -241,3 +241,29 @@ it('handles api key authentication in the query', function () {
 });
 
 // TODO: Test other authentication methods (OAuth2, OpenID Connect, etc)
+
+it('combines multiple authenticators in defaultAuth', function () {
+    $connectorPhpFile = $this->generator->generate(new ApiSpecification(
+        name: 'Example',
+        description: 'Example API',
+        baseUrl: new BaseUrl(
+            url: 'https://examnple.com.com/v1',
+        ),
+        securityRequirements: [],
+        components: new Components(
+            securitySchemes: [
+                new SecurityScheme(type: SecuritySchemeType::http, scheme: 'basic'),
+                new SecurityScheme(type: SecuritySchemeType::http, scheme: 'bearer'),
+            ]
+        ),
+        endpoints: []
+    ));
+
+    $class = $connectorPhpFile->getNamespaces()['Crescat']->getClasses()['Client'];
+    $defaultAuth = $class->getMethods()['defaultAuth'];
+
+    expect($class->hasMethod('getAuthenticator'))->toBeFalse()
+        ->and($defaultAuth->getReturnType())->toBe('Saloon\Contracts\Authenticator')
+        ->and($defaultAuth->isReturnNullable())->toBeTrue()
+        ->and($defaultAuth->getBody())->toStartWith('return new MultiAuthenticator(');
+});

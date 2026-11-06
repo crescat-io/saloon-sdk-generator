@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-11-06
+
+### Changed
+- Synced with upstream crescat-io/saloon-sdk-generator v1.6.0 (Laravel 13 support, multi-authenticator `defaultAuth()` fix)
+- Dropped Saloon v3 support due to security issues; `saloonphp/saloon` and `saloonphp/laravel-plugin` now require `^4.0`
+- Bumped minimum PHP to `^8.3` (required by Laravel Zero 13, which the binary is built with)
+- Upgraded dev dependencies to `laravel-zero/framework ^13.0` and `pestphp/pest ^5.0`
+
+## [1.6.0] - 2026-03-26
+
+### Added
+- Saloon v4 support: upgraded `saloonphp/saloon` to `^4.0` and `saloonphp/laravel-plugin` to `^4.0`
+- Generated SDKs now accept both Saloon v3 and v4 (`^3.0|^4.0`)
+
+### Fixed
+- Multi-authenticator connectors now correctly use `defaultAuth()` instead of `getAuthenticator()`, consistent with single-authenticator behavior and Saloon's intended override pattern
+
+### Credits
+- Thanks to @Sammyjo20 for the Saloon v4 upgrade in PR #40
+
+## [1.5.0] - 2026-03-25
+
+### Added
+- Laravel 13 support: widened `illuminate/http` to `^13.0`
+- Widened `spatie/laravel-data` to `^3.10|^4.0` (v4 supports Laravel 13)
+- Widened `laravel-zero/framework` dev dep to `^10.3.0|^12.0`
+- Widened `pestphp/pest` dev dep to `^2.28.0|^3.0`
+
+### Changed
+- Bumped generated SDK PHP minimum to `^8.2`
+- Widened generated SDK dev dependencies: `pestphp/pest ^2.0|^3.0`, `orchestra/testbench ^8.0|^9.0|^10.0`, `phpunit/phpunit ^10.0|^11.0|^12.0`
+- Updated test assertions to match new dependency constraints
+
+### Credits
+- Thanks to @brandonjjon for Laravel 13 support in PR #39
+
 ## [1.4.2] - 2025-11-17
 
 ### Changed
